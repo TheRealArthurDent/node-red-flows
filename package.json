@@ -2,7 +2,15 @@
     "name": "github",
     "description": "Ein Node-RED-Projekt",
     "version": "0.0.1",
-    "dependencies": {},
+    "dependencies": {
+        "node-red-contrib-cron-plus": "1.5.7",
+        "node-red-contrib-deconz": "2.3.3",
+        "node-red-contrib-huemagic": "4.2.2",
+        "node-red-contrib-sonos-plus": "6.4.0",
+        "node-red-contrib-telegrambot": "11.6.0",
+        "node-red-contrib-telegrambot-home": "0.7.0",
+        "node-red-contrib-weekday": "0.1.0"
+    },
     "node-red": {
         "settings": {
             "flowFile": "flows.json",
