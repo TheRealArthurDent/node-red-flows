@@ -56,6 +56,14 @@
         "info": ""
     },
     {
+        "id": "8e42c1ce474ca950",
+        "type": "tab",
+        "label": "Weather warnings",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "2595f1ad.a5eb8e",
         "type": "subflow",
         "name": "Conditional shutter action",
@@ -457,6 +465,90 @@
         "color": "#DDAA99"
     },
     {
+        "id": "a50e9ae33aac98c4",
+        "type": "subflow",
+        "name": "Weather warnings telegram",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 140,
+                "y": 120,
+                "wires": [
+                    {
+                        "id": "fe9df3f33d9425cc"
+                    },
+                    {
+                        "id": "af327074f1bc870d"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 1560,
+                "y": 300,
+                "wires": [
+                    {
+                        "id": "ceb504474e8b6ae6",
+                        "port": 0
+                    },
+                    {
+                        "id": "345bbe669ce966c3",
+                        "port": 1
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#DDAA99"
+    },
+    {
+        "id": "7efede71724c22bc",
+        "type": "subflow",
+        "name": "Get object properties from iobroker",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 40,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "2082d639cde13352"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 1220,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "109b42c3efde0f57",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "topic",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "attribute-names",
+                "type": "str",
+                "value": "value"
+            }
+        ],
+        "meta": {},
+        "color": "#DDAA99"
+    },
+    {
         "id": "f1f93d18.375ea",
         "type": "mqtt-broker",
         "name": "mosquitto",
@@ -483,16 +575,6 @@
         "willPayload": "-1",
         "willMsg": {},
         "sessionExpiry": ""
-    },
-    {
-        "id": "e4322296.d6992",
-        "type": "hue-bridge",
-        "name": "Philips hue",
-        "bridge": "192.168.1.79",
-        "key": "9BCy4mfaSYkqrWkvQVWaH96lWsV-ZYcxyvswSyTl",
-        "worker": "10",
-        "autoupdates": true,
-        "disableupdates": false
     },
     {
         "id": "9a755bfc.1124c8",
@@ -535,6 +617,7 @@
     {
         "id": "f88b4105.9be82",
         "type": "telegrambot-config",
+        "z": "4b1f3e4c.b2604",
         "botname": "Roomba",
         "usernames": "",
         "chatIds": "-474645721",
@@ -679,6 +762,7 @@
         "id": "ecd48a91520fdb7b",
         "type": "debug",
         "z": "2595f1ad.a5eb8e",
+        "d": true,
         "name": "",
         "active": true,
         "tosidebar": true,
@@ -1953,23 +2037,6 @@
         ]
     },
     {
-        "id": "e628f9282a16da65",
-        "type": "debug",
-        "z": "7adf4d18a6dba978",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": true,
-        "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 750,
-        "y": 400,
-        "wires": []
-    },
-    {
         "id": "dc581ad77af97b71",
         "type": "ioBroker get",
         "z": "7adf4d18a6dba978",
@@ -2085,9 +2152,504 @@
         "x": 560,
         "y": 280,
         "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "fe9df3f33d9425cc",
+        "type": "template",
+        "z": "a50e9ae33aac98c4",
+        "d": true,
+        "name": "",
+        "field": "telegramMessage",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "Weather warning topic={{topic}}:\n\nheadline={{headline}}, \n\nlevel={{level}}, \n\nseverity={{severity}}, \n\ntype={{type}}, \n\ntext={{text}}, \n\ndescription={{description}}, \n\ninstruction={{instruction}}, \n\nbegin={{begin}}, \n\nend={{end}}, \n\nmap={{map}}.",
+        "output": "str",
+        "x": 320,
+        "y": 120,
+        "wires": [
             [
-                "e628f9282a16da65"
+                "72a0801e37ddedd9",
+                "741040e22242290e"
+            ]
+        ]
+    },
+    {
+        "id": "741040e22242290e",
+        "type": "debug",
+        "z": "a50e9ae33aac98c4",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 470,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "072c4146787ac96d",
+        "type": "telegram sender",
+        "z": "a50e9ae33aac98c4",
+        "name": "Send warning",
+        "bot": "abb06234.e8fcf",
+        "haserroroutput": true,
+        "outputs": 2,
+        "x": 760,
+        "y": 120,
+        "wires": [
+            [
+                "1928f8ce0a77dff7"
             ],
+            [
+                "7bb5eafde10554b3"
+            ]
+        ]
+    },
+    {
+        "id": "72a0801e37ddedd9",
+        "type": "function",
+        "z": "a50e9ae33aac98c4",
+        "name": "Format text message",
+        "func": "msg.payload = {};\n\nvar opts = {}\nif (msg.topic !== undefined && msg.topic.includes('warning'))\n{\n    opts.reply_markup = JSON.stringify({\n        \"inline_keyboard\": [\n            [\n                {\n                    \"text\": \"Schließen\",\n                    \"callback_data\": \"close\"            \n                }, \n                {\n                    \"text\": \"Halb schließen\",\n                    \"callback_data\": \"half-close\"            \n                },\n                {\n                    \"text\": \"Ignorieren\",\n                    \"callback_data\": \"ignore\"\n                }\n            ]\n        ]});\n} else {\n    opts.reply_markup = JSON.stringify({\n        \"inline_keyboard\": [\n            [\n                {\n                    \"text\": \"Schließen\",\n                    \"callback_data\": \"close\"            \n                }, \n                {\n                    \"text\": \"Halb schließen\",\n                    \"callback_data\": \"half-close\"            \n                },\n                {\n                    \"text\": \"Öffnen\",\n                    \"callback_data\": \"open\"\n                }\n            ]\n        ]});\n    \n}\n\n\nmsg.payload.content = msg.telegramMessage;\nmsg.payload.options = opts;\nmsg.payload.chatId = 1216101020;\nmsg.payload.type = \"message\";\n\nreturn [ msg ];\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 120,
+        "wires": [
+            [
+                "072c4146787ac96d"
+            ]
+        ]
+    },
+    {
+        "id": "1928f8ce0a77dff7",
+        "type": "function",
+        "z": "a50e9ae33aac98c4",
+        "name": "save last messageId / clear old choice",
+        "func": "// We create a container if there isn't one already.\nif (context.global.weatherwarning === undefined) {\n    context.global.weatherwarning = {};\n} \n\n// If we don't have an old messageId saved, it's easy.\nif (context.global.weatherwarning.messageId === undefined) {\n    // we just save the current id\n    context.global.weatherwarning.messageId = msg.payload.sentMessageId;\n    // and return null, as we don't have to proceed.\n    return null;\n}\n\nlet newPayload = {\n    type: 'editMessageReplyMarkup',\n    options: {\n        chat_id : msg.payload.chatId,\n        reply_markup : {},\n        message_id : context.global.weatherwarning.messageId\n    },\n    content: {}\n}\n\n// We store the messageId to be able to edit this reply in the callback query. \ncontext.global.weatherwarning.messageId = msg.payload.sentMessageId;\nmsg.payload = newPayload;\ndelete msg.originalMessage;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1090,
+        "y": 120,
+        "wires": [
+            [
+                "c9ca8aacf8819962"
+            ]
+        ]
+    },
+    {
+        "id": "dcf3019c6cd7ce4b",
+        "type": "telegram event",
+        "z": "a50e9ae33aac98c4",
+        "name": "",
+        "bot": "abb06234.e8fcf",
+        "event": "callback_query",
+        "autoanswer": true,
+        "x": 200,
+        "y": 300,
+        "wires": [
+            [
+                "24bcb283ae7935a9"
+            ]
+        ]
+    },
+    {
+        "id": "24bcb283ae7935a9",
+        "type": "function",
+        "z": "a50e9ae33aac98c4",
+        "name": "ignore",
+        "func": "msg.choice = msg.payload.content;\n\nmsg.payload.type = 'editMessageReplyMarkup';\nmsg.payload.content = {};\nmsg.payload.options = {\n    chat_id : msg.payload.chatId,\n    reply_markup : {},\n    message_id : msg.payload.messageId\n};\n\ndelete msg.payload.callbackQueryId;\n\nreturn msg;\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 300,
+        "wires": [
+            [
+                "8d6bce4a312eb3ca"
+            ]
+        ]
+    },
+    {
+        "id": "8d6bce4a312eb3ca",
+        "type": "telegram sender",
+        "z": "a50e9ae33aac98c4",
+        "name": "",
+        "bot": "abb06234.e8fcf",
+        "haserroroutput": true,
+        "outputs": 2,
+        "x": 910,
+        "y": 300,
+        "wires": [
+            [
+                "ceb504474e8b6ae6"
+            ],
+            [
+                "7bb5eafde10554b3"
+            ]
+        ]
+    },
+    {
+        "id": "c9ca8aacf8819962",
+        "type": "telegram sender",
+        "z": "a50e9ae33aac98c4",
+        "name": "Clear old answer options",
+        "bot": "abb06234.e8fcf",
+        "haserroroutput": true,
+        "outputs": 2,
+        "x": 1390,
+        "y": 120,
+        "wires": [
+            [],
+            [
+                "7bb5eafde10554b3"
+            ]
+        ]
+    },
+    {
+        "id": "ceb504474e8b6ae6",
+        "type": "function",
+        "z": "a50e9ae33aac98c4",
+        "name": "set choice as payload",
+        "func": "// Question has been answered. Clear the context.\ndelete context.global.weatherwarning.messageId;\n\nif (msg.choice === undefined || msg.choice === 'ignore') {\n    // nothing\n    return null;\n}\nmsg.payload = msg.choice;\ndelete msg.choice;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1140,
+        "y": 300,
+        "wires": [
+            [
+                "5944b007c5b52d57"
+            ]
+        ]
+    },
+    {
+        "id": "5944b007c5b52d57",
+        "type": "debug",
+        "z": "a50e9ae33aac98c4",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1390,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "3851d303055588c3",
+        "type": "telegram command",
+        "z": "a50e9ae33aac98c4",
+        "name": "/shutter",
+        "command": "/shutter",
+        "description": "Run a test",
+        "registercommand": true,
+        "language": "",
+        "scope": "default",
+        "bot": "abb06234.e8fcf",
+        "strict": false,
+        "hasresponse": false,
+        "useregex": false,
+        "removeregexcommand": false,
+        "outputs": 1,
+        "x": 170,
+        "y": 440,
+        "wires": [
+            [
+                "345bbe669ce966c3"
+            ]
+        ]
+    },
+    {
+        "id": "5e1200fdf87fd802",
+        "type": "template",
+        "z": "a50e9ae33aac98c4",
+        "name": "",
+        "field": "telegramMessage",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "Ja bitte?",
+        "output": "str",
+        "x": 420,
+        "y": 380,
+        "wires": [
+            [
+                "72a0801e37ddedd9"
+            ]
+        ]
+    },
+    {
+        "id": "7bb5eafde10554b3",
+        "type": "debug",
+        "z": "a50e9ae33aac98c4",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1550,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "345bbe669ce966c3",
+        "type": "function",
+        "z": "a50e9ae33aac98c4",
+        "name": "action defined?",
+        "func": "if (msg.payload.content === undefined)\n{\n    return [msg, null];\n}\nlet content = msg.payload.content.trim();\n// Shortcut. action already defined in command, so we don't need to ask.\nif (content === \"open\" || content === \"close\" || content === \"half-close\")\n{\n    msg.payload = content;\n    return [null, msg];\n}\nreturn [msg, null];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 440,
+        "wires": [
+            [
+                "5e1200fdf87fd802"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "af327074f1bc870d",
+        "type": "function",
+        "z": "a50e9ae33aac98c4",
+        "name": "format message",
+        "func": "msg.telegramMessage = msg.headline\n    + \"\\n\\nlevel: \" + msg.level + \" severity: \" + msg.severity\n    + \"\\n\\n\" + msg.description\n    + \"\\n\\nVon \" + msg.begin + \" bis \" + msg.end\n    + \"\\n\\nSollen die Rollläden geschlossen werden?\"\nmsg.url = msg.map;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 280,
+        "y": 160,
+        "wires": [
+            [
+                "aedd0ed0eba2d424"
+            ]
+        ]
+    },
+    {
+        "id": "aedd0ed0eba2d424",
+        "type": "http request",
+        "z": "a50e9ae33aac98c4",
+        "name": "download map",
+        "method": "GET",
+        "ret": "bin",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 300,
+        "y": 220,
+        "wires": [
+            [
+                "741040e22242290e",
+                "293efda7e0aa0ca8"
+            ]
+        ]
+    },
+    {
+        "id": "293efda7e0aa0ca8",
+        "type": "function",
+        "z": "a50e9ae33aac98c4",
+        "name": "Format map message",
+        "func": "let mapChunk = msg.payload;\nmsg.payload = {};\n\nmsg.payload.content = mapChunk;\nmsg.payload.chatId = 1216101020;\nmsg.payload.type = \"photo\";\n\nreturn [ msg ];\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 60,
+        "wires": [
+            [
+                "d52c992d90f5f35c"
+            ]
+        ]
+    },
+    {
+        "id": "d52c992d90f5f35c",
+        "type": "telegram sender",
+        "z": "a50e9ae33aac98c4",
+        "name": "Send map",
+        "bot": "abb06234.e8fcf",
+        "haserroroutput": true,
+        "outputs": 2,
+        "x": 750,
+        "y": 60,
+        "wires": [
+            [
+                "72a0801e37ddedd9"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "5f682f2c80c0f9c8",
+        "type": "split",
+        "z": "7efede71724c22bc",
+        "name": "",
+        "splt": ",",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "attributeName",
+        "x": 330,
+        "y": 80,
+        "wires": [
+            [
+                "5ba4e326ca083c48"
+            ]
+        ]
+    },
+    {
+        "id": "2082d639cde13352",
+        "type": "function",
+        "z": "7efede71724c22bc",
+        "name": "prepare message",
+        "func": "msg.originalTopic = msg.topic;\nmsg.originalPayload = msg.payload;\nmsg.payload = env.get(\"attribute-names\");\nlet topic = env.get(\"topic\");\nif (topic !== undefined && topic !== \"\") {\n    msg.topic = topic;   \n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 170,
+        "y": 80,
+        "wires": [
+            [
+                "5f682f2c80c0f9c8"
+            ]
+        ]
+    },
+    {
+        "id": "5ba4e326ca083c48",
+        "type": "function",
+        "z": "7efede71724c22bc",
+        "name": "set topic",
+        "func": "msg.topic = msg.topic + \".\" + msg.payload;\nmsg.attributeName = msg.payload;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 80,
+        "wires": [
+            [
+                "87d052dc878825c6"
+            ]
+        ]
+    },
+    {
+        "id": "87d052dc878825c6",
+        "type": "ioBroker get",
+        "z": "7efede71724c22bc",
+        "name": "get value",
+        "topic": "",
+        "attrname": "payload",
+        "payloadType": "value",
+        "errOnInvalidState": "nothing",
+        "x": 600,
+        "y": 80,
+        "wires": [
+            [
+                "dc7d43adbbb4f12a"
+            ]
+        ]
+    },
+    {
+        "id": "b1837ddc933f9628",
+        "type": "join",
+        "z": "7efede71724c22bc",
+        "name": "",
+        "mode": "auto",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": true,
+        "timeout": "",
+        "count": "",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 890,
+        "y": 80,
+        "wires": [
+            [
+                "109b42c3efde0f57"
+            ]
+        ]
+    },
+    {
+        "id": "dc7d43adbbb4f12a",
+        "type": "function",
+        "z": "7efede71724c22bc",
+        "name": "map attribute",
+        "func": "msg[msg.attributeName] = msg.payload;\ndelete msg.attributeName;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 750,
+        "y": 80,
+        "wires": [
+            [
+                "b1837ddc933f9628"
+            ]
+        ]
+    },
+    {
+        "id": "109b42c3efde0f57",
+        "type": "function",
+        "z": "7efede71724c22bc",
+        "name": "reset topic and payload",
+        "func": "msg.payload = msg.originalPayload;\nmsg.topic = msg.originalTopic;\ndelete msg.originalPayload\ndelete msg.originalTopic;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 80,
+        "wires": [
             []
         ]
     },
@@ -2583,7 +3145,7 @@
                 "expressionType": "solar",
                 "expression": "0 * * * * * *",
                 "location": "48.18609507662278, 11.596313697132464",
-                "offset": "30",
+                "offset": "-10",
                 "solarType": "selected",
                 "solarEvents": "solarNoon"
             }
@@ -3784,16 +4346,24 @@
                 "t": "eq",
                 "v": "false",
                 "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "true",
+                "vt": "str"
             }
         ],
         "checkall": "true",
         "repair": false,
-        "outputs": 1,
+        "outputs": 2,
         "x": 370,
         "y": 200,
         "wires": [
             [
                 "39b6d700.5fea9a"
+            ],
+            [
+                "a6c3cd0c0eae959e"
             ]
         ]
     },
@@ -3821,7 +4391,8 @@
                 "32998b23.423b34",
                 "68087844.ec3fd8",
                 "65546191.1d65",
-                "9f461854a515f563"
+                "9f461854a515f563",
+                "a6c3cd0c0eae959e"
             ]
         ]
     },
@@ -3945,6 +4516,167 @@
         "wires": [
             []
         ]
+    },
+    {
+        "id": "6903a35305a33477",
+        "type": "inject",
+        "z": "c13d8339.426df",
+        "name": "on",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "true",
+        "payloadType": "str",
+        "x": 850,
+        "y": 420,
+        "wires": [
+            [
+                "a6c3cd0c0eae959e"
+            ]
+        ]
+    },
+    {
+        "id": "dc5851439c55c3cf",
+        "type": "inject",
+        "z": "c13d8339.426df",
+        "name": "off",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "false",
+        "payloadType": "str",
+        "x": 850,
+        "y": 460,
+        "wires": [
+            [
+                "a6c3cd0c0eae959e"
+            ]
+        ]
+    },
+    {
+        "id": "a6c3cd0c0eae959e",
+        "type": "deconz-output",
+        "z": "c13d8339.426df",
+        "name": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "groups/device_id/4"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "commands": [
+            {
+                "arg": {
+                    "on": {
+                        "type": "msg",
+                        "value": "payload"
+                    },
+                    "alert": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "effect": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "colorloopspeed": {
+                        "type": "num",
+                        "value": ""
+                    },
+                    "transitiontime": {
+                        "type": "num",
+                        "value": ""
+                    },
+                    "retryonerror": {
+                        "type": "num",
+                        "value": "0"
+                    },
+                    "aftererror": {
+                        "type": "continue",
+                        "value": ""
+                    },
+                    "bri": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "sat": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "hue": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "ct": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "xy": {
+                        "direction": "set",
+                        "type": "json",
+                        "value": "[]"
+                    }
+                },
+                "type": "deconz_state",
+                "domain": "groups"
+            }
+        ],
+        "specific": {
+            "delay": {
+                "type": "num",
+                "value": "50"
+            },
+            "result": {
+                "type": "at_end",
+                "value": ""
+            }
+        },
+        "x": 1150,
+        "y": 400,
+        "wires": [
+            [
+                "4b1d47f8c98d3879"
+            ]
+        ]
+    },
+    {
+        "id": "4b1d47f8c98d3879",
+        "type": "debug",
+        "z": "c13d8339.426df",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1250,
+        "y": 500,
+        "wires": []
     },
     {
         "id": "68a99e64.42131",
@@ -4704,8 +5436,8 @@
         "name": "battery full",
         "topic": "roomba.0.states.battery",
         "payloadType": "value",
-        "onlyack": "",
-        "func": "all",
+        "onlyack": "update",
+        "func": "rbe",
         "gap": "",
         "fireOnStart": "false",
         "x": 140,
@@ -4918,6 +5650,7 @@
         "id": "29f1d57e.66b52a",
         "type": "telegram sender",
         "z": "a8a95e02.bf408",
+        "d": true,
         "name": "",
         "bot": "abb06234.e8fcf",
         "haserroroutput": false,
@@ -4932,6 +5665,7 @@
         "id": "aeb4e2e8.ee8b",
         "type": "telegram event",
         "z": "a8a95e02.bf408",
+        "d": true,
         "name": "Poll",
         "bot": "abb06234.e8fcf",
         "event": "poll",
@@ -4948,6 +5682,7 @@
         "id": "1e912334.8a1d2d",
         "type": "telegram receiver",
         "z": "a8a95e02.bf408",
+        "d": true,
         "name": "",
         "bot": "abb06234.e8fcf",
         "saveDataDir": "",
@@ -4982,6 +5717,7 @@
         "id": "2bab010d.920a9e",
         "type": "telegram event",
         "z": "a8a95e02.bf408",
+        "d": true,
         "name": "Poll Answer",
         "bot": "abb06234.e8fcf",
         "event": "poll_answer",
@@ -4998,6 +5734,7 @@
         "id": "75a3afbd.a59c8",
         "type": "telegram command",
         "z": "a8a95e02.bf408",
+        "d": true,
         "name": "",
         "command": "/newpoll1",
         "description": "",
@@ -5041,6 +5778,7 @@
         "id": "6a2b097c.bc1428",
         "type": "telegram command",
         "z": "a8a95e02.bf408",
+        "d": true,
         "name": "",
         "command": "/newpoll2",
         "description": "",
@@ -5084,6 +5822,7 @@
         "id": "f7c18f49.063c4",
         "type": "telegram sender",
         "z": "a8a95e02.bf408",
+        "d": true,
         "name": "",
         "bot": "abb06234.e8fcf",
         "haserroroutput": false,
@@ -5160,6 +5899,7 @@
         "id": "981d4537.1ced18",
         "type": "telegram event",
         "z": "a8a95e02.bf408",
+        "d": true,
         "name": "",
         "bot": "abb06234.e8fcf",
         "event": "callback_query",
@@ -5203,6 +5943,7 @@
         "id": "20636f59.fed13",
         "type": "telegram event",
         "z": "a8a95e02.bf408",
+        "d": true,
         "name": "",
         "bot": "abb06234.e8fcf",
         "event": "callback_query",
@@ -5219,6 +5960,7 @@
         "id": "d0ae190d.071828",
         "type": "telegram sender",
         "z": "a8a95e02.bf408",
+        "d": true,
         "name": "show inline keyboard",
         "bot": "abb06234.e8fcf",
         "haserroroutput": false,
@@ -5254,6 +5996,7 @@
         "id": "d7bfbd4.da4e34",
         "type": "telegram command",
         "z": "a8a95e02.bf408",
+        "d": true,
         "name": "/foo",
         "command": "/foo",
         "description": "",
@@ -5296,6 +6039,7 @@
         "id": "8e746981.f48368",
         "type": "telegram sender",
         "z": "a8a95e02.bf408",
+        "d": true,
         "name": "",
         "bot": "abb06234.e8fcf",
         "haserroroutput": false,
@@ -5743,6 +6487,324 @@
         "wires": [
             [
                 "474a94449b2495b0"
+            ]
+        ]
+    },
+    {
+        "id": "ee16368d8b86d83b",
+        "type": "ioBroker in",
+        "z": "8e42c1ce474ca950",
+        "name": "Severity changed",
+        "topic": "dwd.0.warning.severity",
+        "payloadType": "value",
+        "onlyack": "update",
+        "func": "rbe",
+        "gap": "",
+        "fireOnStart": "false",
+        "outFormat": "ioBroker",
+        "x": 180,
+        "y": 80,
+        "wires": [
+            [
+                "86b830f9a238506a"
+            ]
+        ]
+    },
+    {
+        "id": "572b2faf46d7102b",
+        "type": "inject",
+        "z": "8e42c1ce474ca950",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "dwd.0.warning.severity",
+        "payload": "0",
+        "payloadType": "str",
+        "x": 210,
+        "y": 40,
+        "wires": [
+            [
+                "86b830f9a238506a"
+            ]
+        ]
+    },
+    {
+        "id": "f5f4b1b1f4964653",
+        "type": "subflow:a50e9ae33aac98c4",
+        "z": "8e42c1ce474ca950",
+        "name": "",
+        "x": 560,
+        "y": 420,
+        "wires": [
+            [
+                "8c7227b2c87be6e5"
+            ]
+        ]
+    },
+    {
+        "id": "8ad1c9aa7a456553",
+        "type": "subflow:7efede71724c22bc",
+        "z": "8e42c1ce474ca950",
+        "name": "",
+        "env": [
+            {
+                "name": "attribute-names",
+                "value": "severity,type,object,description,text,headline,begin,end,level,instruction,map",
+                "type": "str"
+            }
+        ],
+        "x": 580,
+        "y": 240,
+        "wires": [
+            [
+                "8c09ca80650cf350",
+                "a11dfbdb881aa8f5"
+            ]
+        ]
+    },
+    {
+        "id": "86b830f9a238506a",
+        "type": "function",
+        "z": "8e42c1ce474ca950",
+        "name": "truncate topic name",
+        "func": "// transform e.g. dwd.0.warning1.severity -> dwd.0.warning1\n// as a topic name\nconst regex = /^(dwd.0.warning[0-9]*)\\.?.*/;\nconst match = msg.topic.match(regex);\nconsole.log(`Match: ${match[1]}`);\nmsg.topic = match[1];\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 80,
+        "wires": [
+            [
+                "8c09ca80650cf350",
+                "92ff1c3aab156391"
+            ]
+        ]
+    },
+    {
+        "id": "8c09ca80650cf350",
+        "type": "debug",
+        "z": "8e42c1ce474ca950",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1030,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "f8ac7c0443840616",
+        "type": "comment",
+        "z": "8e42c1ce474ca950",
+        "name": "TODO - Determine relevance of the message",
+        "info": "Determine relevance of the message.\nDiscard it if not relevant, otherwise send telegram message.",
+        "x": 610,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "e6ea06ecae0e08cf",
+        "type": "comment",
+        "z": "8e42c1ce474ca950",
+        "name": "Maybe we can determine the relevance here already",
+        "info": "If we only need one ot two attributes to determine relevance, maybe we can do that here.",
+        "x": 630,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "8c7227b2c87be6e5",
+        "type": "debug",
+        "z": "8e42c1ce474ca950",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 810,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "7424704285a73ab3",
+        "type": "ioBroker in",
+        "z": "8e42c1ce474ca950",
+        "name": "Severity changed",
+        "topic": "dwd.0.warning1.severity",
+        "payloadType": "value",
+        "onlyack": "update",
+        "func": "rbe",
+        "gap": "",
+        "fireOnStart": "false",
+        "outFormat": "ioBroker",
+        "x": 180,
+        "y": 120,
+        "wires": [
+            [
+                "86b830f9a238506a"
+            ]
+        ]
+    },
+    {
+        "id": "92ff1c3aab156391",
+        "type": "function",
+        "z": "8e42c1ce474ca950",
+        "name": "filter non-relevant messages",
+        "func": "// filter irrelevant messages\nif (msg.payload === \"0\") {\n    return null;\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 160,
+        "wires": [
+            [
+                "9521288522a9f87d"
+            ]
+        ]
+    },
+    {
+        "id": "ed73372039f8c6b8",
+        "type": "ioBroker in",
+        "z": "8e42c1ce474ca950",
+        "name": "Severity changed",
+        "topic": "dwd.0.warning3.severity",
+        "payloadType": "value",
+        "onlyack": "update",
+        "func": "rbe",
+        "gap": "",
+        "fireOnStart": "false",
+        "outFormat": "ioBroker",
+        "x": 180,
+        "y": 200,
+        "wires": [
+            [
+                "86b830f9a238506a"
+            ]
+        ]
+    },
+    {
+        "id": "7c06ac44964b3537",
+        "type": "ioBroker in",
+        "z": "8e42c1ce474ca950",
+        "name": "Severity changed",
+        "topic": "dwd.0.warning4.severity",
+        "payloadType": "value",
+        "onlyack": "update",
+        "func": "rbe",
+        "gap": "",
+        "fireOnStart": "false",
+        "outFormat": "ioBroker",
+        "x": 180,
+        "y": 240,
+        "wires": [
+            [
+                "86b830f9a238506a"
+            ]
+        ]
+    },
+    {
+        "id": "ac667cb74bd14d50",
+        "type": "ioBroker in",
+        "z": "8e42c1ce474ca950",
+        "name": "Severity changed",
+        "topic": "dwd.0.warning2.severity",
+        "payloadType": "value",
+        "onlyack": "update",
+        "func": "rbe",
+        "gap": "",
+        "fireOnStart": "false",
+        "outFormat": "ioBroker",
+        "x": 180,
+        "y": 160,
+        "wires": [
+            [
+                "86b830f9a238506a"
+            ]
+        ]
+    },
+    {
+        "id": "a11dfbdb881aa8f5",
+        "type": "function",
+        "z": "8e42c1ce474ca950",
+        "name": "filter non-relevant messages",
+        "func": "// filter irrelevant messages\n// from https://github.com/ioBroker/ioBroker.dwd/blob/master/main.js\n\n// Warning levels\n// 5 = Warnungen vor extremem Unwetter\n// 4 = Unwetterwarnungen\n// 3 = Warnungen vor markantem Wetter\n// 2 = Wetterwarnungen\n// 1 = Vorabinformatio Unwetter\n\n// Warning types\n// 0 = Gewitter inklusive Begleiterscheinungen\n// 1 = Wind/Sturm/Orkan\n// 2 = Stark- und Dauerregen\n// 3 = Schneefall/Schneeverwehungen\n// 4 = Nebel\n// 5 = Frost\n// 6 = Glätte/Glatteis\n// 7 = Tauwetter\n// 8 = Hitzewarnungen\n// 9 = UV-Warnungen\n//10 = Küstenwarnungen ??\n//11 = Binnenseewarnungen ??\n\n// So basically we're only interrested in types 0 and 1\n// and probably only levels 4 and 5\nif ([\"0\", \"1\"].includes(msg.type) && [\"4\", \"5\"].includes(msg.level)) {\n    return msg;\n}\n\nmsg.headline = \"IGNORE - \" + msg.headline;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 340,
+        "wires": [
+            [
+                "43fedf95db7980e1"
+            ]
+        ]
+    },
+    {
+        "id": "9521288522a9f87d",
+        "type": "delay",
+        "z": "8e42c1ce474ca950",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "3",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 500,
+        "y": 200,
+        "wires": [
+            [
+                "8ad1c9aa7a456553"
+            ]
+        ]
+    },
+    {
+        "id": "43fedf95db7980e1",
+        "type": "function",
+        "z": "8e42c1ce474ca950",
+        "name": "formatting",
+        "func": "msg.begin = new Date(Number(msg.begin)).toLocaleString();\nmsg.end = new Date(Number(msg.end)).toLocaleString();\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 380,
+        "wires": [
+            [
+                "f5f4b1b1f4964653"
             ]
         ]
     }
