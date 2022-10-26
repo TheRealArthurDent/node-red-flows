@@ -4679,6 +4679,70 @@
         "wires": []
     },
     {
+        "id": "469ed187f9c98cba",
+        "type": "sonos-universal",
+        "z": "c13d8339.426df",
+        "confignode": "e440dc25.3eb78",
+        "command": "group.get.state",
+        "state": "",
+        "stateType": "str",
+        "avoidCheckPlayerAvailability": false,
+        "name": "",
+        "x": 380,
+        "y": 420,
+        "wires": [
+            [
+                "6e0eafb7d1879e93"
+            ]
+        ]
+    },
+    {
+        "id": "6e0eafb7d1879e93",
+        "type": "debug",
+        "z": "c13d8339.426df",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 590,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "ad93e3dfbecf0da8",
+        "type": "inject",
+        "z": "c13d8339.426df",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 150,
+        "y": 420,
+        "wires": [
+            [
+                "469ed187f9c98cba"
+            ]
+        ]
+    },
+    {
         "id": "68a99e64.42131",
         "type": "ioBroker in",
         "z": "4b1f3e4c.b2604",
@@ -6489,6 +6553,123 @@
                 "474a94449b2495b0"
             ]
         ]
+    },
+    {
+        "id": "016c215c20e0261d",
+        "type": "function",
+        "z": "a8a95e02.bf408",
+        "name": "",
+        "func": "var temperature = parseFloat(msg.temperatureStr);\nvar humidity = parseFloat(msg.humidityStr);\n\nvar es;\nvar ed;\nvar eln;\nvar td;\nif (temperature >= 0)\n{\n\t\t    es = 6.1078*Math.pow(10,((7.5*temperature)/(237.3 + temperature)));\n\t\t    ed = humidity/100.0*es;\n\t\t    eln = Math.log10(ed/6.1078);\n\t\t\ttd = 237.3*eln/(7.5 - eln);\n}\nelse\n{\n\t\t    es.payload = 6.1078*Math.pow(10,((7.6*temperature)/(240.7 + temperature)));\n\t\t    ed.payload = humidity/100.0*es.payload;\n\t\t    eln.payload = Math.log10(ed.payload/6.1078);\n\t\t\ttd.payload = 240.7*eln.payload/(7.6 - eln.payload);\n}\nvar msg = {};\nvar payload = {};\npayload.es = es;\npayload.ed = ed;\npayload.eln = eln;\npayload.td = td;\nmsg.payload = payload;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 940,
+        "y": 1700,
+        "wires": [
+            [
+                "d6d048ac8a1e294e"
+            ]
+        ]
+    },
+    {
+        "id": "d491854ee6c1a2e7",
+        "type": "inject",
+        "z": "a8a95e02.bf408",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 1700,
+        "wires": [
+            [
+                "6a8a8a81c6ed56a2"
+            ]
+        ]
+    },
+    {
+        "id": "6a8a8a81c6ed56a2",
+        "type": "ioBroker get",
+        "z": "a8a95e02.bf408",
+        "name": "temperature.outside",
+        "topic": "deconz.0.Sensors.10.temperature",
+        "attrname": "temperatureStr",
+        "payloadType": "value",
+        "errOnInvalidState": "nothing",
+        "x": 440,
+        "y": 1700,
+        "wires": [
+            [
+                "2d3674619a38b360"
+            ]
+        ]
+    },
+    {
+        "id": "2d065b759bb9dfdf",
+        "type": "debug",
+        "z": "a8a95e02.bf408",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 890,
+        "y": 1800,
+        "wires": []
+    },
+    {
+        "id": "2d3674619a38b360",
+        "type": "ioBroker get",
+        "z": "a8a95e02.bf408",
+        "name": "humidity.outside",
+        "topic": "deconz.0.Sensors.9.humidity",
+        "attrname": "humidityStr",
+        "payloadType": "value",
+        "errOnInvalidState": "nothing",
+        "x": 700,
+        "y": 1700,
+        "wires": [
+            [
+                "016c215c20e0261d",
+                "2d065b759bb9dfdf"
+            ]
+        ]
+    },
+    {
+        "id": "d6d048ac8a1e294e",
+        "type": "debug",
+        "z": "a8a95e02.bf408",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1110,
+        "y": 1700,
+        "wires": []
     },
     {
         "id": "ee16368d8b86d83b",
