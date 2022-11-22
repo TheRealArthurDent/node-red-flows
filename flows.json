@@ -64,6 +64,30 @@
         "env": []
     },
     {
+        "id": "9de561f7972ae9bc",
+        "type": "tab",
+        "label": "Button | Good night",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "f6761c15b55e2d63",
+        "type": "tab",
+        "label": "Bedroom | Changing cloth",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "c4f89efe363c2ef8",
+        "type": "tab",
+        "label": "Homeoffice",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "2595f1ad.a5eb8e",
         "type": "subflow",
         "name": "Conditional shutter action",
@@ -549,6 +573,56 @@
         "color": "#DDAA99"
     },
     {
+        "id": "c144853baeb5f845",
+        "type": "subflow",
+        "name": "Double click",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 100,
+                "y": 140,
+                "wires": [
+                    {
+                        "id": "ba18a69ab61eeeac"
+                    },
+                    {
+                        "id": "d44980ba9fbc8af9"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 790,
+                "y": 120,
+                "wires": [
+                    {
+                        "id": "d44980ba9fbc8af9",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 790,
+                "y": 180,
+                "wires": [
+                    {
+                        "id": "d44980ba9fbc8af9",
+                        "port": 1
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#DDAA99",
+        "outputLabels": [
+            "single",
+            "double"
+        ]
+    },
+    {
         "id": "f1f93d18.375ea",
         "type": "mqtt-broker",
         "name": "mosquitto",
@@ -967,7 +1041,7 @@
         "type": "ioBroker get",
         "z": "16c9c5c.ad34a3a",
         "name": "Marijke present",
-        "topic": "fb-checkpresence.0.Marijke BMW-Laptop.presence",
+        "topic": "fb-checkpresence.0.Marijke Android.presence",
         "attrname": "presence_marijke",
         "payloadType": "value",
         "x": 320,
@@ -1014,7 +1088,7 @@
         "type": "ioBroker get",
         "z": "16c9c5c.ad34a3a",
         "name": "Mika present",
-        "topic": "fb-checkpresence.0.Mika BMW-Laptop.presence",
+        "topic": "fb-checkpresence.0.Mika Android.presence",
         "attrname": "presence_mika",
         "payloadType": "value",
         "x": 690,
@@ -2654,6 +2728,53 @@
         ]
     },
     {
+        "id": "d44980ba9fbc8af9",
+        "type": "function",
+        "z": "c144853baeb5f845",
+        "name": "function 2",
+        "func": "// initialise the counter to 0 if it doesn't exist already\nvar count = global.get('count') || 0;\n\nif(msg.payload.buttonevent == 1002)\n{\n    count += 1;\n    // store the value back\n    global.set('count', count);\n    msg.payload.count = count;\n}\n\nif(msg.payload === \"resetTimer\")\n{\n    msg.payload = {}\n    msg.payload.count = count;\n    global.set('count', 0);    \n\n    // single click\n    if(count == 1)\n    {\n        return [msg, null]\n    }\n    // double click\n    else\n    {\n        return [null, msg]\n    }    \n}\n\nreturn [null, null];\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 140,
+        "wires": [
+            [],
+            []
+        ],
+        "outputLabels": [
+            "single",
+            "double"
+        ]
+    },
+    {
+        "id": "ba18a69ab61eeeac",
+        "type": "trigger",
+        "z": "c144853baeb5f845",
+        "name": "",
+        "op1": "",
+        "op2": "resetTimer",
+        "op1type": "nul",
+        "op2type": "str",
+        "duration": "2",
+        "extend": false,
+        "overrideDelay": false,
+        "units": "s",
+        "reset": "",
+        "bytopic": "all",
+        "topic": "topic",
+        "outputs": 1,
+        "x": 220,
+        "y": 180,
+        "wires": [
+            [
+                "d44980ba9fbc8af9"
+            ]
+        ]
+    },
+    {
         "id": "9d1fde7b.8ef91",
         "type": "cronplus",
         "z": "a09414b5.859f68",
@@ -2829,6 +2950,11 @@
                 "name": "shutter.name",
                 "value": "garden",
                 "type": "str"
+            },
+            {
+                "name": "half-open-position",
+                "value": "0",
+                "type": "num"
             }
         ],
         "x": 920,
@@ -2937,6 +3063,7 @@
         "id": "f42a18dd.aa3888",
         "type": "cronplus",
         "z": "a09414b5.859f68",
+        "d": true,
         "name": "noon",
         "outputField": "payload",
         "timeZone": "",
@@ -3402,6 +3529,164 @@
         ]
     },
     {
+        "id": "da72b18c60bff4bc",
+        "type": "deconz-input",
+        "z": "a09414b5.859f68",
+        "name": "Rollladen",
+        "topic": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "sensors/uniqueid/84:ba:20:ff:fe:d3:f5:d2-01-1000"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "outputs": 1,
+        "output_rules": [
+            {
+                "type": "state",
+                "format": "single",
+                "output": "onchange",
+                "onstart": false,
+                "payload": [
+                    "__complete__"
+                ]
+            }
+        ],
+        "x": 100,
+        "y": 960,
+        "wires": [
+            [
+                "5de9faf25b233668"
+            ]
+        ]
+    },
+    {
+        "id": "5de9faf25b233668",
+        "type": "ioBroker get",
+        "z": "a09414b5.859f68",
+        "name": "Get Shutter office position",
+        "topic": "mqtt-client.0.shellies.shutter-office.roller.0.pos",
+        "attrname": "payload",
+        "payloadType": "value",
+        "errOnInvalidState": "nothing",
+        "x": 310,
+        "y": 960,
+        "wires": [
+            [
+                "c088e5f7f5ff2530"
+            ]
+        ]
+    },
+    {
+        "id": "9222eb560198c130",
+        "type": "change",
+        "z": "a09414b5.859f68",
+        "name": "close",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "half-open",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 650,
+        "y": 940,
+        "wires": [
+            [
+                "aee1f7f2b8b5f13a"
+            ]
+        ]
+    },
+    {
+        "id": "c088e5f7f5ff2530",
+        "type": "switch",
+        "z": "a09414b5.859f68",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "100",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 510,
+        "y": 960,
+        "wires": [
+            [
+                "9222eb560198c130"
+            ],
+            [
+                "797c7e4a54183cc3"
+            ]
+        ]
+    },
+    {
+        "id": "797c7e4a54183cc3",
+        "type": "change",
+        "z": "a09414b5.859f68",
+        "name": "open",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "open",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 650,
+        "y": 980,
+        "wires": [
+            [
+                "aee1f7f2b8b5f13a"
+            ]
+        ]
+    },
+    {
+        "id": "aee1f7f2b8b5f13a",
+        "type": "subflow:2595f1ad.a5eb8e",
+        "z": "a09414b5.859f68",
+        "name": "Move shutter office",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "office",
+                "type": "str"
+            }
+        ],
+        "x": 910,
+        "y": 960,
+        "wires": [
+            [
+                "2c2bfa88.84e586"
+            ]
+        ]
+    },
+    {
         "id": "d73b023e.7ba9f",
         "type": "ioBroker in",
         "z": "615f1b13.386e84",
@@ -3518,7 +3803,7 @@
         "type": "function",
         "z": "615f1b13.386e84",
         "name": "",
-        "func": "//node.log(msg.topic);\nshutterName = msg.topic.substring(msg.topic.indexOf(\"/shutter\")+1, msg.topic.indexOf(\"/roller/\"));\n//node.log(\"ShutterName: \" + shutterName);\n\n//msg.topic=msg.topic.substring(msg.topic.indexOf(\"/shutter\")+1)+\"_numeric\";\nmsg.topic=\"shellies/\"+shutterName+\"/stop_reason_numeric\";\nreturn msg;",
+        "func": "//node.log(msg.topic);\nlet shutterName = msg.topic.substring(msg.topic.indexOf(\"/shutter\")+1, msg.topic.indexOf(\"/roller/\"));\n//node.log(\"ShutterName: \" + shutterName);\n\n//msg.topic=msg.topic.substring(msg.topic.indexOf(\"/shutter\")+1)+\"_numeric\";\nmsg.topic=\"shellies/\"+shutterName+\"/stop_reason_numeric\";\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -3639,7 +3924,7 @@
         "gap": "",
         "fireOnStart": "false",
         "x": 150,
-        "y": 260,
+        "y": 100,
         "wires": [
             [
                 "13938d85.75cfb2"
@@ -3667,13 +3952,14 @@
         "repair": false,
         "outputs": 2,
         "x": 370,
-        "y": 260,
+        "y": 100,
         "wires": [
             [
                 "4e71eac3.bb6784"
             ],
             [
-                "e96e1c45.644d8"
+                "e96e1c45.644d8",
+                "a3a5fb6b0676b111"
             ]
         ]
     },
@@ -3697,22 +3983,12 @@
         "to": "",
         "reg": false,
         "x": 810,
-        "y": 260,
+        "y": 100,
         "wires": [
             [
                 "89f29752.234ac8"
             ]
         ]
-    },
-    {
-        "id": "bb3f0944.0d6498",
-        "type": "comment",
-        "z": "9c0f9de.b23666",
-        "name": "If we leave, switch off no matter what.",
-        "info": "If we leave, switch off no matter what.",
-        "x": 570,
-        "y": 300,
-        "wires": []
     },
     {
         "id": "b3c13fd.b1cebc",
@@ -3734,7 +4010,7 @@
         "to": "",
         "reg": false,
         "x": 810,
-        "y": 220,
+        "y": 60,
         "wires": [
             [
                 "89f29752.234ac8"
@@ -3750,7 +4026,7 @@
         "attrname": "payload",
         "payloadType": "value",
         "x": 540,
-        "y": 220,
+        "y": 60,
         "wires": [
             [
                 "64f9a5b.157d35c"
@@ -3778,7 +4054,7 @@
         "repair": false,
         "outputs": 2,
         "x": 670,
-        "y": 220,
+        "y": 60,
         "wires": [
             [
                 "b3c13fd.b1cebc"
@@ -3793,14 +4069,14 @@
         "type": "ioBroker in",
         "z": "9c0f9de.b23666",
         "name": "Evening started/ended",
-        "topic": "node-red.0.states.evening",
+        "topic": "node-red.0.states.evening.value",
         "payloadType": "value",
         "onlyack": "",
         "func": "rbe",
         "gap": "",
         "fireOnStart": "false",
         "x": 160,
-        "y": 100,
+        "y": 320,
         "wires": [
             [
                 "b980d3f4.c16c7"
@@ -3828,7 +4104,7 @@
         "repair": false,
         "outputs": 2,
         "x": 370,
-        "y": 100,
+        "y": 320,
         "wires": [
             [
                 "3ce28101.b3586e"
@@ -3858,7 +4134,7 @@
         "to": "",
         "reg": false,
         "x": 810,
-        "y": 100,
+        "y": 320,
         "wires": [
             [
                 "89f29752.234ac8"
@@ -3874,7 +4150,7 @@
         "attrname": "payload",
         "payloadType": "value",
         "x": 530,
-        "y": 60,
+        "y": 280,
         "wires": [
             [
                 "f04904e4.772be8"
@@ -3902,7 +4178,7 @@
         "repair": false,
         "outputs": 2,
         "x": 670,
-        "y": 60,
+        "y": 280,
         "wires": [
             [
                 "397d68af.065fb8"
@@ -3932,7 +4208,7 @@
         "to": "",
         "reg": false,
         "x": 810,
-        "y": 60,
+        "y": 280,
         "wires": [
             [
                 "89f29752.234ac8"
@@ -3946,8 +4222,33 @@
         "name": "At midnight, switch off no matter what.",
         "info": "At midnight, switch off no matter what.",
         "x": 570,
-        "y": 140,
+        "y": 360,
         "wires": []
+    },
+    {
+        "id": "a3a5fb6b0676b111",
+        "type": "delay",
+        "z": "9c0f9de.b23666",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "5",
+        "timeoutUnits": "minutes",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 540,
+        "y": 140,
+        "wires": [
+            [
+                "3ce28101.b3586e"
+            ]
+        ]
     },
     {
         "id": "b94d187b.d95508",
@@ -4119,7 +4420,7 @@
         "y": 360,
         "wires": [
             [
-                "3f01f1ba.8f716e"
+                "602ab982d90c63c8"
             ]
         ]
     },
@@ -4146,7 +4447,7 @@
         "y": 40,
         "wires": [
             [
-                "3f01f1ba.8f716e"
+                "89966d9e3cde6273"
             ]
         ]
     },
@@ -4212,8 +4513,252 @@
         "stateUnit": "",
         "stateMin": "",
         "stateMax": "",
-        "x": 1080,
+        "x": 1600,
         "y": 220,
+        "wires": []
+    },
+    {
+        "id": "602ab982d90c63c8",
+        "type": "delay",
+        "z": "60c03b99.7554f4",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "5",
+        "timeoutUnits": "minutes",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 660,
+        "y": 480,
+        "wires": [
+            [
+                "e3190786db31c2a8"
+            ]
+        ]
+    },
+    {
+        "id": "e3190786db31c2a8",
+        "type": "ioBroker get",
+        "z": "60c03b99.7554f4",
+        "name": "Mika present",
+        "topic": "fb-checkpresence.0.Mika Android.presence",
+        "attrname": "presence_mika",
+        "payloadType": "value",
+        "x": 830,
+        "y": 480,
+        "wires": [
+            [
+                "78eab5859e16c896"
+            ]
+        ]
+    },
+    {
+        "id": "78eab5859e16c896",
+        "type": "switch",
+        "z": "60c03b99.7554f4",
+        "name": "Mika present",
+        "property": "presence_mika",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "true",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 830,
+        "y": 540,
+        "wires": [
+            [],
+            [
+                "1030d55b0b564bf5"
+            ]
+        ]
+    },
+    {
+        "id": "1030d55b0b564bf5",
+        "type": "ioBroker get",
+        "z": "60c03b99.7554f4",
+        "name": "Marijke present",
+        "topic": "fb-checkpresence.0.Marijke Android.presence",
+        "attrname": "presence_marijke",
+        "payloadType": "value",
+        "x": 840,
+        "y": 660,
+        "wires": [
+            [
+                "638cc99d649df082"
+            ]
+        ]
+    },
+    {
+        "id": "638cc99d649df082",
+        "type": "switch",
+        "z": "60c03b99.7554f4",
+        "name": "Marijke present",
+        "property": "presence_marijke",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "true",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 840,
+        "y": 720,
+        "wires": [
+            [],
+            [
+                "dff1bf12c8889957"
+            ]
+        ]
+    },
+    {
+        "id": "f195192f69f06f6f",
+        "type": "comment",
+        "z": "60c03b99.7554f4",
+        "name": "Check again after 5 Minutes",
+        "info": "",
+        "x": 760,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "81abfb69602f9029",
+        "type": "function",
+        "z": "60c03b99.7554f4",
+        "name": "current timestamp as ISO 8601",
+        "func": "// oldValue comes as a string, so we'll have to\n// convert it into a boolean\nlet oldValue = (msg.oldValue === 'true');\nlet newValue = msg.payload;\n\nif (newValue === oldValue) {\n    // No change, hence we don't update the timestamp either.\n    return null;\n}\n\nmsg.payload = new Date().toISOString();\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1350,
+        "y": 320,
+        "wires": [
+            [
+                "1527624c34b70243"
+            ]
+        ],
+        "outputLabels": [
+            "new lastUpdated"
+        ]
+    },
+    {
+        "id": "1527624c34b70243",
+        "type": "ioBroker out",
+        "z": "60c03b99.7554f4",
+        "name": "lastUpdated",
+        "topic": "presence.lastUpdated",
+        "ack": "true",
+        "autoCreate": "true",
+        "stateName": "presence.lastUpdated",
+        "role": "value.datetime",
+        "payloadType": "string",
+        "readonly": "false",
+        "stateUnit": "",
+        "stateMin": "",
+        "stateMax": "",
+        "x": 1590,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "89966d9e3cde6273",
+        "type": "switch",
+        "z": "60c03b99.7554f4",
+        "name": "join",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 1110,
+        "y": 220,
+        "wires": [
+            [
+                "973baa3a29632c51"
+            ]
+        ]
+    },
+    {
+        "id": "973baa3a29632c51",
+        "type": "ioBroker get",
+        "z": "60c03b99.7554f4",
+        "name": "presence",
+        "topic": "node-red.0.presence.presence",
+        "attrname": "oldValue",
+        "payloadType": "value",
+        "errOnInvalidState": "false",
+        "x": 1280,
+        "y": 220,
+        "wires": [
+            [
+                "81abfb69602f9029",
+                "3f01f1ba.8f716e"
+            ]
+        ]
+    },
+    {
+        "id": "dff1bf12c8889957",
+        "type": "change",
+        "z": "60c03b99.7554f4",
+        "name": "false",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 870,
+        "y": 780,
+        "wires": [
+            [
+                "89966d9e3cde6273"
+            ]
+        ]
+    },
+    {
+        "id": "e36e86b9ed9081f2",
+        "type": "comment",
+        "z": "60c03b99.7554f4",
+        "name": "Get the old value before potentially changing it.",
+        "info": "",
+        "x": 1400,
+        "y": 180,
         "wires": []
     },
     {
@@ -4244,7 +4789,7 @@
         "y": 60,
         "wires": [
             [
-                "e7927fc9.5cb96"
+                "1c732889567a533a"
             ]
         ]
     },
@@ -4276,26 +4821,118 @@
         "y": 140,
         "wires": [
             [
-                "e7927fc9.5cb96"
+                "1c732889567a533a"
             ]
         ]
     },
     {
-        "id": "e7927fc9.5cb96",
+        "id": "1c732889567a533a",
+        "type": "switch",
+        "z": "94c83aa3.f236d8",
+        "name": "join",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 390,
+        "y": 100,
+        "wires": [
+            [
+                "adb8ddf8bcc3922b"
+            ]
+        ]
+    },
+    {
+        "id": "adb8ddf8bcc3922b",
+        "type": "ioBroker get",
+        "z": "94c83aa3.f236d8",
+        "name": "states.evening",
+        "topic": "node-red.0.states.evening.value",
+        "attrname": "oldValue",
+        "payloadType": "value",
+        "errOnInvalidState": "false",
+        "x": 580,
+        "y": 100,
+        "wires": [
+            [
+                "96cca2b9eb5fbff5",
+                "0ab77376caab53a8"
+            ]
+        ]
+    },
+    {
+        "id": "6b425b9815725773",
+        "type": "comment",
+        "z": "94c83aa3.f236d8",
+        "name": "Get the old value before potentially changing it.",
+        "info": "",
+        "x": 680,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "96cca2b9eb5fbff5",
+        "type": "function",
+        "z": "94c83aa3.f236d8",
+        "name": "current timestamp as ISO 8601",
+        "func": "// oldValue comes as a string, so we'll have to\n// convert it into a boolean\nlet oldValue = (msg.oldValue === 'true');\nlet newValue = msg.payload;\n\nif (newValue === oldValue) {\n    // No change, hence we don't update the timestamp either.\n    return null;\n}\n\nmsg.payload = new Date().toISOString();\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 200,
+        "wires": [
+            [
+                "2f076e9f374c5bea"
+            ]
+        ],
+        "outputLabels": [
+            "new lastUpdated"
+        ]
+    },
+    {
+        "id": "2f076e9f374c5bea",
+        "type": "ioBroker out",
+        "z": "94c83aa3.f236d8",
+        "name": "lastUpdated",
+        "topic": "states.evening.lastUpdated",
+        "ack": "true",
+        "autoCreate": "true",
+        "stateName": "presence.lastUpdated",
+        "role": "value.datetime",
+        "payloadType": "string",
+        "readonly": "false",
+        "stateUnit": "",
+        "stateMin": "",
+        "stateMax": "",
+        "x": 870,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "0ab77376caab53a8",
         "type": "ioBroker out",
         "z": "94c83aa3.f236d8",
         "name": "states.evening",
-        "topic": "states.evening",
+        "topic": "states.evening.value",
         "ack": "true",
         "autoCreate": "true",
-        "stateName": "status.evening",
+        "stateName": "states.evening",
         "role": "indicator",
         "payloadType": "boolean",
         "readonly": "false",
         "stateUnit": "",
         "stateMin": "",
         "stateMax": "",
-        "x": 420,
+        "x": 860,
         "y": 100,
         "wires": []
     },
@@ -4578,7 +5215,7 @@
         "statustext_type": "auto",
         "search_type": "device",
         "device_list": [
-            "groups/device_id/4"
+            "lights/uniqueid/b4:e3:f9:ff:fe:aa:0b:83-01"
         ],
         "device_name": "",
         "query": "{}",
@@ -4640,7 +5277,7 @@
                     }
                 },
                 "type": "deconz_state",
-                "domain": "groups"
+                "domain": "lights"
             }
         ],
         "specific": {
@@ -4739,6 +5376,51 @@
         "wires": [
             [
                 "469ed187f9c98cba"
+            ]
+        ]
+    },
+    {
+        "id": "7cdbeab38d078f4d",
+        "type": "sonos-universal",
+        "z": "c13d8339.426df",
+        "confignode": "e440dc25.3eb78",
+        "command": "group.next.track",
+        "state": "",
+        "stateType": "str",
+        "avoidCheckPlayerAvailability": false,
+        "name": "",
+        "x": 420,
+        "y": 640,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "887a2993a6c57e8e",
+        "type": "inject",
+        "z": "c13d8339.426df",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 660,
+        "wires": [
+            [
+                "7cdbeab38d078f4d"
             ]
         ]
     },
@@ -6559,7 +7241,7 @@
         "type": "function",
         "z": "a8a95e02.bf408",
         "name": "",
-        "func": "var temperature = parseFloat(msg.temperatureStr);\nvar humidity = parseFloat(msg.humidityStr);\n\nvar es;\nvar ed;\nvar eln;\nvar td;\nif (temperature >= 0)\n{\n\t\t    es = 6.1078*Math.pow(10,((7.5*temperature)/(237.3 + temperature)));\n\t\t    ed = humidity/100.0*es;\n\t\t    eln = Math.log10(ed/6.1078);\n\t\t\ttd = 237.3*eln/(7.5 - eln);\n}\nelse\n{\n\t\t    es.payload = 6.1078*Math.pow(10,((7.6*temperature)/(240.7 + temperature)));\n\t\t    ed.payload = humidity/100.0*es.payload;\n\t\t    eln.payload = Math.log10(ed.payload/6.1078);\n\t\t\ttd.payload = 240.7*eln.payload/(7.6 - eln.payload);\n}\nvar msg = {};\nvar payload = {};\npayload.es = es;\npayload.ed = ed;\npayload.eln = eln;\npayload.td = td;\nmsg.payload = payload;\nreturn msg;",
+        "func": "var temperature = parseFloat(msg.temperatureStr);\nvar humidity = parseFloat(msg.humidityStr);\n\nvar es;\nvar ed;\nvar eln;\nvar td;\nif (temperature >= 0)\n{\n\t\t    es = 6.1078*Math.pow(10,((7.5*temperature)/(237.3 + temperature)));\n\t\t    ed = humidity/100.0*es;\n\t\t    eln = Math.log10(ed/6.1078);\n\t\t\ttd = 237.3*eln/(7.5 - eln);\n}\nelse\n{\n\t\t    es = 6.1078*Math.pow(10,((7.6*temperature)/(240.7 + temperature)));\n\t\t    ed = humidity/100.0*es;\n\t\t    eln = Math.log10(ed/6.1078);\n\t\t\ttd = 240.7*eln.payload/(7.6 - eln);\n}\nvar msg = {};\nvar payload = {};\npayload.es = es;\npayload.ed = ed;\npayload.eln = eln;\npayload.td = td;\nmsg.payload = payload;\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -6667,9 +7349,97 @@
         "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1110,
+        "x": 1130,
         "y": 1700,
         "wires": []
+    },
+    {
+        "id": "056e97f5ebf07cf4",
+        "type": "cronplus",
+        "z": "a8a95e02.bf408",
+        "name": "",
+        "outputField": "timestamp",
+        "timeZone": "",
+        "persistDynamic": false,
+        "commandResponseMsgOutput": "output1",
+        "outputs": 1,
+        "options": [
+            {
+                "name": "schedule1",
+                "topic": "ventilation/settings",
+                "payloadType": "date",
+                "payload": "",
+                "expressionType": "cron",
+                "expression": "* */5 * * * *",
+                "location": "",
+                "offset": "0",
+                "solarType": "all",
+                "solarEvents": "sunrise,sunset"
+            }
+        ],
+        "x": 180,
+        "y": 1940,
+        "wires": [
+            [
+                "8642fdd714ecf7a9"
+            ]
+        ]
+    },
+    {
+        "id": "432ec8d37cb3f4e1",
+        "type": "mqtt out",
+        "z": "a8a95e02.bf408",
+        "name": "",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "f1f93d18.375ea",
+        "x": 950,
+        "y": 1940,
+        "wires": []
+    },
+    {
+        "id": "2849825550dc2b53",
+        "type": "debug",
+        "z": "a8a95e02.bf408",
+        "d": true,
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 730,
+        "y": 2040,
+        "wires": []
+    },
+    {
+        "id": "8642fdd714ecf7a9",
+        "type": "function",
+        "z": "a8a95e02.bf408",
+        "name": "format MQTT message",
+        "func": "let epochTimestamp = msg.timestamp;\n\nmsg.payload = {};\nmsg.payload.epochTimestamp = epochTimestamp;\nmsg.payload.timestamp = new Date(epochTimestamp).toISOString();\nmsg.payload.mode = \"IDLE\";\nmsg.payload.metadata = { \"env\": { \"inside\": {}}};\n//msg.payload.metadata.env = {};\n//msg.payload.metadata.env.inside = {};\nmsg.payload.metadata.env.inside.temperature = 42;\nmsg.payload.metadata.env.inside.humidity= 200;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 1940,
+        "wires": [
+            [
+                "2849825550dc2b53",
+                "432ec8d37cb3f4e1"
+            ]
+        ]
     },
     {
         "id": "ee16368d8b86d83b",
@@ -6986,6 +7756,971 @@
         "wires": [
             [
                 "f5f4b1b1f4964653"
+            ]
+        ]
+    },
+    {
+        "id": "6ffcc06f925f672e",
+        "type": "deconz-input",
+        "z": "9de561f7972ae9bc",
+        "name": "Button | Good night",
+        "topic": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "sensors/uniqueid/84:ba:20:ff:fe:d4:12:52-01-1000"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "outputs": 1,
+        "output_rules": [
+            {
+                "type": "state",
+                "format": "single",
+                "output": "onchange",
+                "onstart": false,
+                "payload": [
+                    "__complete__"
+                ]
+            }
+        ],
+        "x": 150,
+        "y": 460,
+        "wires": [
+            [
+                "db24fdc7a908cfd3"
+            ]
+        ]
+    },
+    {
+        "id": "c03c6dcf3c9b3e22",
+        "type": "ioBroker out",
+        "z": "9de561f7972ae9bc",
+        "name": "Dekobeleuchtung.on",
+        "topic": "hue.0.Dekobeleuchtung.on",
+        "ack": "false",
+        "autoCreate": "false",
+        "stateName": "",
+        "role": "",
+        "payloadType": "",
+        "readonly": "",
+        "stateUnit": "",
+        "stateMin": "",
+        "stateMax": "",
+        "x": 960,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "9d067551d47fbfbf",
+        "type": "change",
+        "z": "9de561f7972ae9bc",
+        "name": "false",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 730,
+        "y": 480,
+        "wires": [
+            [
+                "c03c6dcf3c9b3e22",
+                "1f4bb3b59de89b17",
+                "e350ad4fbd69f6cf",
+                "747d11137f778843",
+                "e50fc4afd9ceb191"
+            ]
+        ]
+    },
+    {
+        "id": "1f4bb3b59de89b17",
+        "type": "ioBroker out",
+        "z": "9de561f7972ae9bc",
+        "name": "Pflanzenlampe.on",
+        "topic": "hue.0.Pflanzenlampe.on",
+        "ack": "false",
+        "autoCreate": "false",
+        "stateName": "",
+        "role": "",
+        "payloadType": "",
+        "readonly": "",
+        "stateUnit": "",
+        "stateMin": "",
+        "stateMax": "",
+        "x": 950,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "e0e48d0f69707e6b",
+        "type": "mqtt out",
+        "z": "9de561f7972ae9bc",
+        "name": "",
+        "topic": "",
+        "qos": "1",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "f1f93d18.375ea",
+        "x": 1210,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "115c73520ce364ed",
+        "type": "subflow:2595f1ad.a5eb8e",
+        "z": "9de561f7972ae9bc",
+        "name": "Move shutter terrasse",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "terrasse",
+                "type": "str"
+            }
+        ],
+        "x": 960,
+        "y": 580,
+        "wires": [
+            [
+                "e0e48d0f69707e6b"
+            ]
+        ]
+    },
+    {
+        "id": "55845f55050f3f18",
+        "type": "subflow:2595f1ad.a5eb8e",
+        "z": "9de561f7972ae9bc",
+        "name": "Move shutter office",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "office",
+                "type": "str"
+            }
+        ],
+        "x": 950,
+        "y": 540,
+        "wires": [
+            [
+                "e0e48d0f69707e6b"
+            ]
+        ]
+    },
+    {
+        "id": "5d3d1c4c799f78c9",
+        "type": "subflow:2595f1ad.a5eb8e",
+        "z": "9de561f7972ae9bc",
+        "name": "Move shutter garden",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "garden",
+                "type": "str"
+            },
+            {
+                "name": "half-open-position",
+                "value": "0",
+                "type": "num"
+            }
+        ],
+        "x": 960,
+        "y": 720,
+        "wires": [
+            [
+                "e0e48d0f69707e6b"
+            ]
+        ]
+    },
+    {
+        "id": "9ba92c6e50a155aa",
+        "type": "subflow:2595f1ad.a5eb8e",
+        "z": "9de561f7972ae9bc",
+        "name": "Move shutter kitchen",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "kitchen",
+                "type": "str"
+            },
+            {
+                "name": "half-open-position",
+                "value": "40",
+                "type": "num"
+            }
+        ],
+        "x": 960,
+        "y": 620,
+        "wires": [
+            [
+                "e0e48d0f69707e6b"
+            ]
+        ]
+    },
+    {
+        "id": "6fd3530214079ddf",
+        "type": "subflow:2595f1ad.a5eb8e",
+        "z": "9de561f7972ae9bc",
+        "name": "Move shutter bedroom",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "bedroom",
+                "type": "str"
+            },
+            {
+                "name": "half-open-position",
+                "value": "40",
+                "type": "num"
+            }
+        ],
+        "x": 960,
+        "y": 780,
+        "wires": [
+            [
+                "e0e48d0f69707e6b"
+            ]
+        ]
+    },
+    {
+        "id": "7bc8a060c8f56346",
+        "type": "change",
+        "z": "9de561f7972ae9bc",
+        "name": "closed",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "closed",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "overrideManualChange",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 590,
+        "y": 700,
+        "wires": [
+            [
+                "846195e667d02d44"
+            ]
+        ]
+    },
+    {
+        "id": "90c35f786b335bfa",
+        "type": "change",
+        "z": "9de561f7972ae9bc",
+        "name": "half-open",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "half-open",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "overrideManualChange",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 600,
+        "y": 620,
+        "wires": [
+            [
+                "2a5db8cf6c0c31f4"
+            ]
+        ]
+    },
+    {
+        "id": "e350ad4fbd69f6cf",
+        "type": "sonos-universal",
+        "z": "9de561f7972ae9bc",
+        "confignode": "e440dc25.3eb78",
+        "command": "group.stop",
+        "state": "",
+        "stateType": "str",
+        "avoidCheckPlayerAvailability": false,
+        "name": "Sonos Livingarea",
+        "x": 950,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e50fc4afd9ceb191",
+        "type": "sonos-universal",
+        "z": "9de561f7972ae9bc",
+        "confignode": "9a755bfc.1124c8",
+        "command": "group.stop",
+        "state": "",
+        "stateType": "str",
+        "avoidCheckPlayerAvailability": false,
+        "name": "Sonos Office",
+        "x": 930,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "747d11137f778843",
+        "type": "sonos-universal",
+        "z": "9de561f7972ae9bc",
+        "confignode": "a641922fff0cd09a",
+        "command": "group.stop",
+        "state": "",
+        "stateType": "str",
+        "avoidCheckPlayerAvailability": false,
+        "name": "Sonos Restroom",
+        "x": 950,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "105cbf0869d9bb20",
+        "type": "deconz-input",
+        "z": "9de561f7972ae9bc",
+        "name": "Switch | Day  / Night",
+        "topic": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "sensors/uniqueid/dc:8e:95:ff:fe:2e:1d:3b-01-1000"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "outputs": 1,
+        "output_rules": [
+            {
+                "type": "state",
+                "format": "single",
+                "output": "onchange",
+                "onstart": false,
+                "payload": [
+                    "__complete__"
+                ]
+            }
+        ],
+        "x": 150,
+        "y": 580,
+        "wires": [
+            [
+                "a374e53beff772e2"
+            ]
+        ]
+    },
+    {
+        "id": "a374e53beff772e2",
+        "type": "switch",
+        "z": "9de561f7972ae9bc",
+        "name": "",
+        "property": "payload.buttonevent",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "2002",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "1002",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 330,
+        "y": 580,
+        "wires": [
+            [
+                "db24fdc7a908cfd3"
+            ],
+            [
+                "a68115ef6c4d82db"
+            ]
+        ],
+        "outputLabels": [
+            "night = off",
+            "day = on"
+        ]
+    },
+    {
+        "id": "db24fdc7a908cfd3",
+        "type": "switch",
+        "z": "9de561f7972ae9bc",
+        "name": "Join",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 470,
+        "y": 480,
+        "wires": [
+            [
+                "9d067551d47fbfbf",
+                "90c35f786b335bfa",
+                "7bc8a060c8f56346"
+            ]
+        ]
+    },
+    {
+        "id": "a68115ef6c4d82db",
+        "type": "change",
+        "z": "9de561f7972ae9bc",
+        "name": "open",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "open",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "overrideManualChange",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 590,
+        "y": 660,
+        "wires": [
+            [
+                "2a5db8cf6c0c31f4",
+                "846195e667d02d44"
+            ]
+        ]
+    },
+    {
+        "id": "2a5db8cf6c0c31f4",
+        "type": "switch",
+        "z": "9de561f7972ae9bc",
+        "name": "Join",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 750,
+        "y": 580,
+        "wires": [
+            [
+                "9ba92c6e50a155aa",
+                "115c73520ce364ed",
+                "55845f55050f3f18"
+            ]
+        ]
+    },
+    {
+        "id": "846195e667d02d44",
+        "type": "switch",
+        "z": "9de561f7972ae9bc",
+        "name": "Join",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 750,
+        "y": 740,
+        "wires": [
+            [
+                "5d3d1c4c799f78c9",
+                "6fd3530214079ddf"
+            ]
+        ]
+    },
+    {
+        "id": "ab732fe50f20bd64",
+        "type": "mqtt out",
+        "z": "f6761c15b55e2d63",
+        "name": "",
+        "topic": "",
+        "qos": "1",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "f1f93d18.375ea",
+        "x": 1390,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "883d68a1203cca1a",
+        "type": "subflow:2595f1ad.a5eb8e",
+        "z": "f6761c15b55e2d63",
+        "name": "Move shutter bedroom",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "bedroom",
+                "type": "str"
+            },
+            {
+                "name": "half-open-position",
+                "value": "40",
+                "type": "num"
+            }
+        ],
+        "x": 1220,
+        "y": 60,
+        "wires": [
+            [
+                "ab732fe50f20bd64"
+            ]
+        ]
+    },
+    {
+        "id": "5c065b258627eb34",
+        "type": "change",
+        "z": "f6761c15b55e2d63",
+        "name": "closed",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "closed",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "overrideManualChange",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1050,
+        "y": 200,
+        "wires": [
+            [
+                "883d68a1203cca1a"
+            ]
+        ]
+    },
+    {
+        "id": "0296e14af995697f",
+        "type": "change",
+        "z": "f6761c15b55e2d63",
+        "name": "open",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "open",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "overrideManualChange",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1030,
+        "y": 60,
+        "wires": [
+            [
+                "883d68a1203cca1a"
+            ]
+        ]
+    },
+    {
+        "id": "acd25e910612ed71",
+        "type": "deconz-input",
+        "z": "f6761c15b55e2d63",
+        "name": "Button | Change clothing",
+        "topic": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "sensors/uniqueid/84:ba:20:ff:fe:76:29:6a-01-1000"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "outputs": 1,
+        "output_rules": [
+            {
+                "type": "state",
+                "format": "single",
+                "output": "onchange",
+                "onstart": false,
+                "payload": [
+                    "__complete__"
+                ]
+            }
+        ],
+        "x": 110,
+        "y": 160,
+        "wires": [
+            [
+                "6cc6f29f5f1699e8"
+            ]
+        ]
+    },
+    {
+        "id": "b5b0d5f5e08ef74f",
+        "type": "ioBroker get",
+        "z": "f6761c15b55e2d63",
+        "name": "Get Shutter bedroom pos.",
+        "topic": "mqtt-client.0.shellies.shutter-bedroom.roller.0.pos",
+        "attrname": "payload",
+        "payloadType": "value",
+        "errOnInvalidState": "nothing",
+        "x": 720,
+        "y": 80,
+        "wires": [
+            [
+                "f017f1a760f5d3d2"
+            ]
+        ]
+    },
+    {
+        "id": "f017f1a760f5d3d2",
+        "type": "switch",
+        "z": "f6761c15b55e2d63",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "100",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 910,
+        "y": 80,
+        "wires": [
+            [
+                "bc8ce5cc26c19562"
+            ],
+            [
+                "0296e14af995697f"
+            ]
+        ]
+    },
+    {
+        "id": "bc8ce5cc26c19562",
+        "type": "change",
+        "z": "f6761c15b55e2d63",
+        "name": "half-open",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "half-open",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "overrideManualChange",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1040,
+        "y": 100,
+        "wires": [
+            [
+                "883d68a1203cca1a"
+            ]
+        ]
+    },
+    {
+        "id": "6cc6f29f5f1699e8",
+        "type": "subflow:c144853baeb5f845",
+        "z": "f6761c15b55e2d63",
+        "name": "",
+        "x": 370,
+        "y": 160,
+        "wires": [
+            [
+                "b5b0d5f5e08ef74f"
+            ],
+            [
+                "5c065b258627eb34"
+            ]
+        ]
+    },
+    {
+        "id": "542b1917fa40ef53",
+        "type": "deconz-input",
+        "z": "c4f89efe363c2ef8",
+        "name": "Switch | Homeoffice on / off",
+        "topic": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "sensors/uniqueid/94:34:69:ff:fe:3d:c9:a6-01-1000"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "outputs": 1,
+        "output_rules": [
+            {
+                "type": "state",
+                "format": "single",
+                "output": "onchange",
+                "onstart": false,
+                "payload": [
+                    "__complete__"
+                ]
+            }
+        ],
+        "x": 210,
+        "y": 140,
+        "wires": [
+            [
+                "62eaa5d56a80ab37",
+                "89452b5c3020071d"
+            ]
+        ]
+    },
+    {
+        "id": "a9ad9fb54f7fbcd0",
+        "type": "deconz-output",
+        "z": "c4f89efe363c2ef8",
+        "name": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "lights/uniqueid/70:ac:08:ff:fe:7c:f3:0f-01"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "commands": [
+            {
+                "arg": {
+                    "on": {
+                        "type": "msg",
+                        "value": "payload"
+                    },
+                    "alert": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "effect": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "colorloopspeed": {
+                        "type": "num",
+                        "value": ""
+                    },
+                    "transitiontime": {
+                        "type": "num",
+                        "value": ""
+                    },
+                    "retryonerror": {
+                        "type": "num",
+                        "value": "0"
+                    },
+                    "aftererror": {
+                        "type": "continue",
+                        "value": ""
+                    },
+                    "bri": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "sat": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "hue": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "ct": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "xy": {
+                        "direction": "set",
+                        "type": "json",
+                        "value": "[]"
+                    }
+                },
+                "type": "deconz_state",
+                "domain": "lights"
+            }
+        ],
+        "specific": {
+            "delay": {
+                "type": "num",
+                "value": "50"
+            },
+            "result": {
+                "type": "at_end",
+                "value": ""
+            }
+        },
+        "x": 670,
+        "y": 140,
+        "wires": [
+            [
+                "cb804d33b74a3c1b"
+            ]
+        ]
+    },
+    {
+        "id": "cb804d33b74a3c1b",
+        "type": "debug",
+        "z": "c4f89efe363c2ef8",
+        "name": "",
+        "active": true,
+        "tosidebar": false,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 850,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "62eaa5d56a80ab37",
+        "type": "debug",
+        "z": "c4f89efe363c2ef8",
+        "name": "debug 1",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 660,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "89452b5c3020071d",
+        "type": "function",
+        "z": "c4f89efe363c2ef8",
+        "name": "switch",
+        "func": "\n// Button on pressed\nif (msg.payload.buttonevent == 1002) \n{\n    // turn on\n    msg.payload = \"true\";\n}\n// Button off pressed\nelse if (msg.payload.buttonevent == 2002) \n{\n    // turn off\n    msg.payload = \"false\";\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 140,
+        "wires": [
+            [
+                "62eaa5d56a80ab37",
+                "a9ad9fb54f7fbcd0"
             ]
         ]
     }
