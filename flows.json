@@ -4312,8 +4312,8 @@
             {
                 "arg": {
                     "on": {
-                        "type": "toggle",
-                        "value": ""
+                        "type": "msg",
+                        "value": "payload"
                     },
                     "alert": {
                         "type": "str",
