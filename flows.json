@@ -4065,7 +4065,7 @@
         "type": "ioBroker get",
         "z": "9c0f9de.b23666",
         "name": "evening?",
-        "topic": "node-red.0.states.evening",
+        "topic": "node-red.0.states.evening.value",
         "attrname": "payload",
         "payloadType": "value",
         "x": 540,
@@ -4304,7 +4304,7 @@
         "statustext_type": "auto",
         "search_type": "device",
         "device_list": [
-            "groups/device_id/15"
+            "groups/device_id/17"
         ],
         "device_name": "",
         "query": "{}",
@@ -4405,151 +4405,8 @@
         "wires": [
             [
                 "89f29752.234ac8",
-                "20de7455ae079635",
-                "e073230c82e77aa3"
+                "20de7455ae079635"
             ]
-        ]
-    },
-    {
-        "id": "64f1f76a96b5d44e",
-        "type": "inject",
-        "z": "9c0f9de.b23666",
-        "name": "on",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "true",
-        "payloadType": "str",
-        "x": 1010,
-        "y": 280,
-        "wires": [
-            [
-                "e073230c82e77aa3"
-            ]
-        ]
-    },
-    {
-        "id": "8963efb52602a4ba",
-        "type": "inject",
-        "z": "9c0f9de.b23666",
-        "name": "off",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "false",
-        "payloadType": "str",
-        "x": 1010,
-        "y": 320,
-        "wires": [
-            [
-                "e073230c82e77aa3"
-            ]
-        ]
-    },
-    {
-        "id": "e073230c82e77aa3",
-        "type": "deconz-output",
-        "z": "9c0f9de.b23666",
-        "name": "Dekobeleuchtung",
-        "config_version": 2,
-        "server": "966aead04bc37acf",
-        "statustext": "",
-        "statustext_type": "auto",
-        "search_type": "device",
-        "device_list": [
-            "lights/uniqueid/94:34:69:ff:fe:01:ec:25-01"
-        ],
-        "device_name": "",
-        "query": "{}",
-        "commands": [
-            {
-                "arg": {
-                    "on": {
-                        "type": "msg",
-                        "value": "payload"
-                    },
-                    "alert": {
-                        "type": "str",
-                        "value": ""
-                    },
-                    "effect": {
-                        "type": "str",
-                        "value": ""
-                    },
-                    "colorloopspeed": {
-                        "type": "num",
-                        "value": ""
-                    },
-                    "transitiontime": {
-                        "type": "num",
-                        "value": ""
-                    },
-                    "retryonerror": {
-                        "type": "num",
-                        "value": "0"
-                    },
-                    "aftererror": {
-                        "type": "continue",
-                        "value": ""
-                    },
-                    "bri": {
-                        "direction": "set",
-                        "type": "num",
-                        "value": ""
-                    },
-                    "sat": {
-                        "direction": "set",
-                        "type": "num",
-                        "value": ""
-                    },
-                    "hue": {
-                        "direction": "set",
-                        "type": "num",
-                        "value": ""
-                    },
-                    "ct": {
-                        "direction": "set",
-                        "type": "num",
-                        "value": ""
-                    },
-                    "xy": {
-                        "direction": "set",
-                        "type": "json",
-                        "value": "[]"
-                    }
-                },
-                "type": "deconz_state",
-                "domain": "lights"
-            }
-        ],
-        "specific": {
-            "delay": {
-                "type": "num",
-                "value": "50"
-            },
-            "result": {
-                "type": "at_end",
-                "value": ""
-            }
-        },
-        "x": 1210,
-        "y": 260,
-        "wires": [
-            []
         ]
     },
     {
