@@ -9902,7 +9902,7 @@
         "id": "1e7e7497139d42f3",
         "type": "inject",
         "z": "9d832c5af722ac78",
-        "name": "",
+        "name": "manual trigger",
         "props": [
             {
                 "p": "payload"
@@ -9915,7 +9915,7 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 180,
+        "x": 190,
         "y": 200,
         "wires": [
             [
