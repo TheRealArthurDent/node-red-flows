@@ -88,6 +88,14 @@
         "env": []
     },
     {
+        "id": "9d832c5af722ac78",
+        "type": "tab",
+        "label": "Get up, stand up!",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "2595f1ad.a5eb8e",
         "type": "subflow",
         "name": "Conditional shutter action",
@@ -620,6 +628,113 @@
         "outputLabels": [
             "single",
             "double"
+        ]
+    },
+    {
+        "id": "a0bf89c9c0c89918",
+        "type": "subflow",
+        "name": "Timed dimmer",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 60,
+                "y": 40,
+                "wires": [
+                    {
+                        "id": "080e65a6b93f9aed"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 1300,
+                "y": 40,
+                "wires": [
+                    {
+                        "id": "d3e777f121037316",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 1290,
+                "y": 140,
+                "wires": [
+                    {
+                        "id": "14b46e87adb10456",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "ID",
+                "type": "str",
+                "value": "",
+                "ui": {
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "str"
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "START_VALUE",
+                "type": "num",
+                "value": "0",
+                "ui": {
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "num",
+                            "env"
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "END_VALUE",
+                "type": "num",
+                "value": "100",
+                "ui": {
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "num",
+                            "env"
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "DURATION_MINUTES",
+                "type": "num",
+                "value": "30",
+                "ui": {
+                    "icon": "font-awesome/fa-clock-o",
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "num",
+                            "env"
+                        ]
+                    }
+                }
+            }
+        ],
+        "meta": {},
+        "color": "#DDAA99",
+        "inputLabels": [
+            "start"
+        ],
+        "outputLabels": [
+            "new value",
+            "reset"
         ]
     },
     {
@@ -2775,6 +2890,205 @@
         ]
     },
     {
+        "id": "323a6b4cc22c0bd8",
+        "type": "trigger",
+        "z": "a0bf89c9c0c89918",
+        "name": "",
+        "op1": "1",
+        "op2": "1",
+        "op1type": "str",
+        "op2type": "num",
+        "duration": "-250",
+        "extend": false,
+        "overrideDelay": true,
+        "units": "ms",
+        "reset": "",
+        "bytopic": "all",
+        "topic": "topic",
+        "outputs": 1,
+        "x": 880,
+        "y": 40,
+        "wires": [
+            [
+                "d3e777f121037316"
+            ]
+        ]
+    },
+    {
+        "id": "60b7ca06a4c86390",
+        "type": "delay",
+        "z": "a0bf89c9c0c89918",
+        "name": "",
+        "pauseType": "delayv",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 440,
+        "y": 140,
+        "wires": [
+            [
+                "06509ebf33d1b59c",
+                "4dfe55a9fce5fe4b"
+            ]
+        ]
+    },
+    {
+        "id": "6cbaa1684536d370",
+        "type": "function",
+        "z": "a0bf89c9c0c89918",
+        "name": "setup trigger",
+        "func": "let flowId = env.get(\"ID\");\nlet startValue = parseInt(env.get(\"START_VALUE\"));\nlet endValue = parseInt(env.get(\"END_VALUE\"));\nlet duration = parseInt(env.get(\"DURATION_MINUTES\")) * 60 * 1000;\n\nlet tick = duration / Math.abs(endValue - startValue);\n\ncontext.global[flowId] = { value: startValue };\n\nmsg.delay = tick;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 40,
+        "wires": [
+            [
+                "323a6b4cc22c0bd8"
+            ]
+        ]
+    },
+    {
+        "id": "d2159cdd6a11c2c0",
+        "type": "function",
+        "z": "a0bf89c9c0c89918",
+        "name": "reset after duration",
+        "func": "let duration = parseInt(env.get(\"DURATION_MINUTES\")) * 60 * 1000;\n\nnode.warn(\"reset duration = \" + duration);\n\nmsg.delay = duration;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 250,
+        "y": 140,
+        "wires": [
+            [
+                "60b7ca06a4c86390"
+            ]
+        ]
+    },
+    {
+        "id": "06509ebf33d1b59c",
+        "type": "change",
+        "z": "a0bf89c9c0c89918",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "reset",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 640,
+        "y": 80,
+        "wires": [
+            [
+                "323a6b4cc22c0bd8"
+            ]
+        ]
+    },
+    {
+        "id": "4dfe55a9fce5fe4b",
+        "type": "delay",
+        "z": "a0bf89c9c0c89918",
+        "name": "grace period",
+        "pauseType": "delay",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 730,
+        "y": 140,
+        "wires": [
+            [
+                "14b46e87adb10456"
+            ]
+        ]
+    },
+    {
+        "id": "d3e777f121037316",
+        "type": "function",
+        "z": "a0bf89c9c0c89918",
+        "name": "set dimmer value",
+        "func": "let flowId = env.get(\"ID\");\nlet ctx = context.global[flowId];\n\nlet startValue = parseInt(env.get(\"START_VALUE\"));\nlet endValue = parseInt(env.get(\"END_VALUE\"));\n\nif (startValue < endValue) {\n    ctx.value += 1;\n} else {\n    ctx.value -= 1;\n}\n\nmsg.value = ctx.value;\nnode.warn(\"value: \" + msg.value);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1110,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "080e65a6b93f9aed",
+        "type": "function",
+        "z": "a0bf89c9c0c89918",
+        "name": "reset",
+        "func": "if (msg.reset) {\n    delete msg[\"reset\"];\n    return [null, msg];\n}\nreturn [msg, null];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 170,
+        "y": 40,
+        "wires": [
+            [
+                "6cbaa1684536d370",
+                "d2159cdd6a11c2c0"
+            ],
+            [
+                "06509ebf33d1b59c",
+                "4dfe55a9fce5fe4b"
+            ]
+        ]
+    },
+    {
+        "id": "14b46e87adb10456",
+        "type": "function",
+        "z": "a0bf89c9c0c89918",
+        "name": "reset delay",
+        "func": "delete msg[\"delay\"];\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1090,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
         "id": "9d1fde7b.8ef91",
         "type": "cronplus",
         "z": "a09414b5.859f68",
@@ -3019,6 +3333,7 @@
         "id": "9fa29979.dc57f8",
         "type": "cronplus",
         "z": "a09414b5.859f68",
+        "d": true,
         "name": "wake up",
         "outputField": "payload",
         "timeZone": "",
@@ -3594,6 +3909,13 @@
                 "pt": "msg",
                 "to": "half-open",
                 "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "overrideManualChange",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
             }
         ],
         "action": "",
@@ -3652,6 +3974,13 @@
                 "pt": "msg",
                 "to": "open",
                 "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "overrideManualChange",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
             }
         ],
         "action": "",
@@ -7638,6 +7967,314 @@
         ]
     },
     {
+        "id": "6ea99d7469cbf44d",
+        "type": "deconz-output",
+        "z": "a8a95e02.bf408",
+        "name": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "groups/device_id/18"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "commands": [
+            {
+                "arg": {
+                    "on": {
+                        "type": "set",
+                        "value": "true"
+                    },
+                    "alert": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "effect": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "colorloopspeed": {
+                        "type": "num",
+                        "value": ""
+                    },
+                    "transitiontime": {
+                        "type": "num",
+                        "value": ""
+                    },
+                    "retryonerror": {
+                        "type": "num",
+                        "value": "0"
+                    },
+                    "aftererror": {
+                        "type": "continue",
+                        "value": ""
+                    },
+                    "bri": {
+                        "direction": "set",
+                        "type": "msg",
+                        "value": "brightness"
+                    },
+                    "sat": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "hue": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "ct": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "xy": {
+                        "direction": "set",
+                        "type": "json",
+                        "value": "[]"
+                    }
+                },
+                "type": "deconz_state",
+                "domain": "groups"
+            }
+        ],
+        "specific": {
+            "delay": {
+                "type": "num",
+                "value": "0"
+            },
+            "result": {
+                "type": "at_end",
+                "value": ""
+            }
+        },
+        "x": 1070,
+        "y": 2240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e18d3d356c6da389",
+        "type": "inject",
+        "z": "a8a95e02.bf408",
+        "name": "trigger",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 190,
+        "y": 2240,
+        "wires": [
+            [
+                "65ad5e82e09c7444"
+            ]
+        ]
+    },
+    {
+        "id": "65ad5e82e09c7444",
+        "type": "subflow:a0bf89c9c0c89918",
+        "z": "a8a95e02.bf408",
+        "name": "",
+        "env": [
+            {
+                "name": "ID",
+                "value": "DIMMER_1",
+                "type": "str"
+            },
+            {
+                "name": "durationMunites",
+                "value": "3",
+                "type": "num"
+            }
+        ],
+        "x": 430,
+        "y": 2240,
+        "wires": [
+            [
+                "a839ef386320331d"
+            ],
+            [
+                "c5acffefbf42bbad"
+            ]
+        ]
+    },
+    {
+        "id": "592dca5ba0dd7536",
+        "type": "deconz-output",
+        "z": "a8a95e02.bf408",
+        "name": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "groups/device_id/18"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "commands": [
+            {
+                "arg": {
+                    "on": {
+                        "type": "set",
+                        "value": "false"
+                    },
+                    "alert": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "effect": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "colorloopspeed": {
+                        "type": "num",
+                        "value": ""
+                    },
+                    "transitiontime": {
+                        "type": "num",
+                        "value": "50"
+                    },
+                    "retryonerror": {
+                        "type": "num",
+                        "value": "0"
+                    },
+                    "aftererror": {
+                        "type": "continue",
+                        "value": ""
+                    },
+                    "bri": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": "0"
+                    },
+                    "sat": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "hue": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "ct": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "xy": {
+                        "direction": "set",
+                        "type": "json",
+                        "value": "[]"
+                    }
+                },
+                "type": "deconz_state",
+                "domain": "groups"
+            }
+        ],
+        "specific": {
+            "delay": {
+                "type": "num",
+                "value": "0"
+            },
+            "result": {
+                "type": "at_end",
+                "value": ""
+            }
+        },
+        "x": 1070,
+        "y": 2280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c5acffefbf42bbad",
+        "type": "function",
+        "z": "a8a95e02.bf408",
+        "name": "reset brightness",
+        "func": "if (context.global.wakeup === undefined) {\n    context.global.wakeup = { brightness: 0 };\n}\n\ncontext.global.wakeup.brightness = 0;\ndelete msg[\"delay\"];\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 2280,
+        "wires": [
+            [
+                "592dca5ba0dd7536"
+            ]
+        ]
+    },
+    {
+        "id": "a839ef386320331d",
+        "type": "change",
+        "z": "a8a95e02.bf408",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "brightness",
+                "pt": "msg",
+                "to": "value",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 730,
+        "y": 2240,
+        "wires": [
+            [
+                "6ea99d7469cbf44d"
+            ]
+        ]
+    },
+    {
+        "id": "c8f62523fdef93f2",
+        "type": "inject",
+        "z": "a8a95e02.bf408",
+        "name": "reset",
+        "props": [
+            {
+                "p": "reset",
+                "v": "true",
+                "vt": "bool"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 190,
+        "y": 2300,
+        "wires": [
+            [
+                "65ad5e82e09c7444"
+            ]
+        ]
+    },
+    {
         "id": "ee16368d8b86d83b",
         "type": "ioBroker in",
         "z": "8e42c1ce474ca950",
@@ -7952,42 +8589,6 @@
         "wires": [
             [
                 "f5f4b1b1f4964653"
-            ]
-        ]
-    },
-    {
-        "id": "6ffcc06f925f672e",
-        "type": "deconz-input",
-        "z": "9de561f7972ae9bc",
-        "name": "Button | Good night",
-        "topic": "",
-        "config_version": 2,
-        "server": "966aead04bc37acf",
-        "statustext": "",
-        "statustext_type": "auto",
-        "search_type": "device",
-        "device_list": [
-            "sensors/uniqueid/84:ba:20:ff:fe:d4:12:52-01-1000"
-        ],
-        "device_name": "",
-        "query": "{}",
-        "outputs": 1,
-        "output_rules": [
-            {
-                "type": "state",
-                "format": "single",
-                "output": "onchange",
-                "onstart": false,
-                "payload": [
-                    "__complete__"
-                ]
-            }
-        ],
-        "x": 150,
-        "y": 460,
-        "wires": [
-            [
-                "db24fdc7a908cfd3"
             ]
         ]
     },
@@ -8321,7 +8922,8 @@
         "statustext_type": "auto",
         "search_type": "device",
         "device_list": [
-            "sensors/uniqueid/dc:8e:95:ff:fe:2e:1d:3b-01-1000"
+            "sensors/uniqueid/dc:8e:95:ff:fe:2e:1d:3b-01-1000",
+            "sensors/uniqueid/18:7a:3e:ff:fe:f1:68:1f-01-1000"
         ],
         "device_name": "",
         "query": "{}",
@@ -8917,6 +9519,499 @@
             [
                 "62eaa5d56a80ab37",
                 "a9ad9fb54f7fbcd0"
+            ]
+        ]
+    },
+    {
+        "id": "b3443123f11f3a9b",
+        "type": "cronplus",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "outputField": "payload",
+        "timeZone": "",
+        "persistDynamic": false,
+        "commandResponseMsgOutput": "output1",
+        "outputs": 1,
+        "options": [
+            {
+                "name": "schedule1",
+                "topic": "topic1",
+                "payloadType": "default",
+                "payload": "",
+                "expressionType": "cron",
+                "expression": "0 50 6 ? * MON-FRI *",
+                "location": "",
+                "offset": "0",
+                "solarType": "all",
+                "solarEvents": "sunrise,sunset"
+            },
+            {
+                "name": "schedule2",
+                "topic": "topic2",
+                "payloadType": "default",
+                "payload": "",
+                "expressionType": "cron",
+                "expression": "0 50 8 ? * SAT-SUN *",
+                "location": "",
+                "offset": "0",
+                "solarType": "all",
+                "solarEvents": "sunrise,sunset"
+            }
+        ],
+        "x": 180,
+        "y": 120,
+        "wires": [
+            [
+                "f7190daba4a489c5"
+            ]
+        ]
+    },
+    {
+        "id": "27d259a900501bd4",
+        "type": "switch",
+        "z": "9d832c5af722ac78",
+        "name": "only if we're home",
+        "property": "presence",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "true",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 570,
+        "y": 120,
+        "wires": [
+            [
+                "48f73191c3c18d5f"
+            ]
+        ]
+    },
+    {
+        "id": "f7190daba4a489c5",
+        "type": "ioBroker get",
+        "z": "9d832c5af722ac78",
+        "name": "Check presence",
+        "topic": "node-red.0.presence.presence",
+        "attrname": "presence",
+        "payloadType": "value",
+        "x": 360,
+        "y": 120,
+        "wires": [
+            [
+                "27d259a900501bd4"
+            ]
+        ]
+    },
+    {
+        "id": "48f73191c3c18d5f",
+        "type": "subflow:a0bf89c9c0c89918",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "env": [
+            {
+                "name": "ID",
+                "value": "DIMMER_AUFWACHLICHT",
+                "type": "str"
+            }
+        ],
+        "x": 770,
+        "y": 120,
+        "wires": [
+            [
+                "6e76bf456cbc44bf"
+            ],
+            [
+                "550352514186b2d1",
+                "252ae15f79a545ff"
+            ]
+        ]
+    },
+    {
+        "id": "6e76bf456cbc44bf",
+        "type": "deconz-output",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "groups/device_id/18"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "commands": [
+            {
+                "arg": {
+                    "on": {
+                        "type": "set",
+                        "value": "true"
+                    },
+                    "alert": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "effect": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "colorloopspeed": {
+                        "type": "num",
+                        "value": ""
+                    },
+                    "transitiontime": {
+                        "type": "num",
+                        "value": ""
+                    },
+                    "retryonerror": {
+                        "type": "num",
+                        "value": "0"
+                    },
+                    "aftererror": {
+                        "type": "continue",
+                        "value": ""
+                    },
+                    "bri": {
+                        "direction": "set",
+                        "type": "msg",
+                        "value": "value"
+                    },
+                    "sat": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "hue": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "ct": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "xy": {
+                        "direction": "set",
+                        "type": "json",
+                        "value": "[]"
+                    }
+                },
+                "type": "deconz_state",
+                "domain": "groups"
+            }
+        ],
+        "specific": {
+            "delay": {
+                "type": "num",
+                "value": "0"
+            },
+            "result": {
+                "type": "at_end",
+                "value": ""
+            }
+        },
+        "x": 1010,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "550352514186b2d1",
+        "type": "deconz-output",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "groups/device_id/18"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "commands": [
+            {
+                "arg": {
+                    "on": {
+                        "type": "set",
+                        "value": "false"
+                    },
+                    "alert": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "effect": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "colorloopspeed": {
+                        "type": "num",
+                        "value": ""
+                    },
+                    "transitiontime": {
+                        "type": "num",
+                        "value": "50"
+                    },
+                    "retryonerror": {
+                        "type": "num",
+                        "value": "0"
+                    },
+                    "aftererror": {
+                        "type": "continue",
+                        "value": ""
+                    },
+                    "bri": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": "0"
+                    },
+                    "sat": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "hue": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "ct": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "xy": {
+                        "direction": "set",
+                        "type": "json",
+                        "value": "[]"
+                    }
+                },
+                "type": "deconz_state",
+                "domain": "groups"
+            }
+        ],
+        "specific": {
+            "delay": {
+                "type": "num",
+                "value": "0"
+            },
+            "result": {
+                "type": "at_end",
+                "value": ""
+            }
+        },
+        "x": 1010,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "252ae15f79a545ff",
+        "type": "subflow:893d1cfdd62ef503",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "x": 1040,
+        "y": 200,
+        "wires": [
+            [
+                "50c88aa09ea431cb"
+            ]
+        ]
+    },
+    {
+        "id": "e3e20ed48db44a26",
+        "type": "subflow:2595f1ad.a5eb8e",
+        "z": "9d832c5af722ac78",
+        "name": "Move shutter bedroom",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "bedroom",
+                "type": "str"
+            },
+            {
+                "name": "half-open-position",
+                "value": "40",
+                "type": "num"
+            }
+        ],
+        "x": 1480,
+        "y": 200,
+        "wires": [
+            [
+                "f6435d9c071a1680"
+            ]
+        ]
+    },
+    {
+        "id": "f6435d9c071a1680",
+        "type": "mqtt out",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "topic": "",
+        "qos": "1",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "f1f93d18.375ea",
+        "x": 1660,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "50c88aa09ea431cb",
+        "type": "change",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "half-open",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1260,
+        "y": 200,
+        "wires": [
+            [
+                "e3e20ed48db44a26"
+            ]
+        ]
+    },
+    {
+        "id": "1e7e7497139d42f3",
+        "type": "inject",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 200,
+        "wires": [
+            [
+                "f7190daba4a489c5"
+            ]
+        ]
+    },
+    {
+        "id": "5986d7bdf65edb74",
+        "type": "deconz-input",
+        "z": "9d832c5af722ac78",
+        "name": "Switch | Day  / Night",
+        "topic": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "sensors/uniqueid/dc:8e:95:ff:fe:2e:1d:3b-01-1000",
+            "sensors/uniqueid/18:7a:3e:ff:fe:f1:68:1f-01-1000"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "outputs": 1,
+        "output_rules": [
+            {
+                "type": "state",
+                "format": "single",
+                "output": "onchange",
+                "onstart": false,
+                "payload": [
+                    "__complete__"
+                ]
+            }
+        ],
+        "x": 210,
+        "y": 260,
+        "wires": [
+            [
+                "8bf4da479f36682c"
+            ]
+        ]
+    },
+    {
+        "id": "8bf4da479f36682c",
+        "type": "switch",
+        "z": "9d832c5af722ac78",
+        "name": "only day events",
+        "property": "payload.buttonevent",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1002",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 420,
+        "y": 260,
+        "wires": [
+            [
+                "eb9bec07059b7b31"
+            ]
+        ],
+        "outputLabels": [
+            "day = on"
+        ]
+    },
+    {
+        "id": "eb9bec07059b7b31",
+        "type": "change",
+        "z": "9d832c5af722ac78",
+        "name": "reset dimmer",
+        "rules": [
+            {
+                "t": "set",
+                "p": "reset",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 610,
+        "y": 260,
+        "wires": [
+            [
+                "48f73191c3c18d5f"
             ]
         ]
     }
