@@ -659,8 +659,8 @@
                 ]
             },
             {
-                "x": 1290,
-                "y": 140,
+                "x": 1330,
+                "y": 220,
                 "wires": [
                     {
                         "id": "14b46e87adb10456",
@@ -712,7 +712,7 @@
                 }
             },
             {
-                "name": "DURATION_MINUTES",
+                "name": "DURATION_CHANGE",
                 "type": "num",
                 "value": "30",
                 "ui": {
@@ -725,6 +725,11 @@
                         ]
                     }
                 }
+            },
+            {
+                "name": "DURATION_HOLD",
+                "type": "str",
+                "value": "30"
             }
         ],
         "meta": {},
@@ -2918,7 +2923,7 @@
         "id": "60b7ca06a4c86390",
         "type": "delay",
         "z": "a0bf89c9c0c89918",
-        "name": "",
+        "name": "delay dimmer",
         "pauseType": "delayv",
         "timeout": "5",
         "timeoutUnits": "seconds",
@@ -2931,12 +2936,12 @@
         "drop": false,
         "allowrate": false,
         "outputs": 1,
-        "x": 440,
-        "y": 140,
+        "x": 460,
+        "y": 220,
         "wires": [
             [
                 "06509ebf33d1b59c",
-                "4dfe55a9fce5fe4b"
+                "e07e1c45d34c27f2"
             ]
         ]
     },
@@ -2945,7 +2950,7 @@
         "type": "function",
         "z": "a0bf89c9c0c89918",
         "name": "setup trigger",
-        "func": "let flowId = env.get(\"ID\");\nlet startValue = parseInt(env.get(\"START_VALUE\"));\nlet endValue = parseInt(env.get(\"END_VALUE\"));\nlet duration = parseInt(env.get(\"DURATION_MINUTES\")) * 60 * 1000;\n\nlet tick = duration / Math.abs(endValue - startValue);\n\ncontext.global[flowId] = { value: startValue };\n\nmsg.delay = tick;\n\nreturn msg;",
+        "func": "let flowId = env.get(\"ID\");\nlet startValue = parseInt(env.get(\"START_VALUE\"));\nlet endValue = parseInt(env.get(\"END_VALUE\"));\nlet duration = parseInt(env.get(\"DURATION_CHANGE\")) * 60 * 1000;\n\nlet tick = duration / Math.abs(endValue - startValue);\n\ncontext.global[flowId] = { value: startValue };\n\nmsg.delay = tick;\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -2963,15 +2968,15 @@
         "id": "d2159cdd6a11c2c0",
         "type": "function",
         "z": "a0bf89c9c0c89918",
-        "name": "reset after duration",
-        "func": "let duration = parseInt(env.get(\"DURATION_MINUTES\")) * 60 * 1000;\n\nnode.warn(\"reset duration = \" + duration);\n\nmsg.delay = duration;\n\nreturn msg;",
+        "name": "reset after durationChange",
+        "func": "let durationChange = parseInt(env.get(\"DURATION_CHANGE\")) * 60 * 1000;\n\nmsg.delay = durationChange;\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 250,
-        "y": 140,
+        "x": 240,
+        "y": 220,
         "wires": [
             [
                 "60b7ca06a4c86390"
@@ -3009,8 +3014,8 @@
         "id": "4dfe55a9fce5fe4b",
         "type": "delay",
         "z": "a0bf89c9c0c89918",
-        "name": "grace period",
-        "pauseType": "delay",
+        "name": "delay hold",
+        "pauseType": "delayv",
         "timeout": "1",
         "timeoutUnits": "seconds",
         "rate": "1",
@@ -3022,8 +3027,8 @@
         "drop": false,
         "allowrate": false,
         "outputs": 1,
-        "x": 730,
-        "y": 140,
+        "x": 930,
+        "y": 220,
         "wires": [
             [
                 "14b46e87adb10456"
@@ -3035,7 +3040,7 @@
         "type": "function",
         "z": "a0bf89c9c0c89918",
         "name": "set dimmer value",
-        "func": "let flowId = env.get(\"ID\");\nlet ctx = context.global[flowId];\n\nlet startValue = parseInt(env.get(\"START_VALUE\"));\nlet endValue = parseInt(env.get(\"END_VALUE\"));\n\nif (startValue < endValue) {\n    ctx.value += 1;\n} else {\n    ctx.value -= 1;\n}\n\nmsg.value = ctx.value;\nnode.warn(\"value: \" + msg.value);\n\nreturn msg;",
+        "func": "let flowId = env.get(\"ID\");\nlet ctx = context.global[flowId];\n\nlet startValue = parseInt(env.get(\"START_VALUE\"));\nlet endValue = parseInt(env.get(\"END_VALUE\"));\n\nif (startValue < endValue) {\n    ctx.value += 1;\n} else {\n    ctx.value -= 1;\n}\n\nmsg.value = ctx.value;\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -3052,7 +3057,7 @@
         "type": "function",
         "z": "a0bf89c9c0c89918",
         "name": "reset",
-        "func": "if (msg.reset) {\n    delete msg[\"reset\"];\n    return [null, msg];\n}\nreturn [msg, null];",
+        "func": "if (msg.reset) {\n    delete msg[\"reset\"];\n    msg.delay = 1000;\n    return [null, msg];\n}\nreturn [msg, null];",
         "outputs": 2,
         "noerr": 0,
         "initialize": "",
@@ -3082,10 +3087,29 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1090,
-        "y": 140,
+        "x": 1130,
+        "y": 220,
         "wires": [
             []
+        ]
+    },
+    {
+        "id": "e07e1c45d34c27f2",
+        "type": "function",
+        "z": "a0bf89c9c0c89918",
+        "name": "set duration hold",
+        "func": "let durationHold = parseInt(env.get(\"DURATION_HOLD\")) * 60 * 1000;\n\nmsg.delay = durationHold;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 670,
+        "y": 220,
+        "wires": [
+            [
+                "4dfe55a9fce5fe4b"
+            ]
         ]
     },
     {
@@ -9626,8 +9650,8 @@
                 "6e76bf456cbc44bf"
             ],
             [
-                "550352514186b2d1",
-                "252ae15f79a545ff"
+                "252ae15f79a545ff",
+                "550352514186b2d1"
             ]
         ]
     },
