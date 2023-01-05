@@ -82,7 +82,7 @@
     {
         "id": "c4f89efe363c2ef8",
         "type": "tab",
-        "label": "Homeoffice",
+        "label": "Direct Button actions",
         "disabled": false,
         "info": "",
         "env": []
@@ -700,7 +700,7 @@
             {
                 "name": "END_VALUE",
                 "type": "num",
-                "value": "100",
+                "value": "255",
                 "ui": {
                     "type": "input",
                     "opts": {
@@ -9394,7 +9394,6 @@
         "y": 140,
         "wires": [
             [
-                "62eaa5d56a80ab37",
                 "89452b5c3020071d"
             ]
         ]
@@ -9511,22 +9510,6 @@
         "wires": []
     },
     {
-        "id": "62eaa5d56a80ab37",
-        "type": "debug",
-        "z": "c4f89efe363c2ef8",
-        "name": "debug 1",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 660,
-        "y": 380,
-        "wires": []
-    },
-    {
         "id": "89452b5c3020071d",
         "type": "function",
         "z": "c4f89efe363c2ef8",
@@ -9541,8 +9524,101 @@
         "y": 140,
         "wires": [
             [
-                "62eaa5d56a80ab37",
                 "a9ad9fb54f7fbcd0"
+            ]
+        ]
+    },
+    {
+        "id": "5edadc83a4a5605c",
+        "type": "comment",
+        "z": "c4f89efe363c2ef8",
+        "name": "Activates the HO Table",
+        "info": "",
+        "x": 200,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "a71a69ed7dd19567",
+        "type": "deconz-input",
+        "z": "c4f89efe363c2ef8",
+        "name": "Switch | Vitrine on / off",
+        "topic": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "sensors/uniqueid/70:ac:08:ff:fe:db:de:23-01-1000"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "outputs": 1,
+        "output_rules": [
+            {
+                "type": "state",
+                "format": "single",
+                "output": "onchange",
+                "onstart": false,
+                "payload": [
+                    "__complete__"
+                ]
+            }
+        ],
+        "x": 200,
+        "y": 260,
+        "wires": [
+            [
+                "5098bfb27cc46539"
+            ]
+        ]
+    },
+    {
+        "id": "1957605ca2f05572",
+        "type": "comment",
+        "z": "c4f89efe363c2ef8",
+        "name": "Activates / Deactivates the Vitrine",
+        "info": "",
+        "x": 240,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "c1acf3bcc69a23c4",
+        "type": "ioBroker out",
+        "z": "c4f89efe363c2ef8",
+        "name": "On/Off Vitrine.on",
+        "topic": "hue.0.Vitrine.on",
+        "ack": "false",
+        "autoCreate": "false",
+        "stateName": "",
+        "role": "",
+        "payloadType": "",
+        "readonly": "",
+        "stateUnit": "",
+        "stateMin": "",
+        "stateMax": "",
+        "x": 590,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "5098bfb27cc46539",
+        "type": "function",
+        "z": "c4f89efe363c2ef8",
+        "name": "switch",
+        "func": "\n// Button on pressed\nif (msg.payload.buttonevent == 1002) \n{\n    // turn on\n    msg.payload = true;\n}\n// Button off pressed\nelse if (msg.payload.buttonevent == 2002) \n{\n    // turn off\n    msg.payload = false;\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 260,
+        "wires": [
+            [
+                "c1acf3bcc69a23c4"
             ]
         ]
     },
