@@ -743,6 +743,54 @@
         ]
     },
     {
+        "id": "9c37ac267425c096",
+        "type": "subflow",
+        "name": "Move shutter to desired position",
+        "info": "Creates a command to move the specified shutter to it's last desired position in case it's not already there.\r\nWill not forward the message in case current and desired positions are equal.",
+        "category": "",
+        "in": [
+            {
+                "x": 80,
+                "y": 60,
+                "wires": [
+                    {
+                        "id": "f2066a039a46dfa1"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 1020,
+                "y": 60,
+                "wires": [
+                    {
+                        "id": "145cb51adbe06f65",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "shutter.name",
+                "type": "str",
+                "value": "",
+                "ui": {
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "str",
+                            "env"
+                        ]
+                    }
+                }
+            }
+        ],
+        "meta": {},
+        "color": "#DDAA99"
+    },
+    {
         "id": "f1f93d18.375ea",
         "type": "mqtt-broker",
         "name": "mosquitto",
@@ -953,24 +1001,6 @@
         ]
     },
     {
-        "id": "ecd48a91520fdb7b",
-        "type": "debug",
-        "z": "2595f1ad.a5eb8e",
-        "d": true,
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": true,
-        "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1030,
-        "y": 220,
-        "wires": []
-    },
-    {
         "id": "8a0d20bf3b088033",
         "type": "subflow:c6d3de9075efb38f",
         "z": "2595f1ad.a5eb8e",
@@ -1023,13 +1053,10 @@
         "y": 80,
         "wires": [
             [
-                "ecd48a91520fdb7b",
                 "37f7eef31442242b",
                 "52c568a8f8c48224"
             ],
-            [
-                "ecd48a91520fdb7b"
-            ]
+            []
         ]
     },
     {
@@ -3113,6 +3140,63 @@
         ]
     },
     {
+        "id": "f2066a039a46dfa1",
+        "type": "subflow:c6d3de9075efb38f",
+        "z": "9c37ac267425c096",
+        "name": "",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "${shutter-name}",
+                "type": "env"
+            }
+        ],
+        "x": 290,
+        "y": 60,
+        "wires": [
+            [
+                "7d617c3e5cf23aca"
+            ]
+        ]
+    },
+    {
+        "id": "7d617c3e5cf23aca",
+        "type": "function",
+        "z": "9c37ac267425c096",
+        "name": "proceed if desired != current",
+        "func": "let currentPosition = parseInt(msg.currentPosition);\nlet desiredPosition = parseInt(msg.lastDesiredPosition);\n\nif (currentPosition == desiredPosition) {\n    return null;\n}\n\nmsg.payload = desiredPosition;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 580,
+        "y": 60,
+        "wires": [
+            [
+                "145cb51adbe06f65"
+            ]
+        ]
+    },
+    {
+        "id": "145cb51adbe06f65",
+        "type": "subflow:76dd2645ea70b9ac",
+        "z": "9c37ac267425c096",
+        "name": "",
+        "env": [
+            {
+                "name": "shutter-name",
+                "value": "${shutter-name}",
+                "type": "env"
+            }
+        ],
+        "x": 840,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
         "id": "9d1fde7b.8ef91",
         "type": "cronplus",
         "z": "a09414b5.859f68",
@@ -3872,7 +3956,7 @@
         "id": "da72b18c60bff4bc",
         "type": "deconz-input",
         "z": "a09414b5.859f68",
-        "name": "Rollladen",
+        "name": "Button | Shutter Office",
         "topic": "",
         "config_version": 2,
         "server": "966aead04bc37acf",
@@ -3896,7 +3980,7 @@
                 ]
             }
         ],
-        "x": 100,
+        "x": 140,
         "y": 960,
         "wires": [
             [
@@ -3913,7 +3997,7 @@
         "attrname": "payload",
         "payloadType": "value",
         "errOnInvalidState": "nothing",
-        "x": 310,
+        "x": 390,
         "y": 960,
         "wires": [
             [
@@ -3947,7 +4031,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 650,
+        "x": 730,
         "y": 940,
         "wires": [
             [
@@ -3975,7 +4059,7 @@
         "checkall": "true",
         "repair": false,
         "outputs": 2,
-        "x": 510,
+        "x": 590,
         "y": 960,
         "wires": [
             [
@@ -4012,7 +4096,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 650,
+        "x": 730,
         "y": 980,
         "wires": [
             [
@@ -4032,7 +4116,7 @@
                 "type": "str"
             }
         ],
-        "x": 910,
+        "x": 990,
         "y": 960,
         "wires": [
             [
@@ -8386,7 +8470,7 @@
         "type": "function",
         "z": "8e42c1ce474ca950",
         "name": "truncate topic name",
-        "func": "// transform e.g. dwd.0.warning1.severity -> dwd.0.warning1\n// as a topic name\nconst regex = /^(dwd.0.warning[0-9]*)\\.?.*/;\nconst match = msg.topic.match(regex);\nconsole.log(`Match: ${match[1]}`);\nmsg.topic = match[1];\n\nreturn msg;",
+        "func": "// transform e.g. dwd.0.warning1.severity -> dwd.0.warning1\n// as a topic name\nconst regex = /^(dwd.0.warning[0-9]*)\\.?.*/;\nconst match = msg.topic.match(regex);\n//console.log(`Match: ${match[1]}`);\nmsg.topic = match[1];\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -9580,7 +9664,7 @@
         "z": "c4f89efe363c2ef8",
         "name": "Activates / Deactivates the Vitrine",
         "info": "",
-        "x": 240,
+        "x": 230,
         "y": 220,
         "wires": []
     },
@@ -9621,6 +9705,174 @@
                 "c1acf3bcc69a23c4"
             ]
         ]
+    },
+    {
+        "id": "67fafabf64471e9d",
+        "type": "deconz-input",
+        "z": "c4f89efe363c2ef8",
+        "name": "Button | Reset Shutters",
+        "topic": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "sensors/uniqueid/84:ba:20:ff:fe:d4:12:52-01-1000"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "outputs": 1,
+        "output_rules": [
+            {
+                "type": "state",
+                "format": "single",
+                "output": "onchange",
+                "onstart": false,
+                "payload": [
+                    "__complete__"
+                ]
+            }
+        ],
+        "x": 200,
+        "y": 460,
+        "wires": [
+            [
+                "d262cc202d881b49",
+                "2f02ae19986d5098",
+                "968796676abc2d2b",
+                "bf5cd61d9c833f12",
+                "1cc0e72b47d62fa7"
+            ]
+        ]
+    },
+    {
+        "id": "d262cc202d881b49",
+        "type": "subflow:9c37ac267425c096",
+        "z": "c4f89efe363c2ef8",
+        "name": "Reset shutter office",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "office",
+                "type": "str"
+            }
+        ],
+        "x": 630,
+        "y": 380,
+        "wires": [
+            [
+                "27c25da64426b1ec"
+            ]
+        ]
+    },
+    {
+        "id": "1cc0e72b47d62fa7",
+        "type": "subflow:9c37ac267425c096",
+        "z": "c4f89efe363c2ef8",
+        "name": "Reset shutter bedroom",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "bedroom",
+                "type": "str"
+            }
+        ],
+        "x": 640,
+        "y": 540,
+        "wires": [
+            [
+                "27c25da64426b1ec"
+            ]
+        ]
+    },
+    {
+        "id": "2f02ae19986d5098",
+        "type": "subflow:9c37ac267425c096",
+        "z": "c4f89efe363c2ef8",
+        "name": "Reset shutter terrasse",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "terrasse",
+                "type": "str"
+            }
+        ],
+        "x": 640,
+        "y": 420,
+        "wires": [
+            [
+                "27c25da64426b1ec"
+            ]
+        ]
+    },
+    {
+        "id": "968796676abc2d2b",
+        "type": "subflow:9c37ac267425c096",
+        "z": "c4f89efe363c2ef8",
+        "name": "Reset shutter garden",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "garden",
+                "type": "str"
+            }
+        ],
+        "x": 640,
+        "y": 460,
+        "wires": [
+            [
+                "27c25da64426b1ec"
+            ]
+        ]
+    },
+    {
+        "id": "bf5cd61d9c833f12",
+        "type": "subflow:9c37ac267425c096",
+        "z": "c4f89efe363c2ef8",
+        "name": "Reset shutter kitchen",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "kitchen",
+                "type": "str"
+            }
+        ],
+        "x": 640,
+        "y": 500,
+        "wires": [
+            [
+                "27c25da64426b1ec"
+            ]
+        ]
+    },
+    {
+        "id": "d35d3f7f0f95d700",
+        "type": "comment",
+        "z": "c4f89efe363c2ef8",
+        "name": "Bring all shutters back to their currently desired position",
+        "info": "",
+        "x": 300,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "27c25da64426b1ec",
+        "type": "mqtt out",
+        "z": "c4f89efe363c2ef8",
+        "name": "",
+        "topic": "",
+        "qos": "1",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "f1f93d18.375ea",
+        "x": 890,
+        "y": 460,
+        "wires": []
     },
     {
         "id": "b3443123f11f3a9b",
