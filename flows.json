@@ -804,18 +804,19 @@
         "keepalive": "60",
         "cleansession": true,
         "birthTopic": "subscribers/node-red/connection-status",
-        "birthQos": "0",
-        "birthPayload": "1",
+        "birthQos": "1",
+        "birthPayload": "CONNECTED",
         "birthMsg": {},
         "closeTopic": "subscribers/node-red/connection-status",
-        "closeQos": "0",
-        "closePayload": "0",
+        "closeQos": "1",
+        "closePayload": "DISCONNECTING",
         "closeMsg": {},
         "willTopic": "subscribers/node-red/connection-status",
-        "willQos": "0",
+        "willQos": "1",
         "willRetain": "true",
-        "willPayload": "-1",
+        "willPayload": "DISCONNECTED",
         "willMsg": {},
+        "userProps": "",
         "sessionExpiry": ""
     },
     {
@@ -2689,8 +2690,10 @@
         "tls": "",
         "persist": false,
         "proxy": "",
+        "insecureHTTPParser": false,
         "authType": "",
         "senderr": false,
+        "headers": [],
         "x": 300,
         "y": 220,
         "wires": [
@@ -4709,6 +4712,7 @@
         "id": "a3a5fb6b0676b111",
         "type": "delay",
         "z": "9c0f9de.b23666",
+        "d": true,
         "name": "",
         "pauseType": "delay",
         "timeout": "5",
@@ -4842,9 +4846,27 @@
         "wires": [
             [
                 "89f29752.234ac8",
-                "20de7455ae079635"
+                "20de7455ae079635",
+                "23ac845cb820e025"
             ]
         ]
+    },
+    {
+        "id": "23ac845cb820e025",
+        "type": "debug",
+        "z": "9c0f9de.b23666",
+        "name": "Dekobeleuchtung",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1220,
+        "y": 260,
+        "wires": []
     },
     {
         "id": "b94d187b.d95508",
@@ -8440,7 +8462,7 @@
         "y": 420,
         "wires": [
             [
-                "8c7227b2c87be6e5"
+                "91304201fcc50e67"
             ]
         ]
     },
@@ -8520,22 +8542,6 @@
         "info": "If we only need one ot two attributes to determine relevance, maybe we can do that here.",
         "x": 630,
         "y": 120,
-        "wires": []
-    },
-    {
-        "id": "8c7227b2c87be6e5",
-        "type": "debug",
-        "z": "8e42c1ce474ca950",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 810,
-        "y": 420,
         "wires": []
     },
     {
@@ -8642,7 +8648,7 @@
         "type": "function",
         "z": "8e42c1ce474ca950",
         "name": "filter non-relevant messages",
-        "func": "// filter irrelevant messages\n// from https://github.com/ioBroker/ioBroker.dwd/blob/master/main.js\n\n// Warning levels\n// 5 = Warnungen vor extremem Unwetter\n// 4 = Unwetterwarnungen\n// 3 = Warnungen vor markantem Wetter\n// 2 = Wetterwarnungen\n// 1 = Vorabinformatio Unwetter\n\n// Warning types\n// 0 = Gewitter inklusive Begleiterscheinungen\n// 1 = Wind/Sturm/Orkan\n// 2 = Stark- und Dauerregen\n// 3 = Schneefall/Schneeverwehungen\n// 4 = Nebel\n// 5 = Frost\n// 6 = Glätte/Glatteis\n// 7 = Tauwetter\n// 8 = Hitzewarnungen\n// 9 = UV-Warnungen\n//10 = Küstenwarnungen ??\n//11 = Binnenseewarnungen ??\n\n// So basically we're only interrested in types 0 and 1\n// and probably only levels 4 and 5\nif ([\"0\", \"1\"].includes(msg.type) && [\"4\", \"5\"].includes(msg.level)) {\n    return msg;\n}\n\nmsg.headline = \"IGNORE - \" + msg.headline;\n\nreturn msg;",
+        "func": "// filter irrelevant messages\n// from https://github.com/ioBroker/ioBroker.dwd/blob/master/main.js\n\n// Warning levels\n// 5 = Warnungen vor extremem Unwetter\n// 4 = Unwetterwarnungen\n// 3 = Warnungen vor markantem Wetter\n// 2 = Wetterwarnungen\n// 1 = Vorabinformatio Unwetter\n\n// Warning types\n// 0 = Gewitter inklusive Begleiterscheinungen\n// 1 = Wind/Sturm/Orkan\n// 2 = Stark- und Dauerregen\n// 3 = Schneefall/Schneeverwehungen\n// 4 = Nebel\n// 5 = Frost\n// 6 = Glätte/Glatteis\n// 7 = Tauwetter\n// 8 = Hitzewarnungen\n// 9 = UV-Warnungen\n//10 = Küstenwarnungen ??\n//11 = Binnenseewarnungen ??\n\n// So basically we're only interrested in types 0 and 1\n// and probably only levels 4 and 5\nif ([\"0\", \"1\"].includes(msg.type) && [\"3\", \"4\", \"5\"].includes(msg.level)) {\n    return msg;\n}\n\n//msg.headline = \"IGNORE - \" + msg.headline;\n\nreturn null;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -8699,6 +8705,204 @@
                 "f5f4b1b1f4964653"
             ]
         ]
+    },
+    {
+        "id": "76b65c15e0842ca0",
+        "type": "subflow:2595f1ad.a5eb8e",
+        "z": "8e42c1ce474ca950",
+        "name": "Move shutter terrasse",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "terrasse",
+                "type": "str"
+            }
+        ],
+        "x": 1100,
+        "y": 500,
+        "wires": [
+            [
+                "82db8e4c08412106"
+            ]
+        ]
+    },
+    {
+        "id": "927ac6466c5a7e49",
+        "type": "subflow:2595f1ad.a5eb8e",
+        "z": "8e42c1ce474ca950",
+        "name": "Move shutter office",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "office",
+                "type": "str"
+            }
+        ],
+        "x": 1090,
+        "y": 420,
+        "wires": [
+            [
+                "82db8e4c08412106"
+            ]
+        ]
+    },
+    {
+        "id": "9bd60117e73ffb2c",
+        "type": "subflow:2595f1ad.a5eb8e",
+        "z": "8e42c1ce474ca950",
+        "name": "Move shutter garden",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "garden",
+                "type": "str"
+            },
+            {
+                "name": "half-open-position",
+                "value": "0",
+                "type": "num"
+            }
+        ],
+        "x": 1100,
+        "y": 540,
+        "wires": [
+            [
+                "82db8e4c08412106"
+            ]
+        ]
+    },
+    {
+        "id": "6a6ad40c7902055f",
+        "type": "subflow:2595f1ad.a5eb8e",
+        "z": "8e42c1ce474ca950",
+        "name": "Move shutter kitchen",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "kitchen",
+                "type": "str"
+            },
+            {
+                "name": "half-open-position",
+                "value": "40",
+                "type": "num"
+            }
+        ],
+        "x": 1100,
+        "y": 580,
+        "wires": [
+            [
+                "82db8e4c08412106"
+            ]
+        ]
+    },
+    {
+        "id": "55208da4555886d3",
+        "type": "subflow:2595f1ad.a5eb8e",
+        "z": "8e42c1ce474ca950",
+        "name": "Move shutter bedroom",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "bedroom",
+                "type": "str"
+            },
+            {
+                "name": "half-open-position",
+                "value": "40",
+                "type": "num"
+            }
+        ],
+        "x": 1100,
+        "y": 660,
+        "wires": [
+            [
+                "82db8e4c08412106"
+            ]
+        ]
+    },
+    {
+        "id": "82db8e4c08412106",
+        "type": "mqtt out",
+        "z": "8e42c1ce474ca950",
+        "name": "",
+        "topic": "",
+        "qos": "1",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "f1f93d18.375ea",
+        "x": 1390,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "91304201fcc50e67",
+        "type": "change",
+        "z": "8e42c1ce474ca950",
+        "name": "override",
+        "rules": [
+            {
+                "t": "set",
+                "p": "overrideManualChange",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            },
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "half-close",
+                "fromt": "str",
+                "to": "half-open",
+                "tot": "str"
+            },
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "close",
+                "fromt": "str",
+                "to": "closed",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 780,
+        "y": 420,
+        "wires": [
+            [
+                "927ac6466c5a7e49",
+                "76b65c15e0842ca0",
+                "9bd60117e73ffb2c",
+                "6a6ad40c7902055f",
+                "55208da4555886d3"
+            ]
+        ]
+    },
+    {
+        "id": "5a53fa21bbc09fa8",
+        "type": "debug",
+        "z": "8e42c1ce474ca950",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1410,
+        "y": 500,
+        "wires": []
     },
     {
         "id": "c03c6dcf3c9b3e22",
@@ -9914,7 +10118,8 @@
         "y": 120,
         "wires": [
             [
-                "f7190daba4a489c5"
+                "f7190daba4a489c5",
+                "82b418c7da8f912c"
             ]
         ]
     },
@@ -9930,16 +10135,23 @@
                 "t": "eq",
                 "v": "true",
                 "vt": "str"
+            },
+            {
+                "t": "else"
             }
         ],
         "checkall": "true",
         "repair": false,
-        "outputs": 1,
+        "outputs": 2,
         "x": 570,
         "y": 120,
         "wires": [
             [
-                "48f73191c3c18d5f"
+                "48f73191c3c18d5f",
+                "ec73385370e2511b"
+            ],
+            [
+                "0ab06b3fdd8e69b5"
             ]
         ]
     },
@@ -9971,7 +10183,7 @@
                 "type": "str"
             }
         ],
-        "x": 770,
+        "x": 780,
         "y": 120,
         "wires": [
             [
@@ -10246,7 +10458,8 @@
         "y": 200,
         "wires": [
             [
-                "e3e20ed48db44a26"
+                "e3e20ed48db44a26",
+                "6f6d542b857eeef1"
             ]
         ]
     },
@@ -10271,7 +10484,8 @@
         "y": 200,
         "wires": [
             [
-                "f7190daba4a489c5"
+                "f7190daba4a489c5",
+                "82b418c7da8f912c"
             ]
         ]
     },
@@ -10366,5 +10580,73 @@
                 "48f73191c3c18d5f"
             ]
         ]
+    },
+    {
+        "id": "82b418c7da8f912c",
+        "type": "debug",
+        "z": "9d832c5af722ac78",
+        "name": "Wakeup - Start",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "{\"x\":\"Wakeup procedure initiated.\"}.x",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 370,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "ec73385370e2511b",
+        "type": "debug",
+        "z": "9d832c5af722ac78",
+        "name": "Wakeup - Start dimmer",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "{\"x\":\"Dimmer started.\"}.x",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 810,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "0ab06b3fdd8e69b5",
+        "type": "debug",
+        "z": "9d832c5af722ac78",
+        "name": "Wakeup - No presence",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "{\"x\":\"Wakeup procedure cancelled due to no presence.\"}.x",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 910,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "6f6d542b857eeef1",
+        "type": "debug",
+        "z": "9d832c5af722ac78",
+        "name": "Wakeup - Finish",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "{\"x\":\"Finishing procedure by opening shutter.\"}.x",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1470,
+        "y": 160,
+        "wires": []
     }
 ]
