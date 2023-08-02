@@ -96,6 +96,14 @@
         "env": []
     },
     {
+        "id": "acc19fe5f27ac7a1",
+        "type": "tab",
+        "label": "Various Timers",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "2595f1ad.a5eb8e",
         "type": "subflow",
         "name": "Conditional shutter action",
@@ -394,11 +402,11 @@
         ],
         "out": [
             {
-                "x": 820,
-                "y": 300,
+                "x": 1060,
+                "y": 360,
                 "wires": [
                     {
-                        "id": "00e39422ca49da5e",
+                        "id": "962a8cf0fab5e00d",
                         "port": 0
                     }
                 ]
@@ -639,7 +647,7 @@
         "in": [
             {
                 "x": 60,
-                "y": 40,
+                "y": 100,
                 "wires": [
                     {
                         "id": "080e65a6b93f9aed"
@@ -650,7 +658,7 @@
         "out": [
             {
                 "x": 1300,
-                "y": 40,
+                "y": 100,
                 "wires": [
                     {
                         "id": "d3e777f121037316",
@@ -660,7 +668,7 @@
             },
             {
                 "x": 1330,
-                "y": 220,
+                "y": 280,
                 "wires": [
                     {
                         "id": "14b46e87adb10456",
@@ -1044,7 +1052,7 @@
         "type": "function",
         "z": "2595f1ad.a5eb8e",
         "name": "Determine action",
-        "func": "if(msg.lastDesiredPosition === undefined || msg.currentPosition === msg.lastDesiredPosition) {\n    msg.reason = 'Moving shutter. No manual change detected.'\n    return [msg, null];\n}\nif(msg.overrideManualChange) {\n    msg.reason = 'Moving shutter. Overriding manual change due to msg.overrideManualChange.'\n    return [msg, null];\n}\nmsg.reason = \"Manual change detected. Shutters will not be moved.\"\nmsg.payload = \"Don't move.\"\nreturn [null, msg];",
+        "func": "if(msg.preventMovement) {\n    msg.reason = \"preventMovement is active. Shutters will not be moved.\"\n    msg.payload = \"Don't move.\"\n    return [null, msg];    \n}\nif(msg.lastDesiredPosition === undefined || msg.currentPosition === msg.lastDesiredPosition) {\n    msg.reason = 'Moving shutter. No manual change detected.'\n    return [msg, null];\n}\nif(msg.overrideManualChange) {\n    msg.reason = 'Moving shutter. Overriding manual change due to msg.overrideManualChange.'\n    return [msg, null];\n}\nmsg.reason = \"Manual change detected. Shutters will not be moved.\"\nmsg.payload = \"Don't move.\"\nreturn [null, msg];",
         "outputs": 2,
         "noerr": 0,
         "initialize": "",
@@ -1055,10 +1063,30 @@
         "wires": [
             [
                 "37f7eef31442242b",
-                "52c568a8f8c48224"
+                "52c568a8f8c48224",
+                "ec982b1846210bfd"
             ],
-            []
+            [
+                "ec982b1846210bfd"
+            ]
         ]
+    },
+    {
+        "id": "ec982b1846210bfd",
+        "type": "debug",
+        "z": "2595f1ad.a5eb8e",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1030,
+        "y": 200,
+        "wires": []
     },
     {
         "id": "863fd4bd.e4a498",
@@ -1803,7 +1831,7 @@
         "fieldType": "msg",
         "format": "text",
         "syntax": "plain",
-        "template": "My dust bin is full. :(",
+        "template": "My dustbin is full. :(",
         "output": "str",
         "x": 930,
         "y": 180,
@@ -2132,6 +2160,13 @@
                 "pt": "msg",
                 "to": "mqtt-client.0.shellies.shutter-${shutter.name}.roller.0.pos",
                 "tot": "env"
+            },
+            {
+                "t": "set",
+                "p": "preventMovement",
+                "pt": "msg",
+                "to": "node-red.0.states.preventAutomaticShutterMovement.${shutter.name}.active",
+                "tot": "env"
             }
         ],
         "action": "",
@@ -2203,7 +2238,9 @@
         "x": 590,
         "y": 300,
         "wires": [
-            []
+            [
+                "cbec7a93e02f6a8c"
+            ]
         ]
     },
     {
@@ -2231,6 +2268,67 @@
             [
                 "00e39422ca49da5e"
             ]
+        ]
+    },
+    {
+        "id": "b639388a0ee670a2",
+        "type": "ioBroker get",
+        "z": "c6d3de9075efb38f",
+        "name": "get preventMovement",
+        "topic": "",
+        "attrname": "preventMovement",
+        "payloadType": "value",
+        "errOnInvalidState": "false",
+        "x": 600,
+        "y": 360,
+        "wires": [
+            [
+                "962a8cf0fab5e00d"
+            ]
+        ]
+    },
+    {
+        "id": "cbec7a93e02f6a8c",
+        "type": "change",
+        "z": "c6d3de9075efb38f",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "preventMovement",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 350,
+        "y": 360,
+        "wires": [
+            [
+                "b639388a0ee670a2"
+            ]
+        ]
+    },
+    {
+        "id": "962a8cf0fab5e00d",
+        "type": "function",
+        "z": "c6d3de9075efb38f",
+        "name": "transform to boolean",
+        "func": "msg.preventMovement = (msg.preventMovement === \"true\");\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 360,
+        "wires": [
+            []
         ]
     },
     {
@@ -2365,7 +2463,7 @@
         "type": "function",
         "z": "7adf4d18a6dba978",
         "name": "",
-        "func": "if (Number(msg.currentBrightness) > Number(msg.brightnessMax)) {\n    msg.autoCloseReason = 'brightnessMax = ' + msg.currentBrightness;\n    msg.payload = 40;\n    return [msg, null];\n} else if (Number(msg.currentTemperature) > Number(msg.tempMax)) {\n    msg.autoCloseReason = 'tempMax = ' + msg.currentTemperature;\n    msg.payload = 40;\n    return [msg, null];\n} else if (Number(msg.currentTemperature) > Number(msg.temp)\n        && Number(msg.currentBrightness) > Number(msg.brightness)) {\n    msg.autoCloseReason = 'temp = ' + msg.currentTemperature\n        + ' and currentBrightness = ' + msg.currentBrightness;\n    msg.payload = 40;\n    return [msg, null];\n}\nreturn [null, msg];",
+        "func": "if (Number(msg.currentBrightness) > Number(msg.brightnessMax)) {\n    msg.autoCloseReason = 'brightnessMax = ' + msg.currentBrightness;\n    msg.payload = 'half-open';\n    return [msg, null];\n} else if (Number(msg.currentTemperature) > Number(msg.tempMax)) {\n    msg.autoCloseReason = 'tempMax = ' + msg.currentTemperature;\n    msg.payload = 'half-open';\n    return [msg, null];\n} else if (Number(msg.currentTemperature) > Number(msg.temp)\n        && Number(msg.currentBrightness) > Number(msg.brightness)) {\n    msg.autoCloseReason = 'temp = ' + msg.currentTemperature\n        + ' and currentBrightness = ' + msg.currentBrightness;\n    msg.payload = 'half-open';\n    return [msg, null];\n}\nreturn [null, msg];",
         "outputs": 2,
         "noerr": 0,
         "initialize": "",
@@ -2942,7 +3040,7 @@
         "topic": "topic",
         "outputs": 1,
         "x": 880,
-        "y": 40,
+        "y": 100,
         "wires": [
             [
                 "d3e777f121037316"
@@ -2967,7 +3065,7 @@
         "allowrate": false,
         "outputs": 1,
         "x": 460,
-        "y": 220,
+        "y": 280,
         "wires": [
             [
                 "06509ebf33d1b59c",
@@ -2980,17 +3078,19 @@
         "type": "function",
         "z": "a0bf89c9c0c89918",
         "name": "setup trigger",
-        "func": "let flowId = env.get(\"ID\");\nlet startValue = parseInt(env.get(\"START_VALUE\"));\nlet endValue = parseInt(env.get(\"END_VALUE\"));\nlet duration = parseInt(env.get(\"DURATION_CHANGE\")) * 60 * 1000;\n\nlet tick = duration / Math.abs(endValue - startValue);\n\ncontext.global[flowId] = { value: startValue };\n\nmsg.delay = tick;\n\nreturn msg;",
+        "func": "let flowId = env.get(\"ID\");\nlet startValue = parseInt(env.get(\"START_VALUE\"));\nlet endValue = parseInt(env.get(\"END_VALUE\"));\nlet duration = parseInt(env.get(\"DURATION_CHANGE\")) * 60 * 1000;\n\nlet tick = duration / Math.abs(endValue - startValue);\n\ncontext.global[flowId] = { value: startValue };\n\nmsg.delay = tick;\nmsg.topic = \"states.timer.\" + flowId.toLowerCase() + \".active\";\nmsg.payload = true;\nmsg.stateName = flowId;\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
         "x": 410,
-        "y": 40,
+        "y": 100,
         "wires": [
             [
-                "323a6b4cc22c0bd8"
+                "323a6b4cc22c0bd8",
+                "24857958a5ce1580",
+                "50469674b29e3281"
             ]
         ]
     },
@@ -3006,7 +3106,7 @@
         "finalize": "",
         "libs": [],
         "x": 240,
-        "y": 220,
+        "y": 280,
         "wires": [
             [
                 "60b7ca06a4c86390"
@@ -3033,7 +3133,7 @@
         "to": "",
         "reg": false,
         "x": 640,
-        "y": 80,
+        "y": 140,
         "wires": [
             [
                 "323a6b4cc22c0bd8"
@@ -3058,10 +3158,11 @@
         "allowrate": false,
         "outputs": 1,
         "x": 930,
-        "y": 220,
+        "y": 280,
         "wires": [
             [
-                "14b46e87adb10456"
+                "14b46e87adb10456",
+                "e8e0fc8f373a4675"
             ]
         ]
     },
@@ -3077,7 +3178,7 @@
         "finalize": "",
         "libs": [],
         "x": 1110,
-        "y": 40,
+        "y": 100,
         "wires": [
             []
         ]
@@ -3094,7 +3195,7 @@
         "finalize": "",
         "libs": [],
         "x": 170,
-        "y": 40,
+        "y": 100,
         "wires": [
             [
                 "6cbaa1684536d370",
@@ -3111,14 +3212,14 @@
         "type": "function",
         "z": "a0bf89c9c0c89918",
         "name": "reset delay",
-        "func": "delete msg[\"delay\"];\n\nreturn msg;",
+        "func": "if(msg.delay == 1000) {\n    msg.regularTimeout = false;\n} else {\n    msg.regularTimeout = true;\n}\n\ndelete msg[\"delay\"];\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
         "x": 1130,
-        "y": 220,
+        "y": 280,
         "wires": [
             []
         ]
@@ -3135,12 +3236,86 @@
         "finalize": "",
         "libs": [],
         "x": 670,
-        "y": 220,
+        "y": 280,
         "wires": [
             [
                 "4dfe55a9fce5fe4b"
             ]
         ]
+    },
+    {
+        "id": "24857958a5ce1580",
+        "type": "ioBroker out",
+        "z": "a0bf89c9c0c89918",
+        "name": "",
+        "topic": "",
+        "ack": "true",
+        "autoCreate": "true",
+        "stateName": "",
+        "role": "",
+        "payloadType": "boolean",
+        "readonly": "false",
+        "stateUnit": "",
+        "stateMin": "",
+        "stateMax": "",
+        "x": 620,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "50469674b29e3281",
+        "type": "debug",
+        "z": "a0bf89c9c0c89918",
+        "name": "Write timer state",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 630,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "e8e0fc8f373a4675",
+        "type": "function",
+        "z": "a0bf89c9c0c89918",
+        "name": "reset timer state",
+        "func": "let flowId = env.get(\"ID\");\nmsg.topic = \"states.timer.\" + flowId.toLowerCase() + \".active\";\nmsg.payload = false;\nmsg.stateName = flowId;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1140,
+        "y": 320,
+        "wires": [
+            [
+                "b0c1452bf6146313"
+            ]
+        ]
+    },
+    {
+        "id": "b0c1452bf6146313",
+        "type": "ioBroker out",
+        "z": "a0bf89c9c0c89918",
+        "name": "",
+        "topic": "",
+        "ack": "true",
+        "autoCreate": "true",
+        "stateName": "",
+        "role": "",
+        "payloadType": "boolean",
+        "readonly": "false",
+        "stateUnit": "",
+        "stateMin": "",
+        "stateMax": "",
+        "x": 1140,
+        "y": 360,
+        "wires": []
     },
     {
         "id": "f2066a039a46dfa1",
@@ -3335,6 +3510,11 @@
                 "name": "shutter.name",
                 "value": "terrasse",
                 "type": "str"
+            },
+            {
+                "name": "half-open-position",
+                "value": "40",
+                "type": "num"
             }
         ],
         "x": 1060,
@@ -3355,6 +3535,11 @@
                 "name": "shutter.name",
                 "value": "office",
                 "type": "str"
+            },
+            {
+                "name": "half-open-position",
+                "value": "40",
+                "type": "num"
             }
         ],
         "x": 1050,
@@ -9001,6 +9186,11 @@
                 "name": "shutter.name",
                 "value": "terrasse",
                 "type": "str"
+            },
+            {
+                "name": "half-open-position",
+                "value": "40",
+                "type": "num"
             }
         ],
         "x": 960,
@@ -9021,6 +9211,11 @@
                 "name": "shutter.name",
                 "value": "office",
                 "type": "str"
+            },
+            {
+                "name": "half-open-position",
+                "value": "40",
+                "type": "num"
             }
         ],
         "x": 950,
@@ -9288,7 +9483,7 @@
                 "db24fdc7a908cfd3"
             ],
             [
-                "a68115ef6c4d82db"
+                "d26165ae67e297d4"
             ]
         ],
         "outputLabels": [
@@ -9402,6 +9597,78 @@
             [
                 "5d3d1c4c799f78c9",
                 "6fd3530214079ddf"
+            ]
+        ]
+    },
+    {
+        "id": "d26165ae67e297d4",
+        "type": "change",
+        "z": "9de561f7972ae9bc",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 200,
+        "y": 760,
+        "wires": [
+            [
+                "02f3d2df3dd9f291",
+                "c555a531679a5bcf"
+            ]
+        ]
+    },
+    {
+        "id": "02f3d2df3dd9f291",
+        "type": "ioBroker out",
+        "z": "9de561f7972ae9bc",
+        "name": "",
+        "topic": "states.preventAutomaticShutterMovement.bedroom.active",
+        "ack": "true",
+        "autoCreate": "true",
+        "stateName": "bedroom",
+        "role": "",
+        "payloadType": "boolean",
+        "readonly": "false",
+        "stateUnit": "",
+        "stateMin": "",
+        "stateMax": "",
+        "x": 330,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "c555a531679a5bcf",
+        "type": "delay",
+        "z": "9de561f7972ae9bc",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 400,
+        "y": 760,
+        "wires": [
+            [
+                "a68115ef6c4d82db"
             ]
         ]
     },
@@ -10115,11 +10382,11 @@
             }
         ],
         "x": 180,
-        "y": 120,
+        "y": 80,
         "wires": [
             [
-                "f7190daba4a489c5",
-                "82b418c7da8f912c"
+                "82b418c7da8f912c",
+                "e0a68a35c11ccb47"
             ]
         ]
     },
@@ -10144,7 +10411,7 @@
         "repair": false,
         "outputs": 2,
         "x": 570,
-        "y": 120,
+        "y": 240,
         "wires": [
             [
                 "48f73191c3c18d5f",
@@ -10164,7 +10431,7 @@
         "attrname": "presence",
         "payloadType": "value",
         "x": 360,
-        "y": 120,
+        "y": 240,
         "wires": [
             [
                 "27d259a900501bd4"
@@ -10184,7 +10451,7 @@
             }
         ],
         "x": 780,
-        "y": 120,
+        "y": 240,
         "wires": [
             [
                 "6e76bf456cbc44bf"
@@ -10282,7 +10549,7 @@
             }
         },
         "x": 1010,
-        "y": 120,
+        "y": 240,
         "wires": [
             []
         ]
@@ -10374,7 +10641,7 @@
             }
         },
         "x": 1010,
-        "y": 160,
+        "y": 280,
         "wires": [
             []
         ]
@@ -10385,10 +10652,10 @@
         "z": "9d832c5af722ac78",
         "name": "",
         "x": 1040,
-        "y": 200,
+        "y": 320,
         "wires": [
             [
-                "50c88aa09ea431cb"
+                "b19691c4b0a948c6"
             ]
         ]
     },
@@ -10409,8 +10676,8 @@
                 "type": "num"
             }
         ],
-        "x": 1480,
-        "y": 200,
+        "x": 1580,
+        "y": 320,
         "wires": [
             [
                 "f6435d9c071a1680"
@@ -10431,37 +10698,9 @@
         "correl": "",
         "expiry": "",
         "broker": "f1f93d18.375ea",
-        "x": 1660,
-        "y": 200,
+        "x": 1760,
+        "y": 320,
         "wires": []
-    },
-    {
-        "id": "50c88aa09ea431cb",
-        "type": "change",
-        "z": "9d832c5af722ac78",
-        "name": "",
-        "rules": [
-            {
-                "t": "set",
-                "p": "payload",
-                "pt": "msg",
-                "to": "half-open",
-                "tot": "str"
-            }
-        ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 1260,
-        "y": 200,
-        "wires": [
-            [
-                "e3e20ed48db44a26",
-                "6f6d542b857eeef1"
-            ]
-        ]
     },
     {
         "id": "1e7e7497139d42f3",
@@ -10480,12 +10719,12 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 190,
-        "y": 200,
+        "x": 130,
+        "y": 240,
         "wires": [
             [
-                "f7190daba4a489c5",
-                "82b418c7da8f912c"
+                "82b418c7da8f912c",
+                "e0a68a35c11ccb47"
             ]
         ]
     },
@@ -10519,7 +10758,7 @@
             }
         ],
         "x": 210,
-        "y": 260,
+        "y": 380,
         "wires": [
             [
                 "8bf4da479f36682c"
@@ -10544,7 +10783,7 @@
         "repair": false,
         "outputs": 1,
         "x": 420,
-        "y": 260,
+        "y": 380,
         "wires": [
             [
                 "eb9bec07059b7b31"
@@ -10574,7 +10813,7 @@
         "to": "",
         "reg": false,
         "x": 610,
-        "y": 260,
+        "y": 380,
         "wires": [
             [
                 "48f73191c3c18d5f"
@@ -10594,8 +10833,8 @@
         "targetType": "jsonata",
         "statusVal": "",
         "statusType": "auto",
-        "x": 370,
-        "y": 60,
+        "x": 390,
+        "y": 20,
         "wires": []
     },
     {
@@ -10612,7 +10851,7 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 810,
-        "y": 60,
+        "y": 200,
         "wires": []
     },
     {
@@ -10629,7 +10868,7 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 910,
-        "y": 320,
+        "y": 440,
         "wires": []
     },
     {
@@ -10645,8 +10884,519 @@
         "targetType": "jsonata",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1470,
-        "y": 160,
+        "x": 1570,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "6dfa1844c1719f5c",
+        "type": "inject",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 720,
+        "wires": [
+            [
+                "cabd1838ea4d4240"
+            ]
+        ]
+    },
+    {
+        "id": "46e9b17114d5e2ac",
+        "type": "ioBroker out",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "topic": "",
+        "ack": "true",
+        "autoCreate": "true",
+        "stateName": "",
+        "role": "",
+        "payloadType": "boolean",
+        "readonly": "false",
+        "stateUnit": "",
+        "stateMin": "",
+        "stateMax": "",
+        "x": 760,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "777480c6a7c7da72",
+        "type": "function",
+        "z": "9d832c5af722ac78",
+        "name": "preventWakeup",
+        "func": "msg.topic = \"states.preventWakeup.active\";\nmsg.stateName = \"preventWakeup\";\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 720,
+        "wires": [
+            [
+                "46e9b17114d5e2ac"
+            ]
+        ]
+    },
+    {
+        "id": "cabd1838ea4d4240",
+        "type": "change",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 360,
+        "y": 720,
+        "wires": [
+            [
+                "777480c6a7c7da72"
+            ]
+        ]
+    },
+    {
+        "id": "e0a68a35c11ccb47",
+        "type": "ioBroker get",
+        "z": "9d832c5af722ac78",
+        "name": "states.preventWakeup",
+        "topic": "node-red.0.states.preventWakeup.active",
+        "attrname": "payload",
+        "payloadType": "value",
+        "errOnInvalidState": "nothing",
+        "x": 400,
+        "y": 60,
+        "wires": [
+            [
+                "4dbc1905d3c6de03"
+            ]
+        ]
+    },
+    {
+        "id": "4dbc1905d3c6de03",
+        "type": "switch",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "true",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 590,
+        "y": 60,
+        "wires": [
+            [
+                "ee6bb035ae55d5c6",
+                "b3e62e515674c1ab",
+                "bfdd75ad6b654b55"
+            ],
+            [
+                "92d761282c565c0d"
+            ]
+        ]
+    },
+    {
+        "id": "5cc4b4adbd7e2a45",
+        "type": "ioBroker out",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "topic": "states.preventWakeup.active",
+        "ack": "true",
+        "autoCreate": "false",
+        "stateName": "",
+        "role": "",
+        "payloadType": "boolean",
+        "readonly": "false",
+        "stateUnit": "",
+        "stateMin": "",
+        "stateMax": "",
+        "x": 1080,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "ee6bb035ae55d5c6",
+        "type": "change",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 840,
+        "y": 80,
+        "wires": [
+            [
+                "5cc4b4adbd7e2a45"
+            ]
+        ]
+    },
+    {
+        "id": "b3e62e515674c1ab",
+        "type": "debug",
+        "z": "9d832c5af722ac78",
+        "name": "Wakeup - Prevented",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "{\"x\":\"Wakeup procedure prevented by state. Resetting respective state.\"}.x",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 780,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "bfdd75ad6b654b55",
+        "type": "change",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 840,
+        "y": 120,
+        "wires": [
+            [
+                "08bf0972cc3d2d49"
+            ]
+        ]
+    },
+    {
+        "id": "08bf0972cc3d2d49",
+        "type": "ioBroker out",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "topic": "states.preventAutomaticShutterMovement.bedroom.active",
+        "ack": "true",
+        "autoCreate": "false",
+        "stateName": "",
+        "role": "",
+        "payloadType": "boolean",
+        "readonly": "false",
+        "stateUnit": "",
+        "stateMin": "",
+        "stateMax": "",
+        "x": 1170,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "b19691c4b0a948c6",
+        "type": "function",
+        "z": "9d832c5af722ac78",
+        "name": "move shutter on regular timeout",
+        "func": "if(msg.regularTimeout == false) {\n    // stop here\n    return [null, msg];   \n} \n\nmsg.overrideManualChange = true;\nmsg.payload = \"half-open\";\nreturn [msg, null];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1310,
+        "y": 320,
+        "wires": [
+            [
+                "6f6d542b857eeef1",
+                "e3e20ed48db44a26"
+            ],
+            [
+                "b99c4225e363bcc1"
+            ]
+        ]
+    },
+    {
+        "id": "b99c4225e363bcc1",
+        "type": "debug",
+        "z": "9d832c5af722ac78",
+        "name": "Wakeup - Finish by reset",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "{\"x\":\"Procedure has been reset. Shutters will not be moved.\"}.x",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1620,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "92d761282c565c0d",
+        "type": "ioBroker get",
+        "z": "9d832c5af722ac78",
+        "name": "shutter position",
+        "topic": "mqtt-client.0.shellies.shutter-bedroom.roller.0.pos",
+        "attrname": "payload",
+        "payloadType": "value",
+        "errOnInvalidState": "nothing",
+        "x": 380,
+        "y": 100,
+        "wires": [
+            [
+                "b16032fa0e8424e6"
+            ]
+        ]
+    },
+    {
+        "id": "b16032fa0e8424e6",
+        "type": "switch",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gte",
+                "v": "50",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 590,
+        "y": 100,
+        "wires": [
+            [
+                "6173bfc5e2630550"
+            ],
+            [
+                "f7190daba4a489c5"
+            ]
+        ]
+    },
+    {
+        "id": "6173bfc5e2630550",
+        "type": "debug",
+        "z": "9d832c5af722ac78",
+        "name": "Wakeup - Prevented",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "{\"x\":\"Wakeup procedure prevented by shutter position.\"}.x",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 780,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "c8e35a348395dc50",
+        "type": "cronplus",
+        "z": "acc19fe5f27ac7a1",
+        "name": "",
+        "outputField": "payload",
+        "timeZone": "",
+        "persistDynamic": false,
+        "commandResponseMsgOutput": "output1",
+        "outputs": 1,
+        "options": [
+            {
+                "name": "schedule1",
+                "topic": "topic1",
+                "payloadType": "bool",
+                "payload": "false",
+                "expressionType": "cron",
+                "expression": "0 0 20 * * *",
+                "location": "",
+                "offset": "0",
+                "solarType": "all",
+                "solarEvents": "sunrise,sunset"
+            }
+        ],
+        "x": 160,
+        "y": 120,
+        "wires": [
+            [
+                "6f204f46d221bdf7"
+            ]
+        ]
+    },
+    {
+        "id": "6f204f46d221bdf7",
+        "type": "deconz-output",
+        "z": "acc19fe5f27ac7a1",
+        "name": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "lights/uniqueid/70:ac:08:ff:fe:7c:f3:0f-01"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "commands": [
+            {
+                "arg": {
+                    "on": {
+                        "type": "msg",
+                        "value": "payload"
+                    },
+                    "alert": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "effect": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "colorloopspeed": {
+                        "type": "num",
+                        "value": ""
+                    },
+                    "transitiontime": {
+                        "type": "num",
+                        "value": ""
+                    },
+                    "retryonerror": {
+                        "type": "num",
+                        "value": "0"
+                    },
+                    "aftererror": {
+                        "type": "continue",
+                        "value": ""
+                    },
+                    "bri": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "sat": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "hue": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "ct": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "xy": {
+                        "direction": "set",
+                        "type": "json",
+                        "value": "[]"
+                    }
+                },
+                "type": "deconz_state",
+                "domain": "lights"
+            }
+        ],
+        "specific": {
+            "delay": {
+                "type": "num",
+                "value": "50"
+            },
+            "result": {
+                "type": "at_end",
+                "value": ""
+            }
+        },
+        "x": 390,
+        "y": 120,
+        "wires": [
+            [
+                "515e64dacb36504f"
+            ]
+        ]
+    },
+    {
+        "id": "515e64dacb36504f",
+        "type": "debug",
+        "z": "acc19fe5f27ac7a1",
+        "name": "",
+        "active": true,
+        "tosidebar": false,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 570,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "a9c92038274303c7",
+        "type": "comment",
+        "z": "acc19fe5f27ac7a1",
+        "name": "Switch off Office desk at 8 PM.",
+        "info": "",
+        "x": 220,
+        "y": 80,
         "wires": []
     }
 ]
