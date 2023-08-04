@@ -7292,7 +7292,8 @@
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "false",
+        "complete": "payload",
+        "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
         "x": 570,
@@ -10381,7 +10382,7 @@
                 "solarEvents": "sunrise,sunset"
             }
         ],
-        "x": 180,
+        "x": 160,
         "y": 80,
         "wires": [
             [
@@ -10909,8 +10910,8 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 180,
-        "y": 720,
+        "x": 200,
+        "y": 1220,
         "wires": [
             [
                 "cabd1838ea4d4240"
@@ -10932,8 +10933,8 @@
         "stateUnit": "",
         "stateMin": "",
         "stateMax": "",
-        "x": 760,
-        "y": 720,
+        "x": 780,
+        "y": 1220,
         "wires": []
     },
     {
@@ -10947,8 +10948,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 560,
-        "y": 720,
+        "x": 580,
+        "y": 1220,
         "wires": [
             [
                 "46e9b17114d5e2ac"
@@ -10974,8 +10975,8 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 360,
-        "y": 720,
+        "x": 380,
+        "y": 1220,
         "wires": [
             [
                 "777480c6a7c7da72"
@@ -11245,6 +11246,656 @@
         "x": 780,
         "y": 40,
         "wires": []
+    },
+    {
+        "id": "3a3225cf57ef1b0c",
+        "type": "cronplus",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "outputField": "payload",
+        "timeZone": "",
+        "persistDynamic": false,
+        "commandResponseMsgOutput": "output1",
+        "outputs": 1,
+        "options": [
+            {
+                "name": "schedule1",
+                "topic": "topic1",
+                "payloadType": "default",
+                "payload": "",
+                "expressionType": "cron",
+                "expression": "0 0 2 * * *",
+                "location": "",
+                "offset": "0",
+                "solarType": "all",
+                "solarEvents": "sunrise,sunset"
+            }
+        ],
+        "x": 180,
+        "y": 780,
+        "wires": [
+            [
+                "29fae2f7dffe6ed1",
+                "d7d24130dcb834b3"
+            ]
+        ]
+    },
+    {
+        "id": "29fae2f7dffe6ed1",
+        "type": "weekday",
+        "z": "9d832c5af722ac78",
+        "d": true,
+        "name": "",
+        "sun": false,
+        "mon": true,
+        "tue": true,
+        "wed": true,
+        "thu": true,
+        "fri": true,
+        "sat": false,
+        "x": 340,
+        "y": 720,
+        "wires": [
+            [
+                "c24b1ab6971ec721"
+            ],
+            [
+                "b631ccbad93d8701"
+            ]
+        ]
+    },
+    {
+        "id": "c24b1ab6971ec721",
+        "type": "ioBroker get",
+        "z": "9d832c5af722ac78",
+        "name": "weekday_alarm",
+        "topic": "0_userdata.0.alarm.weekday_alarm",
+        "attrname": "alarmActive",
+        "payloadType": "value",
+        "errOnInvalidState": "false",
+        "x": 960,
+        "y": 780,
+        "wires": [
+            [
+                "bda9f2856a166104"
+            ]
+        ]
+    },
+    {
+        "id": "b631ccbad93d8701",
+        "type": "ioBroker get",
+        "z": "9d832c5af722ac78",
+        "name": "weekend_alarm",
+        "topic": "0_userdata.0.alarm.weekend_alarm",
+        "attrname": "alarmActive",
+        "payloadType": "value",
+        "errOnInvalidState": "false",
+        "x": 960,
+        "y": 840,
+        "wires": [
+            [
+                "a8e625e31c63d063"
+            ]
+        ]
+    },
+    {
+        "id": "bda9f2856a166104",
+        "type": "ioBroker get",
+        "z": "9d832c5af722ac78",
+        "name": "weekday_alarmtime",
+        "topic": "0_userdata.0.alarm.weekday_alarmtime",
+        "attrname": "alarmTime",
+        "payloadType": "value",
+        "errOnInvalidState": "false",
+        "x": 1180,
+        "y": 780,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a8e625e31c63d063",
+        "type": "ioBroker get",
+        "z": "9d832c5af722ac78",
+        "name": "weekend_alarmtime",
+        "topic": "0_userdata.0.alarm.weekend_alarmtime",
+        "attrname": "alarmTime",
+        "payloadType": "value",
+        "errOnInvalidState": "false",
+        "x": 1180,
+        "y": 840,
+        "wires": [
+            [
+                "0ea16fdc13199e66"
+            ]
+        ]
+    },
+    {
+        "id": "0ea16fdc13199e66",
+        "type": "function",
+        "z": "9d832c5af722ac78",
+        "name": "function 3",
+        "func": "let alarmActive = msg.alarmActive === 'true';\nmsg.payload = {};\nmsg.payload.suspended = !alarmActive;\nif(!alarmActive) {\n    // If the alarm is deactivated, we're ready here.\n    return msg;\n}\n\nlet alarmTimeRaw = msg.alarmTime.split(':');\nlet hour = alarmTimeRaw[0];\nlet minute = alarmTimeRaw[1];\n\n// the wakeup sequence takes 1 hour \n// (until lights turn off and the shutter opens)\n// So we have to start an hour earlier that that.\nhour--;\n\n// Formatting\nif (hour < 10) {\n    hour = '0' + hour;\n}\nif (minute < 10) {\n    minute = '0' + minute;\n}\n\nmsg.payload.triggertime = `${hour}:${minute}:00`;\nmsg.payload.action = 'trigger';\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 1000,
+        "wires": [
+            [
+                "6a7472908e01543e",
+                "d72f5a3a21581003"
+            ]
+        ]
+    },
+    {
+        "id": "6a7472908e01543e",
+        "type": "eztimer",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "debug": false,
+        "autoname": "",
+        "tag": "eztimer",
+        "topic": "",
+        "suspended": false,
+        "sendEventsOnSuspend": false,
+        "latLongSource": "manual",
+        "latLongHaZone": "zone.home",
+        "lat": "48.18609507662278",
+        "lon": "11.596313697132464",
+        "timerType": "2",
+        "startupMessage": false,
+        "ontype": "2",
+        "ontimesun": "dawn",
+        "ontimetod": "",
+        "onpropertytype": "msg",
+        "onproperty": "payload",
+        "onvaluetype": "num",
+        "onvalue": 1,
+        "onoffset": 0,
+        "onrandomoffset": 0,
+        "onsuppressrepeats": false,
+        "offtype": "9",
+        "offtimesun": "dusk",
+        "offtimetod": "dusk",
+        "offduration": "00:01:00",
+        "offpropertytype": "msg",
+        "offproperty": "payload",
+        "offvaluetype": "num",
+        "offvalue": 0,
+        "offoffset": 0,
+        "offrandomoffset": 0,
+        "offsuppressrepeats": true,
+        "resend": false,
+        "resendInterval": "0s",
+        "mon": true,
+        "tue": true,
+        "wed": true,
+        "thu": true,
+        "fri": true,
+        "sat": true,
+        "sun": true,
+        "x": 820,
+        "y": 1000,
+        "wires": [
+            [
+                "170893f55da920a7"
+            ]
+        ]
+    },
+    {
+        "id": "74297738f20d3141",
+        "type": "debug",
+        "z": "9d832c5af722ac78",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "\"Starting wakeup sequence.\"",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1290,
+        "y": 1000,
+        "wires": []
+    },
+    {
+        "id": "170893f55da920a7",
+        "type": "function",
+        "z": "9d832c5af722ac78",
+        "name": "discard invalid triggers",
+        "func": "// TODO: Check that the _payload.triggertime is close to\n// current time.\n// eztimer will also send a trigger when it is configured,\n// which is quite annoying. :(\nlet triggerTime = msg._payload.triggertime.split(':');\n\nlet now = new Date();\nlet hour = now.getHours();\nlet minute = now.getMinutes();\n\nif (hour == triggerTime[0] && minute == triggerTime[1]) {\n    return msg;\n}\n\nconsole.log(`triggerTime ${triggerTime} does not equal the current timestamp ${now}. The trigger will be discarded`);\nreturn null;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1040,
+        "y": 1000,
+        "wires": [
+            [
+                "74297738f20d3141",
+                "b86a67c572f56bb7"
+            ]
+        ]
+    },
+    {
+        "id": "636683a3b0d04fc2",
+        "type": "inject",
+        "z": "9d832c5af722ac78",
+        "name": "Startup",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 180,
+        "y": 840,
+        "wires": [
+            [
+                "29fae2f7dffe6ed1",
+                "58928c0984020d76",
+                "d7d24130dcb834b3"
+            ]
+        ]
+    },
+    {
+        "id": "58928c0984020d76",
+        "type": "debug",
+        "z": "9d832c5af722ac78",
+        "name": "debug 5",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "\"Startup detected.\"",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 350,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "d72f5a3a21581003",
+        "type": "debug",
+        "z": "9d832c5af722ac78",
+        "name": "debug 6",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "\"Provisioned wakeup sequence at \" & payload.triggertime",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 830,
+        "y": 1060,
+        "wires": []
+    },
+    {
+        "id": "b86a67c572f56bb7",
+        "type": "function",
+        "z": "9d832c5af722ac78",
+        "name": "do nothing",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 150,
+        "y": 140,
+        "wires": [
+            [
+                "e0a68a35c11ccb47",
+                "82b418c7da8f912c"
+            ]
+        ]
+    },
+    {
+        "id": "d7d24130dcb834b3",
+        "type": "german-holidays",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "topic": "",
+        "region": "",
+        "holidays": [
+            {
+                "id": "NEUJAHRSTAG",
+                "name": "Neujahrstag",
+                "nameAlt": "",
+                "character": 2,
+                "month": 1,
+                "day": 1,
+                "nth": 0,
+                "dow": 1,
+                "plType": "none",
+                "plValue": ""
+            },
+            {
+                "id": "HEILIGEDREIKOENIGE",
+                "name": "Heilige Drei Könige",
+                "nameAlt": "Epiphanias",
+                "character": 2,
+                "month": 1,
+                "day": 6,
+                "nth": 0,
+                "dow": 6,
+                "plType": "none",
+                "plValue": ""
+            },
+            {
+                "id": "KARFREITAG",
+                "name": "Karfreitag",
+                "nameAlt": "",
+                "character": 2,
+                "month": -1,
+                "day": -2,
+                "nth": 0,
+                "dow": -2,
+                "plType": "none",
+                "plValue": ""
+            },
+            {
+                "id": "OSTERMONTAG",
+                "name": "Ostermontag",
+                "nameAlt": "",
+                "character": 2,
+                "month": -1,
+                "day": 1,
+                "nth": 0,
+                "dow": 1,
+                "plType": "none",
+                "plValue": ""
+            },
+            {
+                "id": "TAG_DER_ARBEIT",
+                "name": "Maifeiertag",
+                "nameAlt": "Tag der Arbeit",
+                "character": 256,
+                "month": 5,
+                "day": 1,
+                "nth": 0,
+                "dow": 1,
+                "plType": "none",
+                "plValue": ""
+            },
+            {
+                "id": "CHRISTIHIMMELFAHRT",
+                "name": "Christi Himmelfahrt",
+                "nameAlt": "Vatertag",
+                "character": 2,
+                "month": -1,
+                "day": 39,
+                "nth": 5,
+                "dow": 4,
+                "plType": "none",
+                "plValue": ""
+            },
+            {
+                "id": "PFINGSTMONTAG",
+                "name": "Pfingstmontag",
+                "nameAlt": "",
+                "character": 2,
+                "month": -1,
+                "day": 50,
+                "nth": 7,
+                "dow": 1,
+                "plType": "none",
+                "plValue": ""
+            },
+            {
+                "id": "FRONLEICHNAM",
+                "name": "Fronleichnam",
+                "nameAlt": "",
+                "character": 2,
+                "month": -1,
+                "day": 60,
+                "nth": 8,
+                "dow": 4,
+                "plType": "none",
+                "plValue": ""
+            },
+            {
+                "id": "MARIAHIMMELFAHRT",
+                "name": "Mariä Himmelfahrt",
+                "nameAlt": "",
+                "character": 1024,
+                "month": 8,
+                "day": 15,
+                "nth": 2,
+                "dow": 1,
+                "plType": "none",
+                "plValue": ""
+            },
+            {
+                "id": "DEUTSCHEEINHEIT",
+                "name": "Tag der Deutschen Einheit",
+                "nameAlt": "",
+                "character": 4,
+                "month": 10,
+                "day": 3,
+                "nth": 0,
+                "dow": 3,
+                "plType": "none",
+                "plValue": ""
+            },
+            {
+                "id": "ALLERHEILIGEN",
+                "name": "Allerheiligen",
+                "nameAlt": "",
+                "character": 2,
+                "month": 11,
+                "day": 1,
+                "nth": 0,
+                "dow": 1,
+                "plType": "none",
+                "plValue": ""
+            },
+            {
+                "id": "ERSTERWEIHNACHTSFEIERTAG",
+                "name": "1. Weihnachtstag",
+                "nameAlt": "Christtag",
+                "character": 2,
+                "month": 12,
+                "day": 25,
+                "nth": 3,
+                "dow": 4,
+                "plType": "none",
+                "plValue": ""
+            },
+            {
+                "id": "ZWEITERWEIHNACHTSFEIERTAG",
+                "name": "2. Weihnachtstag",
+                "nameAlt": "Stefanitag",
+                "character": 2,
+                "month": 12,
+                "day": 26,
+                "nth": 3,
+                "dow": 5,
+                "plType": "none",
+                "plValue": ""
+            }
+        ],
+        "specialdays": [],
+        "x": 340,
+        "y": 780,
+        "wires": [
+            [
+                "16d7e4104f03466d"
+            ]
+        ]
+    },
+    {
+        "id": "16d7e4104f03466d",
+        "type": "function",
+        "z": "9d832c5af722ac78",
+        "name": "isWorkingDay, weekend or holiday",
+        "func": "let today = msg.payload.today;\nif (today.isHoliday) {\n    return [null, null, msg];\n}\nif(today.isWeekend) {\n    return [null, msg, null];\n}\nreturn [msg, null, null];",
+        "outputs": 3,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 580,
+        "y": 780,
+        "wires": [
+            [
+                "c24b1ab6971ec721"
+            ],
+            [
+                "b631ccbad93d8701"
+            ],
+            [
+                "b631ccbad93d8701",
+                "b28e62a61e9148a1"
+            ]
+        ]
+    },
+    {
+        "id": "b28e62a61e9148a1",
+        "type": "debug",
+        "z": "9d832c5af722ac78",
+        "name": "Holiday!",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "\"Today is \" & payload.today.name & \" \\\\o/\"",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 950,
+        "y": 900,
+        "wires": []
+    },
+    {
+        "id": "348fa428871d9453",
+        "type": "ioBroker in",
+        "z": "9d832c5af722ac78",
+        "name": "Dimmer state change command",
+        "topic": "node-red.0.states.timer.dimmer_aufwachlicht.active",
+        "payloadType": "value",
+        "onlyack": "",
+        "func": "rbe-preinitvalue",
+        "gap": "",
+        "fireOnStart": "false",
+        "outFormat": "ioBroker",
+        "x": 250,
+        "y": 440,
+        "wires": [
+            [
+                "877f31a27e67583f"
+            ]
+        ]
+    },
+    {
+        "id": "b2e722b86cae6357",
+        "type": "debug",
+        "z": "9d832c5af722ac78",
+        "name": "debug 7",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 800,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "e7dca90b0f09c202",
+        "type": "switch",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "false",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 630,
+        "y": 440,
+        "wires": [
+            [
+                "eb9bec07059b7b31",
+                "b2e722b86cae6357"
+            ]
+        ]
+    },
+    {
+        "id": "9995df1f65900eb5",
+        "type": "ioBroker in",
+        "z": "9d832c5af722ac78",
+        "name": "Dimmer state change command",
+        "topic": "node-red.0.states.timer.dimmer_aufwachlicht.active",
+        "payloadType": "value",
+        "onlyack": "",
+        "func": "rbe-preinitvalue",
+        "gap": "",
+        "fireOnStart": "false",
+        "outFormat": "ioBroker",
+        "x": 250,
+        "y": 500,
+        "wires": [
+            [
+                "b5e6fc252e88c726"
+            ]
+        ]
+    },
+    {
+        "id": "b5e6fc252e88c726",
+        "type": "debug",
+        "z": "9d832c5af722ac78",
+        "name": "debug 8",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "877f31a27e67583f",
+        "type": "switch",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "property": "acknowledged",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "false"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 490,
+        "y": 440,
+        "wires": [
+            [
+                "e7dca90b0f09c202"
+            ]
+        ]
     },
     {
         "id": "c8e35a348395dc50",
