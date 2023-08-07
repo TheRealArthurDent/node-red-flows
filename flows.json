@@ -14,6 +14,14 @@
         "info": ""
     },
     {
+        "id": "04aa10e41f36968b",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "9c0f9de.b23666",
         "type": "tab",
         "label": "Illumination",
@@ -795,6 +803,49 @@
                 }
             }
         ],
+        "meta": {},
+        "color": "#DDAA99"
+    },
+    {
+        "id": "1b53c3a9bc37dc0e",
+        "type": "subflow",
+        "name": "Terrasse light on",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 120,
+                "y": 120,
+                "wires": [
+                    {
+                        "id": "e41ffe2ba458ac80"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 980,
+                "y": 120,
+                "wires": [
+                    {
+                        "id": "2bc543c4d2e41610",
+                        "port": 1
+                    }
+                ]
+            },
+            {
+                "x": 980,
+                "y": 180,
+                "wires": [
+                    {
+                        "id": "2bc543c4d2e41610",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
         "meta": {},
         "color": "#DDAA99"
     },
@@ -3375,6 +3426,79 @@
         ]
     },
     {
+        "id": "e41ffe2ba458ac80",
+        "type": "ioBroker get",
+        "z": "1b53c3a9bc37dc0e",
+        "name": "terrasseLightReachable",
+        "topic": "deconz.0.Lights.12.reachable",
+        "attrname": "terrasseLightReachable",
+        "payloadType": "value",
+        "errOnInvalidState": "false",
+        "x": 310,
+        "y": 120,
+        "wires": [
+            [
+                "2bc543c4d2e41610"
+            ]
+        ]
+    },
+    {
+        "id": "c096ff80badeb452",
+        "type": "inject",
+        "z": "1b53c3a9bc37dc0e",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 200,
+        "wires": [
+            [
+                "e41ffe2ba458ac80"
+            ]
+        ]
+    },
+    {
+        "id": "2bc543c4d2e41610",
+        "type": "switch",
+        "z": "1b53c3a9bc37dc0e",
+        "name": "",
+        "property": "terrasseLightReachable",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "true",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 590,
+        "y": 120,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
         "id": "9d1fde7b.8ef91",
         "type": "cronplus",
         "z": "a09414b5.859f68",
@@ -3975,8 +4099,8 @@
         "wires": [
             [
                 "1dfd5f73.3e12d1",
-                "7a76eea5.f3ae4",
-                "86fb19ad.e3f8e8"
+                "86fb19ad.e3f8e8",
+                "f048fb8887f6b0c5"
             ]
         ]
     },
@@ -4353,6 +4477,39 @@
                 "aa3a2094.85a32"
             ]
         ]
+    },
+    {
+        "id": "f048fb8887f6b0c5",
+        "type": "subflow:1b53c3a9bc37dc0e",
+        "z": "a09414b5.859f68",
+        "name": "",
+        "x": 760,
+        "y": 240,
+        "wires": [
+            [
+                "7a76eea5.f3ae4"
+            ],
+            [
+                "1bfa5aba868e807f"
+            ]
+        ]
+    },
+    {
+        "id": "1bfa5aba868e807f",
+        "type": "debug",
+        "z": "a09414b5.859f68",
+        "name": "Terrasse light reachable.",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "\"Prevent closing the terrasse shutter, as terrasse light is reachable.\"",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1080,
+        "y": 100,
+        "wires": []
     },
     {
         "id": "d73b023e.7ba9f",
@@ -6390,6 +6547,7 @@
         "verticalAnswers": false,
         "timeoutValue": "30",
         "timeoutUnits": "min",
+        "parseMode": "",
         "x": 1560,
         "y": 100,
         "wires": [
@@ -10350,11 +10508,14 @@
         "id": "b3443123f11f3a9b",
         "type": "cronplus",
         "z": "9d832c5af722ac78",
+        "d": true,
         "name": "",
         "outputField": "payload",
         "timeZone": "",
-        "persistDynamic": false,
+        "storeName": "",
         "commandResponseMsgOutput": "output1",
+        "defaultLocation": "",
+        "defaultLocationType": "default",
         "outputs": 1,
         "options": [
             {
@@ -11350,7 +11511,9 @@
         "x": 1180,
         "y": 780,
         "wires": [
-            []
+            [
+                "0ea16fdc13199e66"
+            ]
         ]
     },
     {
