@@ -10,7 +10,7 @@
         "node-red-contrib-telegrambot": "15.1.4",
         "node-red-contrib-telegrambot-home": "0.7.2",
         "node-red-contrib-weekday": "0.1.0",
-        "node-red-contrib-german-holidays": "1.0.1",
+        "node-red-contrib-german-holidays": "1.0.3",
         "node-red-contrib-eztimer": "1.2.7"
     },
     "node-red": {
