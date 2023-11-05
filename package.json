@@ -6,7 +6,7 @@
         "node-red-contrib-cron-plus": "2.1.0",
         "node-red-contrib-deconz": "2.3.9",
         "node-red-contrib-huemagic": "4.2.2",
-        "node-red-contrib-sonos-plus": "6.4.2",
+        "node-red-contrib-sonos-plus": "6.7.3",
         "node-red-contrib-telegrambot": "15.1.7",
         "node-red-contrib-telegrambot-home": "0.8.0",
         "node-red-contrib-weekday": "0.1.0",
