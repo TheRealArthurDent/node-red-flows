@@ -4,7 +4,7 @@
     "version": "0.0.1",
     "dependencies": {
         "node-red-contrib-cron-plus": "2.1.0",
-        "node-red-contrib-deconz": "2.3.9",
+        "node-red-contrib-deconz": "2.3.10",
         "node-red-contrib-huemagic": "4.2.2",
         "node-red-contrib-sonos-plus": "6.7.3",
         "node-red-contrib-telegrambot": "15.1.7",
