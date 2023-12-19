@@ -842,6 +842,55 @@
         "color": "#DDAA99"
     },
     {
+        "id": "395982643a88a924",
+        "type": "subflow",
+        "name": "Get solar events",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 120,
+                "y": 100,
+                "wires": [
+                    {
+                        "id": "4964491c2915304a"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 860,
+                "y": 100,
+                "wires": [
+                    {
+                        "id": "71638ab9082b6109",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "latitude",
+                "type": "num",
+                "value": "48.18609507662278"
+            },
+            {
+                "name": "longitude",
+                "type": "num",
+                "value": "11.596313697132464"
+            },
+            {
+                "name": "date",
+                "type": "str",
+                "value": "today"
+            }
+        ],
+        "meta": {},
+        "color": "#DDAA99"
+    },
+    {
         "id": "f1f93d18.375ea",
         "type": "mqtt-broker",
         "name": "mosquitto",
@@ -3121,7 +3170,7 @@
         "type": "function",
         "z": "a0bf89c9c0c89918",
         "name": "setup trigger",
-        "func": "let flowId = env.get(\"ID\");\nlet startValue = parseInt(env.get(\"START_VALUE\"));\nlet endValue = parseInt(env.get(\"END_VALUE\"));\nlet duration = parseInt(env.get(\"DURATION_CHANGE\")) * 60 * 1000;\n\nlet tick = duration / Math.abs(endValue - startValue);\n\ncontext.global[flowId] = { value: startValue };\n\nmsg.delay = tick;\nmsg.topic = \"states.timer.\" + flowId.toLowerCase() + \".active\";\nmsg.payload = true;\nmsg.stateName = flowId;\n\nreturn msg;",
+        "func": "let flowId = env.get(\"ID\");\nlet startValue = parseInt(env.get(\"START_VALUE\"));\nlet endValue = parseInt(env.get(\"END_VALUE\"));\nlet durationChange = msg.timer.durationChange;\nif (durationChange === undefined) {\n    durationChange = parseInt(env.get(\"DURATION_CHANGE\"));\n}\nlet duration = durationChange * 60 * 1000;\n\nlet tick = duration / Math.abs(endValue - startValue);\n\ncontext.global[flowId] = { value: startValue };\n\nmsg.delay = tick;\nmsg.topic = \"states.timer.\" + flowId.toLowerCase() + \".active\";\nmsg.payload = true;\nmsg.stateName = flowId;\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -3272,7 +3321,7 @@
         "type": "function",
         "z": "a0bf89c9c0c89918",
         "name": "set duration hold",
-        "func": "let durationHold = parseInt(env.get(\"DURATION_HOLD\")) * 60 * 1000;\n\nmsg.delay = durationHold;\n\nreturn msg;",
+        "func": "let durationHold = msg.timer.durationHold;\nif (durationHold === undefined) {\n    durationHold = parseInt(env.get(\"DURATION_HOLD\"));\n}\nlet duration = durationHold * 60 * 1000;\n\nmsg.delay = duration;\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -3491,14 +3540,76 @@
         ]
     },
     {
+        "id": "4964491c2915304a",
+        "type": "function",
+        "z": "395982643a88a924",
+        "name": "Prepare http request",
+        "func": "let latitude = env.get('latitude'); \nlet longitude = env.get('longitude'); \n\n//https://sunrise-sunset.org/api\nmsg.url = `https://api.sunrise-sunset.org/json?&formatted=0&lat=${latitude}&lng=${longitude}`;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 280,
+        "y": 100,
+        "wires": [
+            [
+                "1a20ad020bb27fba"
+            ]
+        ]
+    },
+    {
+        "id": "1a20ad020bb27fba",
+        "type": "http request",
+        "z": "395982643a88a924",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 490,
+        "y": 100,
+        "wires": [
+            [
+                "71638ab9082b6109"
+            ]
+        ]
+    },
+    {
+        "id": "71638ab9082b6109",
+        "type": "function",
+        "z": "395982643a88a924",
+        "name": "Parse solarevents",
+        "func": "let date = new Date();\nlet timeZoneOffset = date.getTimezoneOffset() * 60;\n\nfunction recalculateTime(x) {\n    //var z = new Date(x).valueOf();\n    //var adjustedTime = (z / 1000 + (-1 * timeZoneOffset)) * 1000;\n    return new Date(x);\n}\n\nfunction secondsToHms(d) {\n    d = Number(d);\n    var h = Math.floor(d / 3600);\n    var m = Math.floor(d % 3600 / 60);\n    return ('0' + h).slice(-2) + \"h \" + ('0' + m).slice(-2) + \"min\";\n}\n\nfunction stringtodate(timenow) {\n    let date1 = Date.parse(timenow);\n    return date1;\n}\n\nnode.log(msg.payload.results);\n\nlet solarEvents = JSON.parse(msg.payload).results;\n\n//msg.solarEventsRaw = solarEvents;\nmsg.solarEvents = {};\n//msg.solarEvents.sunriseRaw = solarEvents.sunrise;\n\n//return msg;\n\n//sunrise\nvar sunrise = recalculateTime(solarEvents['sunrise']);\nglobal.set('Time_sunrise', stringtodate(sunrise));\nmsg.solarEvents.sunrise = stringtodate(sunrise);\n\nreturn msg;\n\n//sunset\nvar sunset = recalculateTime(msg.payload.results.sunset);\nglobal.set('Time_sunset', stringtodate(sunset));\nmsg.sunset = stringtodate(sunset);\n\n//solar_noon\nvar solar_noon = recalculateTime(msg.payload.results.solar_noon);\nglobal.set('Time_solar_noon', solar_noon);\n//day_length\\nvar day_length =  secondsToHms(msg.payload.results.day_length);\\nglobal.set('Time_day_length', day_length);\\n\\n//civil_twilight_begin\\nvar civil_twilight_begin = recalculateTime(msg.payload.results.civil_twilight_begin);\\nglobal.set('Time_civil_twilight_begin', civil_twilight_begin);\\n\\n//civil_twilight_end\\nvar civil_twilight_end = recalculateTime(msg.payload.results.civil_twilight_end);\\nglobal.set('Time_civil_twilight_end', civil_twilight_end);\\n\\n//nautical_twilight_begin\\nvar nautical_twilight_begin = recalculateTime(msg.payload.results.nautical_twilight_begin);\\nglobal.set('Time_nautical_twilight_begin', nautical_twilight_begin);\\n\\n//nautical_twilight_end\\nvar nautical_twilight_end = recalculateTime(msg.payload.results.nautical_twilight_end);\\nglobal.set('Time_nautical_twilight_end', nautical_twilight_end);\\n\\n//astronomical_twilight_begin\\nvar astronomical_twilight_begin = recalculateTime(msg.payload.results.astronomical_twilight_begin);\\nglobal.set('Time_astronomical_twilight_begin', astronomical_twilight_begin);\\n\\n//astronomical_twilight_end\\nvar astronomical_twilight_end = recalculateTime(msg.payload.results.astronomical_twilight_end);\\nglobal.set('Time_astronomical_twilight_end', astronomical_twilight_end);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 710,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
         "id": "9d1fde7b.8ef91",
         "type": "cronplus",
         "z": "a09414b5.859f68",
         "name": "dusk",
         "outputField": "payload",
         "timeZone": "",
-        "persistDynamic": false,
+        "storeName": "",
         "commandResponseMsgOutput": "output1",
+        "defaultLocation": "",
+        "defaultLocationType": "default",
         "outputs": 1,
         "options": [
             {
@@ -3529,8 +3640,10 @@
         "name": "night",
         "outputField": "payload",
         "timeZone": "",
-        "persistDynamic": false,
+        "storeName": "",
         "commandResponseMsgOutput": "output1",
+        "defaultLocation": "",
+        "defaultLocationType": "default",
         "outputs": 1,
         "options": [
             {
@@ -3561,8 +3674,10 @@
         "name": "morning",
         "outputField": "payload",
         "timeZone": "",
-        "persistDynamic": false,
+        "storeName": "",
         "commandResponseMsgOutput": "output1",
+        "defaultLocation": "",
+        "defaultLocationType": "default",
         "outputs": 1,
         "options": [
             {
@@ -3749,8 +3864,10 @@
         "name": "wake up",
         "outputField": "payload",
         "timeZone": "",
-        "persistDynamic": false,
+        "storeName": "",
         "commandResponseMsgOutput": "output1",
+        "defaultLocation": "",
+        "defaultLocationType": "default",
         "outputs": 1,
         "options": [
             {
@@ -3794,8 +3911,10 @@
         "name": "noon",
         "outputField": "payload",
         "timeZone": "",
-        "persistDynamic": false,
+        "storeName": "",
         "commandResponseMsgOutput": "output1",
+        "defaultLocation": "",
+        "defaultLocationType": "default",
         "outputs": 1,
         "options": [
             {
@@ -3854,8 +3973,10 @@
         "name": "afternoon",
         "outputField": "payload",
         "timeZone": "",
-        "persistDynamic": false,
+        "storeName": "",
         "commandResponseMsgOutput": "output1",
+        "defaultLocation": "",
+        "defaultLocationType": "default",
         "outputs": 1,
         "options": [
             {
@@ -3886,8 +4007,10 @@
         "name": "time to sleep",
         "outputField": "payload",
         "timeZone": "",
-        "persistDynamic": false,
+        "storeName": "",
         "commandResponseMsgOutput": "output1",
+        "defaultLocation": "",
+        "defaultLocationType": "default",
         "outputs": 1,
         "options": [
             {
@@ -3927,11 +4050,14 @@
         "id": "8ed13ffd.8501d",
         "type": "cronplus",
         "z": "a09414b5.859f68",
+        "d": true,
         "name": "daylight bedroom",
         "outputField": "payload",
         "timeZone": "",
-        "persistDynamic": false,
+        "storeName": "",
         "commandResponseMsgOutput": "output1",
+        "defaultLocation": "",
+        "defaultLocationType": "default",
         "outputs": 1,
         "options": [
             {
@@ -3987,8 +4113,10 @@
         "name": "noon - open eastern shutters",
         "outputField": "payload",
         "timeZone": "",
-        "persistDynamic": false,
+        "storeName": "",
         "commandResponseMsgOutput": "output1",
+        "defaultLocation": "",
+        "defaultLocationType": "default",
         "outputs": 1,
         "options": [
             {
@@ -4023,7 +4151,7 @@
             [
                 "ab3f6cd6.73bc6",
                 "86fb19ad.e3f8e8",
-                "de694f10e8ce9624"
+                "388212d6a9efab2f"
             ]
         ]
     },
@@ -4429,23 +4557,6 @@
         ]
     },
     {
-        "id": "de694f10e8ce9624",
-        "type": "ioBroker get",
-        "z": "a09414b5.859f68",
-        "name": "presence",
-        "topic": "node-red.0.presence.presence",
-        "attrname": "presence",
-        "payloadType": "value",
-        "errOnInvalidState": "false",
-        "x": 720,
-        "y": 400,
-        "wires": [
-            [
-                "533463ce90de4980"
-            ]
-        ]
-    },
-    {
         "id": "533463ce90de4980",
         "type": "switch",
         "z": "a09414b5.859f68",
@@ -4502,6 +4613,23 @@
         "x": 1080,
         "y": 100,
         "wires": []
+    },
+    {
+        "id": "388212d6a9efab2f",
+        "type": "ioBroker get",
+        "z": "a09414b5.859f68",
+        "name": "presence",
+        "topic": "node-red.0.presence.presence",
+        "attrname": "presence",
+        "payloadType": "value",
+        "errOnInvalidState": "false",
+        "x": 720,
+        "y": 400,
+        "wires": [
+            [
+                "533463ce90de4980"
+            ]
+        ]
     },
     {
         "id": "d73b023e.7ba9f",
@@ -5069,7 +5197,49 @@
         ]
     },
     {
-        "id": "20de7455ae079635",
+        "id": "38fb46185e825c3b",
+        "type": "switch",
+        "z": "9c0f9de.b23666",
+        "name": "join",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 990,
+        "y": 160,
+        "wires": [
+            [
+                "89f29752.234ac8",
+                "23ac845cb820e025",
+                "6f65741dc3bfa95e"
+            ]
+        ]
+    },
+    {
+        "id": "23ac845cb820e025",
+        "type": "debug",
+        "z": "9c0f9de.b23666",
+        "name": "Dekobeleuchtung",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1220,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "6f65741dc3bfa95e",
         "type": "deconz-output",
         "z": "9c0f9de.b23666",
         "name": "Dekobeleuchtung",
@@ -5159,48 +5329,6 @@
         "wires": [
             []
         ]
-    },
-    {
-        "id": "38fb46185e825c3b",
-        "type": "switch",
-        "z": "9c0f9de.b23666",
-        "name": "join",
-        "property": "payload",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "else"
-            }
-        ],
-        "checkall": "true",
-        "repair": false,
-        "outputs": 1,
-        "x": 990,
-        "y": 160,
-        "wires": [
-            [
-                "89f29752.234ac8",
-                "20de7455ae079635",
-                "23ac845cb820e025"
-            ]
-        ]
-    },
-    {
-        "id": "23ac845cb820e025",
-        "type": "debug",
-        "z": "9c0f9de.b23666",
-        "name": "Dekobeleuchtung",
-        "active": true,
-        "tosidebar": true,
-        "console": true,
-        "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1220,
-        "y": 260,
-        "wires": []
     },
     {
         "id": "b94d187b.d95508",
@@ -5714,46 +5842,16 @@
         "wires": []
     },
     {
-        "id": "d4eda038.ac997",
-        "type": "cronplus",
-        "z": "94c83aa3.f236d8",
-        "name": "Goldene Stunde",
-        "outputField": "payload",
-        "timeZone": "",
-        "persistDynamic": false,
-        "commandResponseMsgOutput": "output1",
-        "outputs": 1,
-        "options": [
-            {
-                "name": "schedule1",
-                "topic": "schedule1",
-                "payloadType": "bool",
-                "payload": "true",
-                "expressionType": "solar",
-                "expression": "0 * * * * * *",
-                "location": "48.18609507662278, 11.596313697132464",
-                "offset": "-10",
-                "solarType": "selected",
-                "solarEvents": "civilDusk"
-            }
-        ],
-        "x": 140,
-        "y": 60,
-        "wires": [
-            [
-                "1c732889567a533a"
-            ]
-        ]
-    },
-    {
         "id": "a7d16751.482e68",
         "type": "cronplus",
         "z": "94c83aa3.f236d8",
         "name": "Mitternacht",
         "outputField": "payload",
         "timeZone": "",
-        "persistDynamic": false,
+        "storeName": "",
         "commandResponseMsgOutput": "output1",
+        "defaultLocation": "",
+        "defaultLocationType": "default",
         "outputs": 1,
         "options": [
             {
@@ -5770,7 +5868,7 @@
             }
         ],
         "x": 130,
-        "y": 140,
+        "y": 100,
         "wires": [
             [
                 "1c732889567a533a"
@@ -5792,7 +5890,7 @@
         "checkall": "true",
         "repair": false,
         "outputs": 1,
-        "x": 390,
+        "x": 690,
         "y": 100,
         "wires": [
             [
@@ -5809,7 +5907,7 @@
         "attrname": "oldValue",
         "payloadType": "value",
         "errOnInvalidState": "false",
-        "x": 580,
+        "x": 880,
         "y": 100,
         "wires": [
             [
@@ -5824,7 +5922,7 @@
         "z": "94c83aa3.f236d8",
         "name": "Get the old value before potentially changing it.",
         "info": "",
-        "x": 680,
+        "x": 980,
         "y": 60,
         "wires": []
     },
@@ -5839,7 +5937,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 630,
+        "x": 930,
         "y": 200,
         "wires": [
             [
@@ -5865,7 +5963,7 @@
         "stateUnit": "",
         "stateMin": "",
         "stateMax": "",
-        "x": 870,
+        "x": 1170,
         "y": 200,
         "wires": []
     },
@@ -5884,9 +5982,74 @@
         "stateUnit": "",
         "stateMin": "",
         "stateMax": "",
-        "x": 860,
+        "x": 1160,
         "y": 100,
         "wires": []
+    },
+    {
+        "id": "5c305b67966e2efa",
+        "type": "cronplus",
+        "z": "94c83aa3.f236d8",
+        "name": "15 minutes before sunset",
+        "outputField": "payload",
+        "timeZone": "",
+        "storeName": "",
+        "commandResponseMsgOutput": "output1",
+        "defaultLocation": "48.18609507662278, 11.596313697132464",
+        "defaultLocationType": "fixed",
+        "outputs": 1,
+        "options": [
+            {
+                "name": "sunset start",
+                "topic": "sunset",
+                "payloadType": "default",
+                "payload": "",
+                "expressionType": "solar",
+                "expression": "0 * * * * * *",
+                "location": "",
+                "offset": "-15",
+                "solarType": "selected",
+                "solarEvents": "sunsetStart"
+            },
+            {
+                "name": "civil dusk",
+                "topic": "dusk",
+                "payloadType": "default",
+                "payload": "",
+                "expressionType": "solar",
+                "expression": "0 * * * * * *",
+                "location": "",
+                "offset": "-19",
+                "solarType": "selected",
+                "solarEvents": "civilDusk"
+            }
+        ],
+        "x": 170,
+        "y": 60,
+        "wires": [
+            [
+                "19a97c66a237044b"
+            ]
+        ]
+    },
+    {
+        "id": "19a97c66a237044b",
+        "type": "function",
+        "z": "94c83aa3.f236d8",
+        "name": "Discard \"invalid\" trigger",
+        "func": "let topic = msg.topic;\nlet now = new Date();\nlet currentMonth = now.getMonth();\n\nif (currentMonth <= 3 || currentMonth >= 11) {\n    // It's winter. Hence we want to trigger at (before) sunset.\n    if (topic === 'sunset') {\n        msg.payload = true;\n        return msg;\n    } else {\n        node.log(`Trigger ${topic} discarded because it's winter.`);\n        return null;\n    }\n} else {\n    // It's summer. Hence we want to trigger just before civil dusk.\n    if (topic === 'dusk') {\n        msg.payload = true;\n        return msg;\n    } else {\n        node.log(`Trigger ${topic} discarded because it's summer.`);\n        return null;\n    }\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 60,
+        "wires": [
+            [
+                "1c732889567a533a"
+            ]
+        ]
     },
     {
         "id": "c107e75c.0c6288",
@@ -8741,6 +8904,57 @@
         ]
     },
     {
+        "id": "35254ba8cdc0b106",
+        "type": "cronplus",
+        "z": "a8a95e02.bf408",
+        "name": "",
+        "outputField": "payload",
+        "timeZone": "",
+        "storeName": "",
+        "commandResponseMsgOutput": "output1",
+        "defaultLocation": "",
+        "defaultLocationType": "default",
+        "outputs": 1,
+        "options": [
+            {
+                "name": "test_schedule",
+                "topic": "topic1",
+                "payloadType": "default",
+                "payload": "",
+                "expressionType": "cron",
+                "expression": "0 48 10 * * *",
+                "location": "",
+                "offset": "0",
+                "solarType": "all",
+                "solarEvents": "sunrise,sunset"
+            }
+        ],
+        "x": 180,
+        "y": 2440,
+        "wires": [
+            [
+                "242891c38d612137"
+            ]
+        ]
+    },
+    {
+        "id": "242891c38d612137",
+        "type": "debug",
+        "z": "a8a95e02.bf408",
+        "name": "debug 10",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 430,
+        "y": 2440,
+        "wires": []
+    },
+    {
         "id": "ee16368d8b86d83b",
         "type": "ioBroker in",
         "z": "8e42c1ce474ca950",
@@ -9256,7 +9470,7 @@
         "stateMin": "",
         "stateMax": "",
         "x": 960,
-        "y": 400,
+        "y": 420,
         "wires": []
     },
     {
@@ -9286,7 +9500,8 @@
                 "1f4bb3b59de89b17",
                 "e350ad4fbd69f6cf",
                 "747d11137f778843",
-                "e50fc4afd9ceb191"
+                "e50fc4afd9ceb191",
+                "0e1d04f52b86b231"
             ]
         ]
     },
@@ -9821,6 +10036,98 @@
             [
                 "a68115ef6c4d82db"
             ]
+        ]
+    },
+    {
+        "id": "0e1d04f52b86b231",
+        "type": "deconz-output",
+        "z": "9de561f7972ae9bc",
+        "name": "Dekobeleuchtung",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "groups/device_id/17"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "commands": [
+            {
+                "arg": {
+                    "on": {
+                        "type": "msg",
+                        "value": "payload"
+                    },
+                    "alert": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "effect": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "colorloopspeed": {
+                        "type": "num",
+                        "value": ""
+                    },
+                    "transitiontime": {
+                        "type": "num",
+                        "value": ""
+                    },
+                    "retryonerror": {
+                        "type": "num",
+                        "value": "0"
+                    },
+                    "aftererror": {
+                        "type": "continue",
+                        "value": ""
+                    },
+                    "bri": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "sat": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "hue": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "ct": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "xy": {
+                        "direction": "set",
+                        "type": "json",
+                        "value": "[]"
+                    }
+                },
+                "type": "deconz_state",
+                "domain": "groups"
+            }
+        ],
+        "specific": {
+            "delay": {
+                "type": "num",
+                "value": "50"
+            },
+            "result": {
+                "type": "at_end",
+                "value": ""
+            }
+        },
+        "x": 950,
+        "y": 380,
+        "wires": [
+            []
         ]
     },
     {
@@ -10568,8 +10875,7 @@
         "y": 240,
         "wires": [
             [
-                "48f73191c3c18d5f",
-                "ec73385370e2511b"
+                "22a55e160ddc8539"
             ],
             [
                 "0ab06b3fdd8e69b5"
@@ -10604,11 +10910,12 @@
                 "type": "str"
             }
         ],
-        "x": 780,
+        "x": 860,
         "y": 240,
         "wires": [
             [
-                "6e76bf456cbc44bf"
+                "6e76bf456cbc44bf",
+                "d3a4547b11a9a307"
             ],
             [
                 "252ae15f79a545ff",
@@ -10702,7 +11009,7 @@
                 "value": ""
             }
         },
-        "x": 1010,
+        "x": 1090,
         "y": 240,
         "wires": [
             []
@@ -10794,7 +11101,7 @@
                 "value": ""
             }
         },
-        "x": 1010,
+        "x": 1090,
         "y": 280,
         "wires": [
             []
@@ -10805,7 +11112,7 @@
         "type": "subflow:893d1cfdd62ef503",
         "z": "9d832c5af722ac78",
         "name": "",
-        "x": 1040,
+        "x": 1120,
         "y": 320,
         "wires": [
             [
@@ -10830,7 +11137,7 @@
                 "type": "num"
             }
         ],
-        "x": 1580,
+        "x": 1640,
         "y": 320,
         "wires": [
             [
@@ -10852,7 +11159,7 @@
         "correl": "",
         "expiry": "",
         "broker": "f1f93d18.375ea",
-        "x": 1760,
+        "x": 1820,
         "y": 320,
         "wires": []
     },
@@ -11004,7 +11311,7 @@
         "targetType": "jsonata",
         "statusVal": "",
         "statusType": "auto",
-        "x": 810,
+        "x": 890,
         "y": 200,
         "wires": []
     },
@@ -11034,11 +11341,11 @@
         "tosidebar": true,
         "console": true,
         "tostatus": false,
-        "complete": "{\"x\":\"Finishing procedure by opening shutter.\"}.x",
+        "complete": "{\"x\":\"Finishing procedure by opening shutter a bit. Waiting one more hour to open them entirely.\"}.x",
         "targetType": "jsonata",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1570,
+        "x": 1630,
         "y": 280,
         "wires": []
     },
@@ -11306,12 +11613,13 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1310,
+        "x": 1370,
         "y": 320,
         "wires": [
             [
                 "6f6d542b857eeef1",
-                "e3e20ed48db44a26"
+                "e3e20ed48db44a26",
+                "6f3881c4ef0a60e6"
             ],
             [
                 "b99c4225e363bcc1"
@@ -11331,7 +11639,7 @@
         "targetType": "jsonata",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1620,
+        "x": 1680,
         "y": 400,
         "wires": []
     },
@@ -11407,8 +11715,10 @@
         "name": "",
         "outputField": "payload",
         "timeZone": "",
-        "persistDynamic": false,
+        "storeName": "",
         "commandResponseMsgOutput": "output1",
+        "defaultLocation": "",
+        "defaultLocationType": "default",
         "outputs": 1,
         "options": [
             {
@@ -11446,7 +11756,7 @@
         "thu": true,
         "fri": true,
         "sat": false,
-        "x": 340,
+        "x": 480,
         "y": 720,
         "wires": [
             [
@@ -11466,7 +11776,7 @@
         "attrname": "alarmActive",
         "payloadType": "value",
         "errOnInvalidState": "false",
-        "x": 960,
+        "x": 1100,
         "y": 780,
         "wires": [
             [
@@ -11483,7 +11793,7 @@
         "attrname": "alarmActive",
         "payloadType": "value",
         "errOnInvalidState": "false",
-        "x": 960,
+        "x": 1100,
         "y": 840,
         "wires": [
             [
@@ -11500,7 +11810,7 @@
         "attrname": "alarmTime",
         "payloadType": "value",
         "errOnInvalidState": "false",
-        "x": 1180,
+        "x": 1320,
         "y": 780,
         "wires": [
             [
@@ -11517,7 +11827,7 @@
         "attrname": "alarmTime",
         "payloadType": "value",
         "errOnInvalidState": "false",
-        "x": 1180,
+        "x": 1320,
         "y": 840,
         "wires": [
             [
@@ -11530,13 +11840,13 @@
         "type": "function",
         "z": "9d832c5af722ac78",
         "name": "function 3",
-        "func": "let alarmActive = msg.alarmActive === 'true';\nmsg.payload = {};\nmsg.payload.suspended = !alarmActive;\nif(!alarmActive) {\n    // If the alarm is deactivated, we're ready here.\n    return msg;\n}\n\nlet alarmTimeRaw = msg.alarmTime.split(':');\nlet hour = alarmTimeRaw[0];\nlet minute = alarmTimeRaw[1];\n\n// the wakeup sequence takes 1 hour \n// (until lights turn off and the shutter opens)\n// So we have to start an hour earlier that that.\nhour--;\n\n// Formatting\nif (hour < 10) {\n    hour = '0' + hour;\n}\nif (minute < 10) {\n    minute = '0' + minute;\n}\n\nmsg.payload.triggertime = `${hour}:${minute}:00`;\nmsg.payload.action = 'trigger';\n\nreturn msg;",
+        "func": "let alarmActive = msg.alarmActive === 'true';\nmsg.payload = {};\nmsg.payload.suspended = !alarmActive;\nif(!alarmActive) {\n    // If the alarm is deactivated, we're ready here.\n    return msg;\n}\n\nlet alarmTimeRaw = msg.alarmTime.split(':');\nlet hour = parseInt(alarmTimeRaw[0]);\nlet minute = parseInt(alarmTimeRaw[1]);\n\n// the wakeup sequence takes 30 minutes \n// (until lights are at 100%)\n// So we have to start 30 minutes earlier that that.\nif (minute >= 30) {\n    minute -= 30;\n} else {\n    hour--;\n    minute += 30;\n}\n\n// Formatting\nif (hour < 10) {\n    hour = '0' + hour;\n}\nif (minute < 10) {\n    minute = '0' + minute;\n}\n\nmsg.payload.triggertime = `${hour}:${minute}:00`;\nmsg.payload.action = 'trigger';\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 560,
+        "x": 700,
         "y": 1000,
         "wires": [
             [
@@ -11592,7 +11902,7 @@
         "fri": true,
         "sat": true,
         "sun": true,
-        "x": 820,
+        "x": 960,
         "y": 1000,
         "wires": [
             [
@@ -11613,7 +11923,7 @@
         "targetType": "jsonata",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1290,
+        "x": 1430,
         "y": 1000,
         "wires": []
     },
@@ -11628,7 +11938,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1040,
+        "x": 1180,
         "y": 1000,
         "wires": [
             [
@@ -11671,7 +11981,7 @@
         "targetType": "jsonata",
         "statusVal": "",
         "statusType": "auto",
-        "x": 350,
+        "x": 490,
         "y": 840,
         "wires": []
     },
@@ -11688,7 +11998,7 @@
         "targetType": "jsonata",
         "statusVal": "",
         "statusType": "auto",
-        "x": 830,
+        "x": 970,
         "y": 1060,
         "wires": []
     },
@@ -11878,7 +12188,7 @@
             }
         ],
         "specialdays": [],
-        "x": 340,
+        "x": 480,
         "y": 780,
         "wires": [
             [
@@ -11897,7 +12207,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 580,
+        "x": 760,
         "y": 780,
         "wires": [
             [
@@ -11925,7 +12235,7 @@
         "targetType": "jsonata",
         "statusVal": "",
         "statusType": "auto",
-        "x": 950,
+        "x": 1090,
         "y": 900,
         "wires": []
     },
@@ -12051,6 +12361,226 @@
                 "e7dca90b0f09c202"
             ]
         ]
+    },
+    {
+        "id": "d3a4547b11a9a307",
+        "type": "debug",
+        "z": "9d832c5af722ac78",
+        "name": "Wakeup - Dimmer value changed",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "{\"message\":\"Dimmer value changed.\", \"value\": $.value}",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1180,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "552add287a1e5a49",
+        "type": "inject",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 620,
+        "wires": [
+            [
+                "22a55e160ddc8539"
+            ]
+        ]
+    },
+    {
+        "id": "22a55e160ddc8539",
+        "type": "subflow:395982643a88a924",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "x": 360,
+        "y": 300,
+        "wires": [
+            [
+                "c98eb7bd79ee8b09"
+            ]
+        ]
+    },
+    {
+        "id": "3a17c784178dadb2",
+        "type": "debug",
+        "z": "9d832c5af722ac78",
+        "name": "debug 9",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 830,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "c98eb7bd79ee8b09",
+        "type": "function",
+        "z": "9d832c5af722ac78",
+        "name": "Calculate wakeup timer settings",
+        "func": "let now = new Date();\nlet sunrise = new Date(msg.solarEvents.sunrise);\n\nlet durationChange = 30; // minutes\nlet minDurationHold = 30; // minutes\n\nmsg.timer = {};\nmsg.timer.durationChange = durationChange;\n\nlet timeToSunrise = Math.floor((sunrise.getTime() - now.getTime()) / 60000); // minutes\nmsg.timer.timeToSunrise = timeToSunrise;\n\nlet calulcatedDurationHold = timeToSunrise - durationChange;\nif (calulcatedDurationHold < minDurationHold) {\n    msg.timer.durationHold = minDurationHold;\n    msg.timer.calculatedDurationHold = calulcatedDurationHold;\n} else {\n    msg.timer.durationHold = calulcatedDurationHold;\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
+        "y": 300,
+        "wires": [
+            [
+                "3a17c784178dadb2",
+                "48f73191c3c18d5f",
+                "ec73385370e2511b"
+            ]
+        ]
+    },
+    {
+        "id": "0ba22655f18a0767",
+        "type": "ioBroker in",
+        "z": "9d832c5af722ac78",
+        "name": "weekday alarm changed",
+        "topic": "0_userdata.0.alarm.weekday_alarmtime",
+        "payloadType": "value",
+        "onlyack": "",
+        "func": "rbe",
+        "gap": "",
+        "fireOnStart": "false",
+        "outFormat": "ioBroker",
+        "x": 230,
+        "y": 900,
+        "wires": [
+            [
+                "d7d24130dcb834b3"
+            ]
+        ]
+    },
+    {
+        "id": "df2a33e5fe99636f",
+        "type": "ioBroker in",
+        "z": "9d832c5af722ac78",
+        "name": "weekend alarm changed",
+        "topic": "0_userdata.0.alarm.weekend_alarmtime",
+        "payloadType": "value",
+        "onlyack": "",
+        "func": "all",
+        "gap": "",
+        "fireOnStart": "false",
+        "outFormat": "ioBroker",
+        "x": 230,
+        "y": 940,
+        "wires": [
+            [
+                "d7d24130dcb834b3"
+            ]
+        ]
+    },
+    {
+        "id": "6850e6d00c5ba7dd",
+        "type": "subflow:72258bd0d3dfaa6d",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "x": 1360,
+        "y": 440,
+        "wires": [
+            [
+                "64f3437c062242f7"
+            ]
+        ]
+    },
+    {
+        "id": "6f3881c4ef0a60e6",
+        "type": "delay",
+        "z": "9d832c5af722ac78",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "1",
+        "timeoutUnits": "hours",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1300,
+        "y": 400,
+        "wires": [
+            [
+                "6850e6d00c5ba7dd"
+            ]
+        ]
+    },
+    {
+        "id": "64f3437c062242f7",
+        "type": "change",
+        "z": "9d832c5af722ac78",
+        "name": "payload = open",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "open",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1320,
+        "y": 480,
+        "wires": [
+            [
+                "e3e20ed48db44a26",
+                "d3bf09babebb535f"
+            ]
+        ]
+    },
+    {
+        "id": "d3bf09babebb535f",
+        "type": "debug",
+        "z": "9d832c5af722ac78",
+        "name": "Open Shutter",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "{\"x\":\"Opening shutter bedroom entirely.\"}.x",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1580,
+        "y": 480,
+        "wires": []
     },
     {
         "id": "c8e35a348395dc50",
