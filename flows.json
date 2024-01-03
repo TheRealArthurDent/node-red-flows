@@ -3544,7 +3544,7 @@
         "type": "function",
         "z": "395982643a88a924",
         "name": "Prepare http request",
-        "func": "let latitude = env.get('latitude'); \nlet longitude = env.get('longitude'); \n\n//https://sunrise-sunset.org/api\nmsg.url = `https://api.sunrise-sunset.org/json?&formatted=0&lat=${latitude}&lng=${longitude}`;\n\nreturn msg;",
+        "func": "let latitude = env.get('latitude'); \nlet longitude = env.get('longitude');\nlet date = env.get('date');\n\n//https://sunrise-sunset.org/api\nmsg.url = `https://api.sunrise-sunset.org/json?&formatted=0&lat=${latitude}&lng=${longitude}&date=${date}`;\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -3626,7 +3626,7 @@
             }
         ],
         "x": 90,
-        "y": 200,
+        "y": 220,
         "wires": [
             [
                 "6cca6577993b24e2"
@@ -4215,7 +4215,7 @@
         "to": "",
         "reg": false,
         "x": 260,
-        "y": 200,
+        "y": 220,
         "wires": [
             [
                 "1dfd5f73.3e12d1",
@@ -4343,8 +4343,10 @@
         "name": "",
         "outputField": "payload",
         "timeZone": "",
-        "persistDynamic": false,
+        "storeName": "",
         "commandResponseMsgOutput": "output1",
+        "defaultLocation": "",
+        "defaultLocationType": "default",
         "outputs": 1,
         "options": [
             {
@@ -4628,6 +4630,111 @@
         "wires": [
             [
                 "533463ce90de4980"
+            ]
+        ]
+    },
+    {
+        "id": "784a701d30344241",
+        "type": "ioBroker in",
+        "z": "a09414b5.859f68",
+        "name": "Shutter Terrasse Position",
+        "topic": "mqtt-client.0.shellies.shutter-terrasse.roller.0.pos",
+        "payloadType": "value",
+        "onlyack": "",
+        "func": "rbe",
+        "gap": "",
+        "fireOnStart": "true",
+        "outFormat": "ioBroker",
+        "x": 150,
+        "y": 1140,
+        "wires": [
+            [
+                "0e474a6e149266df"
+            ]
+        ]
+    },
+    {
+        "id": "0e474a6e149266df",
+        "type": "function",
+        "z": "a09414b5.859f68",
+        "name": "Shutter opened or closed",
+        "func": "let position = parseInt(msg.payload);\n\nmsg.payload = position <= 40; \n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 1140,
+        "wires": [
+            [
+                "841213219c1fcd8a"
+            ]
+        ]
+    },
+    {
+        "id": "841213219c1fcd8a",
+        "type": "ioBroker out",
+        "z": "a09414b5.859f68",
+        "name": "Set shutter terrasse closed",
+        "topic": "shellies.shutter-terrasse.closed",
+        "ack": "true",
+        "autoCreate": "false",
+        "stateName": "",
+        "role": "",
+        "payloadType": "",
+        "readonly": "",
+        "stateUnit": "",
+        "stateMin": "",
+        "stateMax": "",
+        "x": 720,
+        "y": 1140,
+        "wires": []
+    },
+    {
+        "id": "b28a583962c84596",
+        "type": "ioBroker in",
+        "z": "a09414b5.859f68",
+        "name": "Close command",
+        "topic": "node-red.0.shellies.shutter-terrasse.closed",
+        "payloadType": "value",
+        "onlyack": "command",
+        "func": "all",
+        "gap": "",
+        "fireOnStart": "false",
+        "outFormat": "ioBroker",
+        "x": 120,
+        "y": 180,
+        "wires": [
+            [
+                "caf67484915c5ef9"
+            ]
+        ]
+    },
+    {
+        "id": "caf67484915c5ef9",
+        "type": "change",
+        "z": "a09414b5.859f68",
+        "name": "set position",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "half-open",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 290,
+        "y": 180,
+        "wires": [
+            [
+                "6cca6577993b24e2"
             ]
         ]
     },
