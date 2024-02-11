@@ -104,6 +104,14 @@
         "env": []
     },
     {
+        "id": "c28ce20dfb644f22",
+        "type": "tab",
+        "label": "Shoe ventilation",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "2595f1ad.a5eb8e",
         "type": "subflow",
         "name": "Conditional shutter action",
@@ -4742,6 +4750,7 @@
         "id": "d73b023e.7ba9f",
         "type": "ioBroker in",
         "z": "615f1b13.386e84",
+        "d": true,
         "name": "stop_reason",
         "topic": "mqtt-client.0.shellies.shutter-office.roller.0.stop_reason",
         "payloadType": "value",
@@ -4838,7 +4847,7 @@
         "type": "debug",
         "z": "615f1b13.386e84",
         "name": "",
-        "active": true,
+        "active": false,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
@@ -4873,6 +4882,7 @@
         "id": "2cca56f4.4a390a",
         "type": "ioBroker in",
         "z": "615f1b13.386e84",
+        "d": true,
         "name": "stop_reason",
         "topic": "mqtt-client.0.shellies.shutter-terrasse.roller.0.stop_reason",
         "payloadType": "value",
@@ -4892,6 +4902,7 @@
         "id": "3bd4c279.25030e",
         "type": "ioBroker in",
         "z": "615f1b13.386e84",
+        "d": true,
         "name": "stop_reason",
         "topic": "mqtt-client.0.shellies.shutter-garden.roller.0.stop_reason",
         "payloadType": "value",
@@ -4911,6 +4922,7 @@
         "id": "62e4f0e4.daa7f",
         "type": "ioBroker in",
         "z": "615f1b13.386e84",
+        "d": true,
         "name": "stop_reason",
         "topic": "mqtt-client.0.shellies.shutter-kitchen.roller.0.stop_reason",
         "payloadType": "value",
@@ -4930,6 +4942,7 @@
         "id": "3295a73a.7d53e8",
         "type": "ioBroker in",
         "z": "615f1b13.386e84",
+        "d": true,
         "name": "stop_reason",
         "topic": "mqtt-client.0.shellies.shutter-bedroom.roller.0.stop_reason",
         "payloadType": "value",
@@ -6146,12 +6159,43 @@
         "name": "Discard \"invalid\" trigger",
         "func": "let topic = msg.topic;\nlet now = new Date();\nlet currentMonth = now.getMonth();\n\nif (currentMonth <= 3 || currentMonth >= 11) {\n    // It's winter. Hence we want to trigger at (before) sunset.\n    if (topic === 'sunset') {\n        msg.payload = true;\n        return msg;\n    } else {\n        node.log(`Trigger ${topic} discarded because it's winter.`);\n        return null;\n    }\n} else {\n    // It's summer. Hence we want to trigger just before civil dusk.\n    if (topic === 'dusk') {\n        msg.payload = true;\n        return msg;\n    } else {\n        node.log(`Trigger ${topic} discarded because it's summer.`);\n        return null;\n    }\n}\n\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
         "x": 430,
         "y": 60,
+        "wires": [
+            [
+                "1c732889567a533a"
+            ]
+        ]
+    },
+    {
+        "id": "5fc7f73bd7f75a8f",
+        "type": "inject",
+        "z": "94c83aa3.f236d8",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "v": "true",
+                "vt": "bool"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 480,
+        "y": 20,
         "wires": [
             [
                 "1c732889567a533a"
@@ -9049,7 +9093,7 @@
         "type": "debug",
         "z": "a8a95e02.bf408",
         "name": "debug 10",
-        "active": true,
+        "active": false,
         "tosidebar": true,
         "console": true,
         "tostatus": false,
@@ -9169,7 +9213,7 @@
         "type": "debug",
         "z": "8e42c1ce474ca950",
         "name": "",
-        "active": true,
+        "active": false,
         "tosidebar": true,
         "console": true,
         "tostatus": false,
@@ -9550,7 +9594,7 @@
         "type": "debug",
         "z": "8e42c1ce474ca950",
         "name": "",
-        "active": true,
+        "active": false,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
@@ -11946,14 +11990,15 @@
         "id": "0ea16fdc13199e66",
         "type": "function",
         "z": "9d832c5af722ac78",
-        "name": "function 3",
+        "name": "Provision timer",
         "func": "let alarmActive = msg.alarmActive === 'true';\nmsg.payload = {};\nmsg.payload.suspended = !alarmActive;\nif(!alarmActive) {\n    // If the alarm is deactivated, we're ready here.\n    return msg;\n}\n\nlet alarmTimeRaw = msg.alarmTime.split(':');\nlet hour = parseInt(alarmTimeRaw[0]);\nlet minute = parseInt(alarmTimeRaw[1]);\n\n// the wakeup sequence takes 30 minutes \n// (until lights are at 100%)\n// So we have to start 30 minutes earlier that that.\nif (minute >= 30) {\n    minute -= 30;\n} else {\n    hour--;\n    minute += 30;\n}\n\n// Formatting\nif (hour < 10) {\n    hour = '0' + hour;\n}\nif (minute < 10) {\n    minute = '0' + minute;\n}\n\nmsg.payload.triggertime = `${hour}:${minute}:00`;\nmsg.payload.action = 'trigger';\n\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 700,
+        "x": 720,
         "y": 1000,
         "wires": [
             [
@@ -12079,16 +12124,16 @@
         "id": "58928c0984020d76",
         "type": "debug",
         "z": "9d832c5af722ac78",
-        "name": "debug 5",
+        "name": "Startup",
         "active": true,
-        "tosidebar": true,
+        "tosidebar": false,
         "console": true,
         "tostatus": false,
         "complete": "\"Startup detected.\"",
         "targetType": "jsonata",
         "statusVal": "",
         "statusType": "auto",
-        "x": 490,
+        "x": 480,
         "y": 840,
         "wires": []
     },
@@ -12096,16 +12141,16 @@
         "id": "d72f5a3a21581003",
         "type": "debug",
         "z": "9d832c5af722ac78",
-        "name": "debug 6",
+        "name": "Wakeup provisioned",
         "active": true,
-        "tosidebar": true,
+        "tosidebar": false,
         "console": true,
         "tostatus": false,
         "complete": "\"Provisioned wakeup sequence at \" & payload.triggertime",
         "targetType": "jsonata",
         "statusVal": "",
         "statusType": "auto",
-        "x": 970,
+        "x": 1000,
         "y": 1060,
         "wires": []
     },
@@ -12840,6 +12885,492 @@
         "info": "",
         "x": 220,
         "y": 80,
+        "wires": []
+    },
+    {
+        "id": "130295a60302bdf1",
+        "type": "ioBroker in",
+        "z": "c28ce20dfb644f22",
+        "name": "Shoe heating reachable",
+        "topic": "deconz.0.Lights.7.reachable",
+        "payloadType": "value",
+        "onlyack": "",
+        "func": "rbe",
+        "gap": "",
+        "fireOnStart": "false",
+        "outFormat": "ioBroker",
+        "x": 180,
+        "y": 80,
+        "wires": [
+            [
+                "6b15acc3ee78e405"
+            ]
+        ]
+    },
+    {
+        "id": "6b15acc3ee78e405",
+        "type": "switch",
+        "z": "c28ce20dfb644f22",
+        "name": "is reachable",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "true",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 410,
+        "y": 80,
+        "wires": [
+            [
+                "2905a4cc41531aca"
+            ]
+        ]
+    },
+    {
+        "id": "d55732a056654bf9",
+        "type": "debug",
+        "z": "c28ce20dfb644f22",
+        "name": "debug 11",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 880,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "c82f9a5b8939998f",
+        "type": "function",
+        "z": "c28ce20dfb644f22",
+        "name": "Calculate durations and start times",
+        "func": "let now = getSecondOfDay();\nlet durationSeconds = getDurationSeconds(msg.durationShoeHeating);\nlet nightRestTime = getDurationSeconds(msg.nightRestTime);\n\nif (now + durationSeconds <= nightRestTime) {\n    // There is enough time until night rest time.\n    // Ventilate in one go.\n    return [\n        {\n            \"phase\":\"start\",\n            \"durationSeconds\": durationSeconds\n        }, \n        {\n            \"event\": \"cut off\", \n            \"delay\": durationSeconds*1000,\n            \"durationSeconds\": durationSeconds\n        },\n        null,\n        null\n    ];\n} else if (now > nightRestTime) {\n    // We're already past night rest time.\n    // Wait and do stuff tomorrow.\n    let splits = msg.startTime.split(':');\n    let hours = parseInt(splits[0]) || 0;\n    let minutes = parseInt(splits[1]) || 0;\n    let seconds = parseInt(splits[2]) || 0;\n\n    // tomorrow at startTime\n    let startTimestamp = new Date();\n    startTimestamp.setDate(startTimestamp.getDate() + 1);\n    startTimestamp.setHours(hours);\n    startTimestamp.setMinutes(minutes);\n    startTimestamp.setSeconds(seconds);\n\n    let stopTimestamp = new Date(startTimestamp.getTime());\n    stopTimestamp.setSeconds(stopTimestamp.getSeconds() + durationSeconds);\n\n    let startDelayMs = startTimestamp.getTime() - new Date().getTime();\n    let stopDelayMs = stopTimestamp.getTime() - new Date().getTime();\n\n    return [\n        null,\n        {\n            \"event\": \"cut off\", \n            \"delay\": 0\n        },\n        {\n            \"phase\": \"next day start\",\n            \"delay\": startDelayMs,\n            \"startTime\": startTimestamp,\n            \"durationSeconds\": durationSeconds\n        },\n        {\n            \"phase\": \"next day cut off\",\n            \"delay\": stopDelayMs,\n            \"stopTime\": stopTimestamp,\n            \"durationSeconds\": durationSeconds\n        }\n    ];\n} else {\n    // We're before night rest time, but we won't make it in time.\n    let splits = msg.startTime.split(':');\n    let hours = parseInt(splits[0]) || 0;\n    let minutes = parseInt(splits[1]) || 0;\n    let seconds = parseInt(splits[2]) || 0;\n\n    // tomorrow at startTime\n    let startTimestampNextDay = new Date();\n    startTimestampNextDay.setDate(startTimestampNextDay.getDate() + 1);\n    startTimestampNextDay.setHours(hours);\n    startTimestampNextDay.setMinutes(minutes);\n    startTimestampNextDay.setSeconds(seconds);\n\n    let startDelayMs = startTimestampNextDay.getTime() - new Date().getTime();\n\n    if(nightRestTime - now > 20 * 60)\n    {\n        // if there are at least 20 minutes left, go for it\n        // and do the rest the nex day\n        let durationNow = nightRestTime - now;\n        let durationNextDay = durationSeconds - durationNow;\n\n        let stopTimestamp = new Date(startTimestampNextDay.getTime());\n        stopTimestamp.setSeconds(stopTimestamp.getSeconds() + durationNextDay);\n        let stopDelayMs = stopTimestamp.getTime() - new Date().getTime();\n        \n        return [\n            {\n                \"phase\": \"start\",\n                \"durationSeconds\": durationNow\n            },\n            {\n                \"event\": \"cut off\",\n                \"delay\": durationNow*1000,\n                \"durationSeconds\": durationNow\n            },\n            {\n                \"phase\": \"next day start\",\n                \"delay\": startDelayMs,\n                \"startTime\": startTimestampNextDay,\n                \"durationSeconds\": durationNextDay\n            },\n            {\n                \"phase\": \"next day cut off\",\n                \"delay\": stopDelayMs,\n                \"stopTime\": stopTimestamp,\n                \"durationSeconds\": durationNextDay\n            }\n        ];\n    } else {\n        // otherwise do everything the next day\n        let stopTimestamp = new Date(startTimestampNextDay.getTime());\n        stopTimestamp.setSeconds(stopTimestamp.getSeconds() + durationSeconds);\n        let stopDelayMs = stopTimestamp.getTime() - new Date().getTime();\n        return [\n            null,\n            {\n                \"event\": \"cut off\",\n                \"delay\": 0\n            },\n            {\n                \"phase\": \"next day start\",\n                \"delay\": startDelayMs,\n                \"startTime\": startTimestampNextDay,\n                \"durationSeconds\": durationSeconds\n            },\n            {\n                \"phase\": \"next day cut off\",\n                \"delay\": stopDelayMs,\n                \"stopTime\": stopTimestamp,\n                \"durationSeconds\": durationSeconds\n            }\n        ];\n    }\n}\n\n\nfunction getSecondOfDay() {\n    let now = new Date();\n    return now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();\n}\n\nfunction getDurationSeconds(rawValue) {\n    let splits = rawValue.split(':');\n    let hours = parseInt(splits[0]) || 0;\n    let minutes = parseInt(splits[1]) || 0;\n    let seconds = parseInt(splits[2]) || 0;\n\n    return hours * 3600 + minutes * 60 + seconds;\n}\n",
+        "outputs": 4,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 960,
+        "y": 100,
+        "wires": [
+            [
+                "d73ed7e9e1843bf1",
+                "c9d1aefb834351cb"
+            ],
+            [
+                "f4dc090ec5a7ec3f",
+                "c9d1aefb834351cb"
+            ],
+            [
+                "02cad93b66edbe08",
+                "c9d1aefb834351cb"
+            ],
+            [
+                "27faec536848f437",
+                "c9d1aefb834351cb"
+            ]
+        ]
+    },
+    {
+        "id": "d73ed7e9e1843bf1",
+        "type": "deconz-output",
+        "z": "c28ce20dfb644f22",
+        "name": "Heating on",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "lights/uniqueid/94:34:69:ff:fe:01:ec:25-01"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "commands": [
+            {
+                "arg": {
+                    "on": {
+                        "type": "set",
+                        "value": "true"
+                    },
+                    "alert": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "effect": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "colorloopspeed": {
+                        "type": "num",
+                        "value": ""
+                    },
+                    "transitiontime": {
+                        "type": "num",
+                        "value": ""
+                    },
+                    "retryonerror": {
+                        "type": "num",
+                        "value": "0"
+                    },
+                    "aftererror": {
+                        "type": "continue",
+                        "value": ""
+                    },
+                    "bri": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": "255"
+                    },
+                    "sat": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "hue": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "ct": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "xy": {
+                        "direction": "set",
+                        "type": "json",
+                        "value": "[]"
+                    }
+                },
+                "type": "deconz_state",
+                "domain": "lights"
+            }
+        ],
+        "specific": {
+            "delay": {
+                "type": "num",
+                "value": "0"
+            },
+            "result": {
+                "type": "at_end",
+                "value": ""
+            }
+        },
+        "x": 1570,
+        "y": 80,
+        "wires": [
+            [
+                "0dc3b979aa8b816e"
+            ]
+        ]
+    },
+    {
+        "id": "f4dc090ec5a7ec3f",
+        "type": "delay",
+        "z": "c28ce20dfb644f22",
+        "name": "Delay cut off",
+        "pauseType": "delayv",
+        "timeout": "2",
+        "timeoutUnits": "hours",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1290,
+        "y": 120,
+        "wires": [
+            [
+                "e3db2aa6cacb37c9"
+            ]
+        ]
+    },
+    {
+        "id": "e3db2aa6cacb37c9",
+        "type": "deconz-output",
+        "z": "c28ce20dfb644f22",
+        "name": "Heating off",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "lights/uniqueid/94:34:69:ff:fe:01:ec:25-01"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "commands": [
+            {
+                "arg": {
+                    "on": {
+                        "type": "set",
+                        "value": "false"
+                    },
+                    "alert": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "effect": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "colorloopspeed": {
+                        "type": "num",
+                        "value": ""
+                    },
+                    "transitiontime": {
+                        "type": "num",
+                        "value": ""
+                    },
+                    "retryonerror": {
+                        "type": "num",
+                        "value": "0"
+                    },
+                    "aftererror": {
+                        "type": "continue",
+                        "value": ""
+                    },
+                    "bri": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": "0"
+                    },
+                    "sat": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "hue": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "ct": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "xy": {
+                        "direction": "set",
+                        "type": "json",
+                        "value": "[]"
+                    }
+                },
+                "type": "deconz_state",
+                "domain": "lights"
+            }
+        ],
+        "specific": {
+            "delay": {
+                "type": "num",
+                "value": "0"
+            },
+            "result": {
+                "type": "at_end",
+                "value": ""
+            }
+        },
+        "x": 1570,
+        "y": 120,
+        "wires": [
+            [
+                "8c6559cbea3b4517"
+            ]
+        ]
+    },
+    {
+        "id": "0dc3b979aa8b816e",
+        "type": "debug",
+        "z": "c28ce20dfb644f22",
+        "name": "debug 12",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1760,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "8c6559cbea3b4517",
+        "type": "debug",
+        "z": "c28ce20dfb644f22",
+        "name": "debug 13",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1760,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "69eb56ff1b2f6c06",
+        "type": "inject",
+        "z": "c28ce20dfb644f22",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "true",
+        "payloadType": "str",
+        "x": 170,
+        "y": 40,
+        "wires": [
+            [
+                "6b15acc3ee78e405"
+            ]
+        ]
+    },
+    {
+        "id": "3e3d58a968a521a6",
+        "type": "ioBroker get",
+        "z": "c28ce20dfb644f22",
+        "name": "startTime",
+        "topic": "0_userdata.0.alarm.weekend_alarmtime",
+        "attrname": "startTime",
+        "payloadType": "value",
+        "errOnInvalidState": "false",
+        "x": 600,
+        "y": 160,
+        "wires": [
+            [
+                "c82f9a5b8939998f",
+                "d55732a056654bf9"
+            ]
+        ]
+    },
+    {
+        "id": "8f5f61f458f5b133",
+        "type": "ioBroker get",
+        "z": "c28ce20dfb644f22",
+        "name": "night_rest_time",
+        "topic": "0_userdata.0.alarm.night_rest_time",
+        "attrname": "nightRestTime",
+        "payloadType": "value",
+        "errOnInvalidState": "false",
+        "x": 620,
+        "y": 120,
+        "wires": [
+            [
+                "3e3d58a968a521a6"
+            ]
+        ]
+    },
+    {
+        "id": "2905a4cc41531aca",
+        "type": "ioBroker get",
+        "z": "c28ce20dfb644f22",
+        "name": "duration_shoe_heating",
+        "topic": "0_userdata.0.settings.duration_shoe_heating",
+        "attrname": "durationShoeHeating",
+        "payloadType": "value",
+        "errOnInvalidState": "false",
+        "x": 640,
+        "y": 80,
+        "wires": [
+            [
+                "8f5f61f458f5b133"
+            ]
+        ]
+    },
+    {
+        "id": "27faec536848f437",
+        "type": "delay",
+        "z": "c28ce20dfb644f22",
+        "name": "Delay 2nd cut off",
+        "pauseType": "delayv",
+        "timeout": "2",
+        "timeoutUnits": "hours",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1310,
+        "y": 200,
+        "wires": [
+            [
+                "e3db2aa6cacb37c9"
+            ]
+        ]
+    },
+    {
+        "id": "02cad93b66edbe08",
+        "type": "delay",
+        "z": "c28ce20dfb644f22",
+        "name": "Delay restart",
+        "pauseType": "delayv",
+        "timeout": "2",
+        "timeoutUnits": "hours",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1290,
+        "y": 160,
+        "wires": [
+            [
+                "d73ed7e9e1843bf1"
+            ]
+        ]
+    },
+    {
+        "id": "c9d1aefb834351cb",
+        "type": "debug",
+        "z": "c28ce20dfb644f22",
+        "name": "Ventilation timers",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1310,
+        "y": 260,
         "wires": []
     }
 ]
