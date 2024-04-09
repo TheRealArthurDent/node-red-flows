@@ -45,7 +45,7 @@
         "id": "4b1f3e4c.b2604",
         "type": "tab",
         "label": "Roomba",
-        "disabled": false,
+        "disabled": true,
         "info": ""
     },
     {
@@ -6157,7 +6157,7 @@
         "type": "function",
         "z": "94c83aa3.f236d8",
         "name": "Discard \"invalid\" trigger",
-        "func": "let topic = msg.topic;\nlet now = new Date();\nlet currentMonth = now.getMonth();\n\nif (currentMonth <= 3 || currentMonth >= 11) {\n    // It's winter. Hence we want to trigger at (before) sunset.\n    if (topic === 'sunset') {\n        msg.payload = true;\n        return msg;\n    } else {\n        node.log(`Trigger ${topic} discarded because it's winter.`);\n        return null;\n    }\n} else {\n    // It's summer. Hence we want to trigger just before civil dusk.\n    if (topic === 'dusk') {\n        msg.payload = true;\n        return msg;\n    } else {\n        node.log(`Trigger ${topic} discarded because it's summer.`);\n        return null;\n    }\n}\n\nreturn msg;",
+        "func": "const OFFSET_WINTER = -60;\n\nconst topic = msg.topic;\nconst now = new Date();\n\n// This is ugly af, but the most simple way to distinguish between summer and winter\nif (now.getTimezoneOffset() === OFFSET_WINTER) {\n    // It's winter. Hence we want to trigger at (before) sunset.\n    if (topic === 'sunset') {\n        msg.payload = true;\n        return msg;\n    } else {\n        node.log(`Trigger ${topic} discarded because it's winter.`);\n        return null;\n    }\n} else {\n    // It's summer. Hence we want to trigger just before civil dusk.\n    if (topic === 'dusk') {\n        msg.payload = true;\n        return msg;\n    } else {\n        node.log(`Trigger ${topic} discarded because it's summer.`);\n        return null;\n    }\n}\n",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
