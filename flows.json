@@ -461,7 +461,7 @@
         ],
         "env": [
             {
-                "name": "shutter-name",
+                "name": "shutter.name",
                 "type": "str",
                 "value": ""
             }
@@ -1117,7 +1117,12 @@
         "env": [
             {
                 "name": "shutter.name",
-                "value": "${shutter-name}",
+                "value": "shutter.name",
+                "type": "env"
+            },
+            {
+                "name": "SHUTTER_NAME",
+                "value": "",
                 "type": "env"
             }
         ],
@@ -1135,6 +1140,11 @@
         "z": "2595f1ad.a5eb8e",
         "name": "",
         "env": [
+            {
+                "name": "shutter.name",
+                "value": "shutter.name",
+                "type": "env"
+            },
             {
                 "name": "shutter-name",
                 "value": "${shutter-name}",
@@ -1154,6 +1164,7 @@
         "name": "Determine action",
         "func": "if(msg.preventMovement) {\n    msg.reason = \"preventMovement is active. Shutters will not be moved.\"\n    msg.payload = \"Don't move.\"\n    return [null, msg];    \n}\nif(msg.lastDesiredPosition === undefined || msg.currentPosition === msg.lastDesiredPosition) {\n    msg.reason = 'Moving shutter. No manual change detected.'\n    return [msg, null];\n}\nif(msg.overrideManualChange) {\n    msg.reason = 'Moving shutter. Overriding manual change due to msg.overrideManualChange.'\n    return [msg, null];\n}\nmsg.reason = \"Manual change detected. Shutters will not be moved.\"\nmsg.payload = \"Don't move.\"\nreturn [null, msg];",
         "outputs": 2,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -2421,12 +2432,31 @@
         "name": "transform to boolean",
         "func": "msg.preventMovement = (msg.preventMovement === \"true\");\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
         "x": 860,
         "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "67da22343566ace7",
+        "type": "function",
+        "z": "c6d3de9075efb38f",
+        "name": "function 3",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 80,
         "wires": [
             []
         ]
@@ -3425,7 +3455,12 @@
         "env": [
             {
                 "name": "shutter.name",
-                "value": "${shutter-name}",
+                "value": "shutter.name",
+                "type": "env"
+            },
+            {
+                "name": "SHUTTER_NAME",
+                "value": "SHUTTER_NAME",
                 "type": "env"
             }
         ],
@@ -3444,6 +3479,7 @@
         "name": "proceed if desired != current",
         "func": "let currentPosition = parseInt(msg.currentPosition);\nlet desiredPosition = parseInt(msg.lastDesiredPosition);\n\nif (currentPosition == desiredPosition) {\n    return null;\n}\n\nmsg.payload = desiredPosition;\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -3462,6 +3498,11 @@
         "z": "9c37ac267425c096",
         "name": "",
         "env": [
+            {
+                "name": "shutter.name",
+                "value": "shutter.name",
+                "type": "env"
+            },
             {
                 "name": "shutter-name",
                 "value": "${shutter-name}",
@@ -4228,7 +4269,8 @@
             [
                 "1dfd5f73.3e12d1",
                 "86fb19ad.e3f8e8",
-                "f048fb8887f6b0c5"
+                "f048fb8887f6b0c5",
+                "2cb7e264c1861347"
             ]
         ]
     },
@@ -4745,6 +4787,23 @@
                 "6cca6577993b24e2"
             ]
         ]
+    },
+    {
+        "id": "2cb7e264c1861347",
+        "type": "debug",
+        "z": "a09414b5.859f68",
+        "name": "debug 14",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 180,
+        "wires": []
     },
     {
         "id": "d73b023e.7ba9f",
@@ -10836,13 +10895,19 @@
                 "name": "shutter.name",
                 "value": "office",
                 "type": "str"
+            },
+            {
+                "name": "SHUTTER_NAME",
+                "value": "office",
+                "type": "str"
             }
         ],
         "x": 630,
         "y": 380,
         "wires": [
             [
-                "27c25da64426b1ec"
+                "27c25da64426b1ec",
+                "b910b70fac45edcf"
             ]
         ]
     },
@@ -10856,13 +10921,19 @@
                 "name": "shutter.name",
                 "value": "bedroom",
                 "type": "str"
+            },
+            {
+                "name": "SHUTTER_NAME",
+                "value": "bedroom",
+                "type": "str"
             }
         ],
         "x": 640,
         "y": 540,
         "wires": [
             [
-                "27c25da64426b1ec"
+                "27c25da64426b1ec",
+                "b910b70fac45edcf"
             ]
         ]
     },
@@ -10870,10 +10941,15 @@
         "id": "2f02ae19986d5098",
         "type": "subflow:9c37ac267425c096",
         "z": "c4f89efe363c2ef8",
-        "name": "Reset shutter terrasse",
+        "name": "Reset shutter terrace",
         "env": [
             {
                 "name": "shutter.name",
+                "value": "terrasse",
+                "type": "str"
+            },
+            {
+                "name": "SHUTTER_NAME",
                 "value": "terrasse",
                 "type": "str"
             }
@@ -10882,7 +10958,8 @@
         "y": 420,
         "wires": [
             [
-                "27c25da64426b1ec"
+                "27c25da64426b1ec",
+                "b910b70fac45edcf"
             ]
         ]
     },
@@ -10893,6 +10970,11 @@
         "name": "Reset shutter garden",
         "env": [
             {
+                "name": "SHUTTER_NAME",
+                "value": "garden",
+                "type": "str"
+            },
+            {
                 "name": "shutter.name",
                 "value": "garden",
                 "type": "str"
@@ -10902,7 +10984,8 @@
         "y": 460,
         "wires": [
             [
-                "27c25da64426b1ec"
+                "27c25da64426b1ec",
+                "b910b70fac45edcf"
             ]
         ]
     },
@@ -10916,13 +10999,19 @@
                 "name": "shutter.name",
                 "value": "kitchen",
                 "type": "str"
+            },
+            {
+                "name": "SHUTTER_NAME",
+                "value": "kitchen",
+                "type": "str"
             }
         ],
         "x": 640,
         "y": 500,
         "wires": [
             [
-                "27c25da64426b1ec"
+                "27c25da64426b1ec",
+                "b910b70fac45edcf"
             ]
         ]
     },
@@ -10952,6 +11041,23 @@
         "broker": "f1f93d18.375ea",
         "x": 890,
         "y": 460,
+        "wires": []
+    },
+    {
+        "id": "b910b70fac45edcf",
+        "type": "debug",
+        "z": "c4f89efe363c2ef8",
+        "name": "Shutter Message",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 930,
+        "y": 380,
         "wires": []
     },
     {
