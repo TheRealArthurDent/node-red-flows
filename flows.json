@@ -42,13 +42,6 @@
         "info": ""
     },
     {
-        "id": "4b1f3e4c.b2604",
-        "type": "tab",
-        "label": "Roomba",
-        "disabled": true,
-        "info": ""
-    },
-    {
         "id": "a8a95e02.bf408",
         "type": "tab",
         "label": "Spielerei",
@@ -107,6 +100,22 @@
         "id": "c28ce20dfb644f22",
         "type": "tab",
         "label": "Shoe ventilation",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "63ceb30c499446c1",
+        "type": "tab",
+        "label": "Debug",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "743801a547b6bfc8",
+        "type": "tab",
+        "label": "ValueMappings",
         "disabled": false,
         "info": "",
         "env": []
@@ -403,7 +412,7 @@
                 "y": 80,
                 "wires": [
                     {
-                        "id": "dcf0bdcbe68c4533"
+                        "id": "67da22343566ace7"
                     }
                 ]
             }
@@ -442,7 +451,7 @@
                 "y": 80,
                 "wires": [
                     {
-                        "id": "3e3d3992a11cbd69"
+                        "id": "92517d3878637f10"
                     }
                 ]
             }
@@ -453,7 +462,7 @@
                 "y": 80,
                 "wires": [
                     {
-                        "id": "3e3d3992a11cbd69",
+                        "id": "92517d3878637f10",
                         "port": 0
                     }
                 ]
@@ -966,39 +975,6 @@
         "verboselogging": true
     },
     {
-        "id": "f88b4105.9be82",
-        "type": "telegrambot-config",
-        "z": "4b1f3e4c.b2604",
-        "botname": "Roomba",
-        "usernames": "",
-        "chatIds": "-474645721",
-        "pollInterval": "300"
-    },
-    {
-        "id": "35f160c4.6ef4d",
-        "type": "telegram bot",
-        "botname": "Roomba_sendOnly",
-        "usernames": "",
-        "chatids": "",
-        "baseapiurl": "",
-        "updatemode": "none",
-        "pollinterval": "300",
-        "usesocks": false,
-        "sockshost": "",
-        "socksport": "6667",
-        "socksusername": "anonymous",
-        "sockspassword": "",
-        "bothost": "",
-        "botpath": "",
-        "localbotport": "8443",
-        "publicbotport": "8443",
-        "privatekey": "",
-        "certificate": "",
-        "useselfsignedcertificate": false,
-        "sslterminated": false,
-        "verboselogging": false
-    },
-    {
         "id": "966aead04bc37acf",
         "type": "deconz-server",
         "name": "Phoscon-GW",
@@ -1035,19 +1011,10 @@
                 "t": "change",
                 "p": "payload",
                 "pt": "msg",
-                "from": "open",
-                "fromt": "str",
-                "to": "100",
-                "tot": "num"
-            },
-            {
-                "t": "change",
-                "p": "payload",
-                "pt": "msg",
                 "from": "closed",
                 "fromt": "str",
-                "to": "0",
-                "tot": "num"
+                "to": "close",
+                "tot": "str"
             }
         ],
         "action": "",
@@ -1094,6 +1061,24 @@
                 "pt": "msg",
                 "to": "desiredPositionName",
                 "tot": "msg"
+            },
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "open",
+                "fromt": "str",
+                "to": "100",
+                "tot": "num"
+            },
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "close",
+                "fromt": "str",
+                "to": "0",
+                "tot": "num"
             }
         ],
         "action": "",
@@ -1101,7 +1086,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 1050,
+        "x": 1060,
         "y": 140,
         "wires": [
             [
@@ -1569,7 +1554,7 @@
         "type": "ioBroker get",
         "z": "ef57397d.2bd4c8",
         "name": "get shutter bedroom position",
-        "topic": "mqtt-client.0.shellies.shutter-bedroom.roller.0.pos",
+        "topic": "node-red.0.shellies.shutter-bedroom.position",
         "attrname": "position",
         "payloadType": "value",
         "x": 300,
@@ -2217,11 +2202,11 @@
         "id": "b3a946ac74282633",
         "type": "ioBroker get",
         "z": "893d1cfdd62ef503",
-        "name": "get shutter bedroom position",
-        "topic": "mqtt-client.0.shellies.shutter-bedroom.roller.0.pos",
+        "name": "node-red.0.shellies.shutter-bedroom.position",
+        "topic": "node-red.0.shellies.shutter-bedroom.position",
         "attrname": "position",
         "payloadType": "value",
-        "x": 380,
+        "x": 370,
         "y": 120,
         "wires": [
             [
@@ -2285,12 +2270,10 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 360,
-        "y": 80,
+        "x": 920,
+        "y": 160,
         "wires": [
-            [
-                "1b60fad11fe5b582"
-            ]
+            []
         ]
     },
     {
@@ -2447,40 +2430,35 @@
         "id": "67da22343566ace7",
         "type": "function",
         "z": "c6d3de9075efb38f",
-        "name": "function 3",
-        "func": "\nreturn msg;",
+        "name": "ioBroker value names",
+        "func": "let shutterName = env.get(\"shutter.name\");\n\nmsg.desiredPositionName = `0_userdata.0.shutters.${shutterName}.desiredPosition`;\nmsg.preventMovement = `node-red.0.states.preventAutomaticShutterMovement.${shutterName}.active`;\n\n// Distiguish between Shelly 2.5 and Shelly 2 PM due to different APIs...\n// This is ugly af, but should work for the time being.\nif(shutterName === 'bedroom') {\n    msg.currentPositionName = `node-red.0.shellies.shutter-${shutterName}.position`;\n}\nelse {\n    msg.currentPositionName = `mqtt-client.0.shellies.shutter-${shutterName}.roller.0.pos`;\n}\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 640,
+        "x": 380,
         "y": 80,
         "wires": [
-            []
+            [
+                "1b60fad11fe5b582"
+            ]
         ]
     },
     {
-        "id": "3e3d3992a11cbd69",
-        "type": "change",
+        "id": "92517d3878637f10",
+        "type": "function",
         "z": "76dd2645ea70b9ac",
-        "name": "",
-        "rules": [
-            {
-                "t": "set",
-                "p": "topic",
-                "pt": "msg",
-                "to": "shellies/shutter-${shutter.name}/roller/0/command/pos",
-                "tot": "env"
-            }
-        ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 350,
+        "name": "format message",
+        "func": "let shutterName = env.get(\"shutter.name\");\n\n// Distiguish between Shelly 2.5 and Shelly 2 PM due to different APIs...\n// This is ugly af, but should work for the time being.\nif(shutterName === 'bedroom') {\n    msg.topic = 'shelly2PMs/shutter-'+ shutterName + '/command/cover:0';\n    if(Number.isInteger(msg.payload))\n    {\n        msg.payload = 'pos,' + msg.payload;\n    }\n}\nelse {\n    msg.topic = 'shellies/shutter-' + shutterName + '/roller/0/command';\n    if (Number.isInteger(msg.payload)) {\n        msg.topic += '/pos';\n    }\n}\n\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
         "y": 80,
         "wires": [
             []
@@ -3112,6 +3090,7 @@
         "name": "function 2",
         "func": "// initialise the counter to 0 if it doesn't exist already\nvar count = global.get('count') || 0;\n\nif(msg.payload.buttonevent == 1002)\n{\n    count += 1;\n    // store the value back\n    global.set('count', count);\n    msg.payload.count = count;\n}\n\nif(msg.payload === \"resetTimer\")\n{\n    msg.payload = {}\n    msg.payload.count = count;\n    global.set('count', 0);    \n\n    // single click\n    if(count == 1)\n    {\n        return [msg, null]\n    }\n    // double click\n    else\n    {\n        return [null, msg]\n    }    \n}\n\nreturn [null, null];\n",
         "outputs": 2,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -3533,35 +3512,6 @@
         ]
     },
     {
-        "id": "c096ff80badeb452",
-        "type": "inject",
-        "z": "1b53c3a9bc37dc0e",
-        "name": "",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "topic",
-                "vt": "str"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 160,
-        "y": 200,
-        "wires": [
-            [
-                "e41ffe2ba458ac80"
-            ]
-        ]
-    },
-    {
         "id": "2bc543c4d2e41610",
         "type": "switch",
         "z": "1b53c3a9bc37dc0e",
@@ -3584,8 +3534,63 @@
         "x": 590,
         "y": 120,
         "wires": [
-            [],
+            [
+                "7cd3cd89d301391c"
+            ],
             []
+        ]
+    },
+    {
+        "id": "8fd585a1edf5e8cf",
+        "type": "ioBroker out",
+        "z": "1b53c3a9bc37dc0e",
+        "name": "Safe desired position",
+        "topic": "",
+        "ack": "true",
+        "autoCreate": "true",
+        "stateName": "Last automatically requested shutter position",
+        "role": "value",
+        "payloadType": "number",
+        "readonly": "false",
+        "stateUnit": "",
+        "stateMin": "",
+        "stateMax": "",
+        "x": 1340,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "7cd3cd89d301391c",
+        "type": "change",
+        "z": "1b53c3a9bc37dc0e",
+        "name": "set topic and position value",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "0_userdata.0.shutters.terrasse.desiredPosition",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "40",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1080,
+        "y": 220,
+        "wires": [
+            [
+                "8fd585a1edf5e8cf"
+            ]
         ]
     },
     {
@@ -3669,7 +3674,7 @@
                 "expressionType": "solar",
                 "expression": "0 * * * * * *",
                 "location": "48.18609507662278, 11.596313697132464",
-                "offset": "0",
+                "offset": "-30",
                 "solarType": "selected",
                 "solarEvents": "nauticalDusk"
             }
@@ -6782,978 +6787,26 @@
         "y": 580,
         "wires": [
             [
-                "7cdbeab38d078f4d"
+                "7cdbeab38d078f4d",
+                "1cd6873f15578e46"
             ]
         ]
     },
     {
-        "id": "68a99e64.42131",
-        "type": "ioBroker in",
-        "z": "4b1f3e4c.b2604",
-        "name": "Presence changed",
-        "topic": "node-red.0.presence.presence",
-        "payloadType": "value",
-        "onlyack": "",
-        "func": "rbe",
-        "gap": "",
-        "fireOnStart": "false",
-        "x": 170,
-        "y": 100,
-        "wires": [
-            [
-                "9e99113d.14ab6"
-            ]
-        ]
-    },
-    {
-        "id": "989f00d1.3a0bf",
-        "type": "ioBroker get",
-        "z": "4b1f3e4c.b2604",
-        "name": "Check presence again",
-        "topic": "node-red.0.presence.presence",
-        "attrname": "payload",
-        "payloadType": "value",
-        "x": 740,
-        "y": 100,
-        "wires": [
-            [
-                "ca5ef598.e76fa8"
-            ]
-        ]
-    },
-    {
-        "id": "9e99113d.14ab6",
-        "type": "switch",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "property": "payload",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "eq",
-                "v": "false",
-                "vt": "str"
-            }
-        ],
-        "checkall": "true",
-        "repair": false,
-        "outputs": 1,
-        "x": 370,
-        "y": 100,
-        "wires": [
-            [
-                "6c5aa871.ce7258"
-            ]
-        ]
-    },
-    {
-        "id": "ca5ef598.e76fa8",
-        "type": "switch",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "property": "payload",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "eq",
-                "v": "false",
-                "vt": "str"
-            }
-        ],
-        "checkall": "true",
-        "repair": false,
-        "outputs": 1,
-        "x": 930,
-        "y": 100,
-        "wires": [
-            [
-                "a871ad10.0cdd8"
-            ]
-        ]
-    },
-    {
-        "id": "6c5aa871.ce7258",
-        "type": "delay",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "pauseType": "delay",
-        "timeout": "10",
-        "timeoutUnits": "minutes",
-        "rate": "1",
-        "nbRateUnits": "1",
-        "rateUnits": "second",
-        "randomFirst": "1",
-        "randomLast": "5",
-        "randomUnits": "seconds",
-        "drop": false,
-        "outputs": 1,
-        "x": 530,
-        "y": 100,
-        "wires": [
-            [
-                "989f00d1.3a0bf"
-            ]
-        ]
-    },
-    {
-        "id": "7fe56d9e.2f9014",
-        "type": "telegrambot-switch",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "bot": "f88b4105.9be82",
-        "chatId": "-474645721",
-        "question": "",
-        "answers": [
-            "Yes",
-            "No"
-        ],
-        "outputs": 3,
-        "autoAnswerCallback": true,
-        "verticalAnswers": false,
-        "timeoutValue": "30",
-        "timeoutUnits": "min",
-        "parseMode": "",
-        "x": 1560,
-        "y": 100,
-        "wires": [
-            [
-                "aab89493.aff268",
-                "782ab93d.a63c08",
-                "76e403a.9074dfc"
-            ],
-            [
-                "e0f8fe09.3f7fa",
-                "4b7a4783.9cfb38"
-            ],
-            [
-                "6fc77e96.e05b9",
-                "8cccca96.205fd8"
-            ]
-        ]
-    },
-    {
-        "id": "323343b9.a44bac",
-        "type": "inject",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "\"Test\"",
-        "payloadType": "str",
-        "x": 1350,
-        "y": 40,
-        "wires": [
-            [
-                "7fe56d9e.2f9014"
-            ]
-        ]
-    },
-    {
-        "id": "aab89493.aff268",
+        "id": "1cd6873f15578e46",
         "type": "debug",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": true,
-        "tostatus": false,
-        "complete": "\"Roomba: Starting cleanup\"",
-        "targetType": "jsonata",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1830,
-        "y": 560,
-        "wires": []
-    },
-    {
-        "id": "e0f8fe09.3f7fa",
-        "type": "debug",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": true,
-        "tostatus": false,
-        "complete": "\"Roomba: Cleanup request has been rejected.\"",
-        "targetType": "jsonata",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1830,
-        "y": 620,
-        "wires": []
-    },
-    {
-        "id": "d36bebbc.b15518",
-        "type": "telegrambot-command",
-        "z": "4b1f3e4c.b2604",
-        "name": "clean-command",
-        "bot": "f88b4105.9be82",
-        "command": "/clean@roomba.*",
-        "commandType": "re",
-        "commandCase": false,
-        "x": 880,
-        "y": 160,
-        "wires": [
-            [
-                "486905a4.85862c",
-                "72e1027e.eaee4c"
-            ]
-        ]
-    },
-    {
-        "id": "6fc77e96.e05b9",
-        "type": "debug",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": true,
-        "tostatus": false,
-        "complete": "\"Roomba: Cleanup request has timed out.\"",
-        "targetType": "jsonata",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1830,
-        "y": 660,
-        "wires": []
-    },
-    {
-        "id": "ec8cad6f.38a94",
-        "type": "template",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "json",
-        "syntax": "plain",
-        "template": "Apparently everyone has left. Shall I clean the place?",
-        "output": "str",
-        "x": 1340,
-        "y": 100,
-        "wires": [
-            [
-                "7fe56d9e.2f9014"
-            ]
-        ]
-    },
-    {
-        "id": "5b6028bf.708ed8",
-        "type": "template",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "json",
-        "syntax": "plain",
-        "template": "You want me to clean up?",
-        "output": "str",
-        "x": 1340,
-        "y": 160,
-        "wires": [
-            [
-                "7fe56d9e.2f9014"
-            ]
-        ]
-    },
-    {
-        "id": "a7330326.7a644",
-        "type": "inject",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "props": [],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "x": 930,
-        "y": 40,
-        "wires": [
-            [
-                "a871ad10.0cdd8"
-            ]
-        ]
-    },
-    {
-        "id": "782ab93d.a63c08",
-        "type": "ioBroker out",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "topic": "roomba.0.commands.start",
-        "ack": "false",
-        "autoCreate": "false",
-        "stateName": "",
-        "role": "",
-        "payloadType": "",
-        "readonly": "",
-        "stateUnit": "",
-        "stateMin": "",
-        "stateMax": "",
-        "x": 1990,
-        "y": 20,
-        "wires": []
-    },
-    {
-        "id": "a871ad10.0cdd8",
-        "type": "subflow:ee56faad.f111e8",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "env": [],
-        "x": 1120,
-        "y": 100,
-        "wires": [
-            [
-                "ec8cad6f.38a94"
-            ],
-            [
-                "177733d7.c3e98c"
-            ]
-        ]
-    },
-    {
-        "id": "177733d7.c3e98c",
-        "type": "telegrambot-notify",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "bot": "f88b4105.9be82",
-        "chatId": "-474645721",
-        "message": "",
-        "parseMode": "",
-        "x": 1360,
-        "y": 220,
-        "wires": []
-    },
-    {
-        "id": "486905a4.85862c",
-        "type": "subflow:ee56faad.f111e8",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "env": [],
-        "x": 1120,
-        "y": 160,
-        "wires": [
-            [
-                "5b6028bf.708ed8"
-            ],
-            [
-                "177733d7.c3e98c"
-            ]
-        ]
-    },
-    {
-        "id": "72e1027e.eaee4c",
-        "type": "debug",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
+        "z": "c13d8339.426df",
+        "name": "debug 18",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
+        "complete": "false",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1070,
-        "y": 200,
+        "x": 440,
+        "y": 580,
         "wires": []
-    },
-    {
-        "id": "c702d984.dfa328",
-        "type": "ioBroker in",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "topic": "roomba.0.states.binFull",
-        "payloadType": "value",
-        "onlyack": "",
-        "func": "all",
-        "gap": "",
-        "fireOnStart": "false",
-        "x": 840,
-        "y": 380,
-        "wires": [
-            [
-                "84646cad.10c5f"
-            ]
-        ]
-    },
-    {
-        "id": "84646cad.10c5f",
-        "type": "subflow:ee56faad.f111e8",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "env": [],
-        "x": 1120,
-        "y": 380,
-        "wires": [
-            [],
-            [
-                "177733d7.c3e98c"
-            ]
-        ]
-    },
-    {
-        "id": "76e403a.9074dfc",
-        "type": "template",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "handlebars",
-        "syntax": "plain",
-        "template": "Affirmative! Cleaning like a boss.",
-        "output": "str",
-        "x": 1940,
-        "y": 80,
-        "wires": [
-            [
-                "a39f6a10.92e1e8"
-            ]
-        ]
-    },
-    {
-        "id": "4b7a4783.9cfb38",
-        "type": "template",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "handlebars",
-        "syntax": "mustache",
-        "template": "Very well. Maybe next time.",
-        "output": "str",
-        "x": 1940,
-        "y": 120,
-        "wires": [
-            [
-                "a39f6a10.92e1e8"
-            ]
-        ]
-    },
-    {
-        "id": "8cccca96.205fd8",
-        "type": "template",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "handlebars",
-        "syntax": "mustache",
-        "template": "Hello?\nGuess that's a no...",
-        "output": "str",
-        "x": 1940,
-        "y": 160,
-        "wires": [
-            [
-                "a39f6a10.92e1e8"
-            ]
-        ]
-    },
-    {
-        "id": "a39f6a10.92e1e8",
-        "type": "telegrambot-notify",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "bot": "f88b4105.9be82",
-        "chatId": "-474645721",
-        "message": "",
-        "parseMode": "",
-        "x": 2140,
-        "y": 120,
-        "wires": []
-    },
-    {
-        "id": "b631f2ff.5a8c",
-        "type": "telegram command",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "command": "/dock",
-        "description": "Let Roomba return to its base.",
-        "registercommand": true,
-        "language": "",
-        "scope": "default",
-        "bot": "35f160c4.6ef4d",
-        "strict": false,
-        "hasresponse": true,
-        "useregex": false,
-        "removeregexcommand": false,
-        "outputs": 2,
-        "x": 150,
-        "y": 1120,
-        "wires": [
-            [
-                "e7405a22.2af638"
-            ],
-            [
-                "e7405a22.2af638"
-            ]
-        ]
-    },
-    {
-        "id": "e7405a22.2af638",
-        "type": "debug",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 390,
-        "y": 1120,
-        "wires": []
-    },
-    {
-        "id": "54401799.ad08c8",
-        "type": "telegrambot-command",
-        "z": "4b1f3e4c.b2604",
-        "name": "dock-command",
-        "bot": "f88b4105.9be82",
-        "command": "/dock@roomba.*",
-        "commandType": "re",
-        "commandCase": false,
-        "x": 160,
-        "y": 480,
-        "wires": [
-            [
-                "887c4de6.fc35b",
-                "4a28031e.c5451c"
-            ]
-        ]
-    },
-    {
-        "id": "870d01d4.f87c1",
-        "type": "telegram command",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "command": "/clean",
-        "description": "Let Roomba clean the place.",
-        "registercommand": true,
-        "language": "",
-        "scope": "default",
-        "bot": "35f160c4.6ef4d",
-        "strict": false,
-        "hasresponse": true,
-        "useregex": false,
-        "removeregexcommand": false,
-        "outputs": 2,
-        "x": 150,
-        "y": 1060,
-        "wires": [
-            [
-                "1a89a360.6daf8d"
-            ],
-            [
-                "1a89a360.6daf8d"
-            ]
-        ]
-    },
-    {
-        "id": "1a89a360.6daf8d",
-        "type": "debug",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 390,
-        "y": 1060,
-        "wires": []
-    },
-    {
-        "id": "bc9255a8.449dd8",
-        "type": "ioBroker out",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "topic": "roomba.0.commands.dock",
-        "ack": "false",
-        "autoCreate": "false",
-        "stateName": "",
-        "role": "",
-        "payloadType": "",
-        "readonly": "",
-        "stateUnit": "",
-        "stateMin": "",
-        "stateMax": "",
-        "x": 1160,
-        "y": 480,
-        "wires": []
-    },
-    {
-        "id": "887c4de6.fc35b",
-        "type": "subflow:ee56faad.f111e8",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "env": [],
-        "x": 540,
-        "y": 480,
-        "wires": [
-            [
-                "bc9255a8.449dd8",
-                "e15750bc.7e515"
-            ],
-            [
-                "4fb09f76.1a1a4",
-                "4a28031e.c5451c"
-            ]
-        ]
-    },
-    {
-        "id": "4a28031e.c5451c",
-        "type": "debug",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": true,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1240,
-        "y": 780,
-        "wires": []
-    },
-    {
-        "id": "4fb09f76.1a1a4",
-        "type": "telegrambot-notify",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "bot": "f88b4105.9be82",
-        "chatId": "-474645721",
-        "message": "",
-        "parseMode": "",
-        "x": 1240,
-        "y": 740,
-        "wires": []
-    },
-    {
-        "id": "e15750bc.7e515",
-        "type": "template",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "handlebars",
-        "syntax": "mustache",
-        "template": "Affirmative! On my way home.",
-        "output": "str",
-        "x": 940,
-        "y": 520,
-        "wires": [
-            [
-                "4fb09f76.1a1a4",
-                "4a28031e.c5451c"
-            ]
-        ]
-    },
-    {
-        "id": "ceb202ad.8352c",
-        "type": "comment",
-        "z": "4b1f3e4c.b2604",
-        "name": "Command registrations.",
-        "info": "These node use a different Roomba plugin to the one used in the actual flows.\nThey are only used to register commands (including a description) at Telegram, which the other plugin isn't able to do. Hence we only use the non-polling client here (and usually deactivate the nodes) in order to prevent conflicts.",
-        "x": 190,
-        "y": 1000,
-        "wires": []
-    },
-    {
-        "id": "1c0601ec.93da8e",
-        "type": "ioBroker in",
-        "z": "4b1f3e4c.b2604",
-        "name": "status",
-        "topic": "roomba.0.states.status",
-        "payloadType": "value",
-        "onlyack": "",
-        "func": "all",
-        "gap": "",
-        "fireOnStart": "false",
-        "x": 130,
-        "y": 740,
-        "wires": [
-            [
-                "89c39357.1da74",
-                "bc57ae19.f1a89"
-            ]
-        ]
-    },
-    {
-        "id": "89c39357.1da74",
-        "type": "switch",
-        "z": "4b1f3e4c.b2604",
-        "name": "docker == true",
-        "property": "payload",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "eq",
-                "v": "charge",
-                "vt": "str"
-            }
-        ],
-        "checkall": "true",
-        "repair": false,
-        "outputs": 1,
-        "x": 380,
-        "y": 740,
-        "wires": [
-            [
-                "f1138551.4f6de8"
-            ]
-        ]
-    },
-    {
-        "id": "f1138551.4f6de8",
-        "type": "template",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "handlebars",
-        "syntax": "mustache",
-        "template": "I am back home and recharging.",
-        "output": "str",
-        "x": 580,
-        "y": 740,
-        "wires": [
-            [
-                "4fb09f76.1a1a4",
-                "4a28031e.c5451c"
-            ]
-        ]
-    },
-    {
-        "id": "6471a32d.0f90dc",
-        "type": "ioBroker in",
-        "z": "4b1f3e4c.b2604",
-        "name": "battery full",
-        "topic": "roomba.0.states.battery",
-        "payloadType": "value",
-        "onlyack": "update",
-        "func": "rbe",
-        "gap": "",
-        "fireOnStart": "false",
-        "x": 140,
-        "y": 800,
-        "wires": [
-            [
-                "b495a4f3.aabfc8"
-            ]
-        ]
-    },
-    {
-        "id": "b495a4f3.aabfc8",
-        "type": "switch",
-        "z": "4b1f3e4c.b2604",
-        "name": "full",
-        "property": "payload",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "eq",
-                "v": "100",
-                "vt": "str"
-            }
-        ],
-        "checkall": "true",
-        "repair": false,
-        "outputs": 1,
-        "x": 350,
-        "y": 800,
-        "wires": [
-            [
-                "a56850eb.73168"
-            ]
-        ]
-    },
-    {
-        "id": "a56850eb.73168",
-        "type": "template",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "handlebars",
-        "syntax": "mustache",
-        "template": "Fully charged and ready to roll.",
-        "output": "str",
-        "x": 580,
-        "y": 800,
-        "wires": [
-            [
-                "4fb09f76.1a1a4",
-                "4a28031e.c5451c"
-            ]
-        ]
-    },
-    {
-        "id": "bc57ae19.f1a89",
-        "type": "debug",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": true,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 380,
-        "y": 680,
-        "wires": []
-    },
-    {
-        "id": "ebcc9f46.3f1d1",
-        "type": "telegram sender",
-        "z": "4b1f3e4c.b2604",
-        "name": "Test poll",
-        "bot": "abb06234.e8fcf",
-        "haserroroutput": true,
-        "outputs": 2,
-        "x": 600,
-        "y": 1280,
-        "wires": [
-            [
-                "43c364bd.71eebc"
-            ],
-            [
-                "133ca9d8.5d0566"
-            ]
-        ]
-    },
-    {
-        "id": "6ad2b5d4.74ffbc",
-        "type": "inject",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "topic",
-                "vt": "str"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 160,
-        "y": 1280,
-        "wires": [
-            [
-                "e247cdd2.4228"
-            ]
-        ]
-    },
-    {
-        "id": "1b6c8ea6.31ff81",
-        "type": "template",
-        "z": "4b1f3e4c.b2604",
-        "name": "",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "handlebars",
-        "syntax": "mustache",
-        "template": "{\n    \"type\": \"poll\",\n    \"content\": \"What do you think?\",\n    \"options\": [\"Yes\", \"No\", \"Maybe\"]\n}",
-        "output": "json",
-        "x": 390,
-        "y": 1280,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "5b49c707.260a68",
-        "type": "debug",
-        "z": "4b1f3e4c.b2604",
-        "name": "TestInput",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 600,
-        "y": 1320,
-        "wires": []
-    },
-    {
-        "id": "43c364bd.71eebc",
-        "type": "debug",
-        "z": "4b1f3e4c.b2604",
-        "name": "TestOutput",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 970,
-        "y": 1240,
-        "wires": []
-    },
-    {
-        "id": "133ca9d8.5d0566",
-        "type": "debug",
-        "z": "4b1f3e4c.b2604",
-        "name": "ERROR",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 960,
-        "y": 1300,
-        "wires": []
-    },
-    {
-        "id": "e247cdd2.4228",
-        "type": "function",
-        "z": "4b1f3e4c.b2604",
-        "name": "create poll",
-        "func": "msg.payload.type = 'poll';\nmsg.payload.content = \"What do you think?\";\nmsg.payload.options = [\"A\", \"B\", \"C\" ];\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 390,
-        "y": 1240,
-        "wires": [
-            [
-                "ebcc9f46.3f1d1",
-                "5b49c707.260a68"
-            ]
-        ]
     },
     {
         "id": "29f1d57e.66b52a",
@@ -10491,12 +9544,12 @@
         "id": "b5b0d5f5e08ef74f",
         "type": "ioBroker get",
         "z": "f6761c15b55e2d63",
-        "name": "Get Shutter bedroom pos.",
-        "topic": "mqtt-client.0.shellies.shutter-bedroom.roller.0.pos",
+        "name": "node-red.0.shellies.shutter-bedroom.position",
+        "topic": "node-red.0.shellies.shutter-bedroom.position",
         "attrname": "payload",
         "payloadType": "value",
         "errOnInvalidState": "nothing",
-        "x": 720,
+        "x": 650,
         "y": 80,
         "wires": [
             [
@@ -10878,10 +9931,10 @@
         "wires": [
             [
                 "d262cc202d881b49",
-                "2f02ae19986d5098",
                 "968796676abc2d2b",
                 "bf5cd61d9c833f12",
-                "1cc0e72b47d62fa7"
+                "1cc0e72b47d62fa7",
+                "46079e3b4443267f"
             ]
         ]
     },
@@ -10902,7 +9955,7 @@
                 "type": "str"
             }
         ],
-        "x": 630,
+        "x": 930,
         "y": 380,
         "wires": [
             [
@@ -10928,7 +9981,7 @@
                 "type": "str"
             }
         ],
-        "x": 640,
+        "x": 940,
         "y": 540,
         "wires": [
             [
@@ -10954,7 +10007,7 @@
                 "type": "str"
             }
         ],
-        "x": 640,
+        "x": 940,
         "y": 420,
         "wires": [
             [
@@ -10980,7 +10033,7 @@
                 "type": "str"
             }
         ],
-        "x": 640,
+        "x": 940,
         "y": 460,
         "wires": [
             [
@@ -11006,7 +10059,7 @@
                 "type": "str"
             }
         ],
-        "x": 640,
+        "x": 940,
         "y": 500,
         "wires": [
             [
@@ -11039,7 +10092,7 @@
         "correl": "",
         "expiry": "",
         "broker": "f1f93d18.375ea",
-        "x": 890,
+        "x": 1190,
         "y": 460,
         "wires": []
     },
@@ -11056,9 +10109,23 @@
         "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
-        "x": 930,
+        "x": 1230,
         "y": 380,
         "wires": []
+    },
+    {
+        "id": "46079e3b4443267f",
+        "type": "subflow:1b53c3a9bc37dc0e",
+        "z": "c4f89efe363c2ef8",
+        "name": "",
+        "x": 680,
+        "y": 440,
+        "wires": [
+            [
+                "2f02ae19986d5098"
+            ],
+            []
+        ]
     },
     {
         "id": "b3443123f11f3a9b",
@@ -11866,6 +10933,7 @@
         "name": "move shutter on regular timeout",
         "func": "if(msg.regularTimeout == false) {\n    // stop here\n    return [null, msg];   \n} \n\nmsg.overrideManualChange = true;\nmsg.payload = \"half-open\";\nreturn [msg, null];",
         "outputs": 2,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -11905,7 +10973,7 @@
         "type": "ioBroker get",
         "z": "9d832c5af722ac78",
         "name": "shutter position",
-        "topic": "mqtt-client.0.shellies.shutter-bedroom.roller.0.pos",
+        "topic": "node-red.0.shellies.shutter-bedroom.position",
         "attrname": "payload",
         "payloadType": "value",
         "errOnInvalidState": "nothing",
@@ -13477,6 +12545,141 @@
         "statusType": "auto",
         "x": 1310,
         "y": 260,
+        "wires": []
+    },
+    {
+        "id": "0e4a5ae23a45c63c",
+        "type": "inject",
+        "z": "63ceb30c499446c1",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "str",
+        "x": 130,
+        "y": 80,
+        "wires": [
+            [
+                "8274b39a82336685"
+            ]
+        ]
+    },
+    {
+        "id": "8274b39a82336685",
+        "type": "subflow:c6d3de9075efb38f",
+        "z": "63ceb30c499446c1",
+        "name": "",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "bedroom",
+                "type": "str"
+            }
+        ],
+        "x": 370,
+        "y": 80,
+        "wires": [
+            [
+                "a4062fe257b75597"
+            ]
+        ]
+    },
+    {
+        "id": "a4062fe257b75597",
+        "type": "debug",
+        "z": "63ceb30c499446c1",
+        "name": "debug 19",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "5317e6a6b71ff0d4",
+        "type": "ioBroker in",
+        "z": "743801a547b6bfc8",
+        "name": "Shelly bedroom update",
+        "attrname": "payload",
+        "topic": "mqtt-client.0.shelly2PMs.shutter-bedroom.status.cover:0",
+        "payloadType": "value",
+        "onlyack": "",
+        "func": "all",
+        "gap": "",
+        "fireOnStart": "false",
+        "outFormat": "ioBroker",
+        "x": 140,
+        "y": 80,
+        "wires": [
+            [
+                "d4f1e39acdfd975f"
+            ]
+        ]
+    },
+    {
+        "id": "d4f1e39acdfd975f",
+        "type": "function",
+        "z": "743801a547b6bfc8",
+        "name": "Decode position and temperature",
+        "func": "let topic = msg.topic;\nlet shutterName = topic.split('.')[3];\nlet payload = JSON.parse(msg.payload);\n\nlet statesPrefix = `shellies.${shutterName}.`;\n\nlet position = payload['current_pos'];\nlet temperature = payload['temperature']['tC'];\n\nlet positionMsg = {\n    \"topic\": statesPrefix + 'position',\n    \"payload\": position,\n    \"stateType\": 'number'\n};\nlet temperatureMsg = {\n    \"topic\": statesPrefix + 'temperature',\n    \"payload\": temperature,\n    \"stateType\": 'number'\n}\n\n/*\nmsg.postionKey = statesPrefix + 'position';\nmsg.positionValue = position;\nmsg.temperatureKey = statesPrefix + 'temperature'; \nmsg.temperatureValue = temperature;\n*/\n\nreturn [positionMsg, temperatureMsg];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 80,
+        "wires": [
+            [
+                "64058263cb9a227a"
+            ],
+            [
+                "64058263cb9a227a"
+            ]
+        ]
+    },
+    {
+        "id": "64058263cb9a227a",
+        "type": "ioBroker out",
+        "z": "743801a547b6bfc8",
+        "name": "",
+        "topic": "",
+        "ack": "true",
+        "autoCreate": "true",
+        "stateName": "",
+        "role": "",
+        "payloadType": "",
+        "readonly": "",
+        "stateUnit": "",
+        "stateMin": "",
+        "stateMax": "",
+        "x": 700,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "8055644f085e5d7e",
+        "type": "comment",
+        "z": "743801a547b6bfc8",
+        "name": "Decode a status update from a Shelly 2 PM, convert values and write them to ioBroker",
+        "info": "",
+        "x": 340,
+        "y": 40,
         "wires": []
     }
 ]
