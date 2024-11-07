@@ -403,7 +403,7 @@
     {
         "id": "c6d3de9075efb38f",
         "type": "subflow",
-        "name": "Get current and desired position",
+        "name": "Get state, current and desired position",
         "info": "",
         "category": "",
         "in": [
@@ -420,7 +420,7 @@
         "out": [
             {
                 "x": 1060,
-                "y": 360,
+                "y": 420,
                 "wires": [
                     {
                         "id": "962a8cf0fab5e00d",
@@ -818,7 +818,7 @@
     {
         "id": "1b53c3a9bc37dc0e",
         "type": "subflow",
-        "name": "Terrasse light on",
+        "name": "Terrace light on",
         "info": "",
         "category": "",
         "in": [
@@ -828,6 +828,9 @@
                 "wires": [
                     {
                         "id": "e41ffe2ba458ac80"
+                    },
+                    {
+                        "id": "2cdc2bd6318dcf73"
                     }
                 ]
             }
@@ -904,6 +907,39 @@
                 "value": "today"
             }
         ],
+        "meta": {},
+        "color": "#DDAA99"
+    },
+    {
+        "id": "08dd31d646b4e57b",
+        "type": "subflow",
+        "name": "Block if guests are present",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 60,
+                "y": 40,
+                "wires": [
+                    {
+                        "id": "6b7c44abfdf943bf"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 500,
+                "y": 40,
+                "wires": [
+                    {
+                        "id": "27f4e5040ce1fdb3",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
         "meta": {},
         "color": "#DDAA99"
     },
@@ -1013,8 +1049,17 @@
                 "pt": "msg",
                 "from": "closed",
                 "fromt": "str",
-                "to": "close",
-                "tot": "str"
+                "to": "0",
+                "tot": "num"
+            },
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "open",
+                "fromt": "str",
+                "to": "100",
+                "tot": "num"
             }
         ],
         "action": "",
@@ -1045,7 +1090,7 @@
         "stateUnit": "",
         "stateMin": "",
         "stateMax": "",
-        "x": 1340,
+        "x": 1580,
         "y": 140,
         "wires": []
     },
@@ -1086,11 +1131,12 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 1060,
+        "x": 1320,
         "y": 140,
         "wires": [
             [
-                "d1df22e1bade53d1"
+                "d1df22e1bade53d1",
+                "19808c46d84d5821"
             ]
         ]
     },
@@ -1158,9 +1204,9 @@
         "y": 80,
         "wires": [
             [
-                "37f7eef31442242b",
                 "52c568a8f8c48224",
-                "ec982b1846210bfd"
+                "ec982b1846210bfd",
+                "3491006c616af5a6"
             ],
             [
                 "ec982b1846210bfd"
@@ -1182,6 +1228,69 @@
         "statusType": "auto",
         "x": 1030,
         "y": 200,
+        "wires": []
+    },
+    {
+        "id": "3491006c616af5a6",
+        "type": "switch",
+        "z": "2595f1ad.a5eb8e",
+        "name": "safe desired position",
+        "property": "safeDesiredPosition",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "false"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1080,
+        "y": 140,
+        "wires": [
+            [
+                "7cf7496d6891aa02"
+            ],
+            [
+                "37f7eef31442242b"
+            ]
+        ]
+    },
+    {
+        "id": "7cf7496d6891aa02",
+        "type": "debug",
+        "z": "2595f1ad.a5eb8e",
+        "name": "don't safe",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "\"Not saving as desired position.\"",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1310,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "19808c46d84d5821",
+        "type": "debug",
+        "z": "2595f1ad.a5eb8e",
+        "name": "safe desired position",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "\"Saving desired position \" & payload & \" to '\" & topic & \"'\"",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1580,
+        "y": 180,
         "wires": []
     },
     {
@@ -1312,11 +1421,11 @@
         "id": "5aa1be54.76e8e",
         "type": "ioBroker get",
         "z": "16c9c5c.ad34a3a",
-        "name": "Marijke present",
-        "topic": "fb-checkpresence.0.Marijke Android.presence",
+        "name": "Marijke presence",
+        "topic": "fb-checkpresence.0.familyMembers.Marijke Android.presence",
         "attrname": "presence_marijke",
         "payloadType": "value",
-        "x": 320,
+        "x": 330,
         "y": 540,
         "wires": [
             [
@@ -1359,11 +1468,11 @@
         "id": "2ca4f3bb.97bd8c",
         "type": "ioBroker get",
         "z": "16c9c5c.ad34a3a",
-        "name": "Mika present",
-        "topic": "fb-checkpresence.0.Mika Android.presence",
+        "name": "Mika presence",
+        "topic": "fb-checkpresence.0.familyMembers.Mika Android.presence",
         "attrname": "presence_mika",
         "payloadType": "value",
-        "x": 690,
+        "x": 700,
         "y": 540,
         "wires": [
             [
@@ -1575,7 +1684,7 @@
         "rules": [
             {
                 "t": "gt",
-                "v": "50",
+                "v": "70",
                 "vt": "num"
             }
         ],
@@ -2238,45 +2347,6 @@
         ]
     },
     {
-        "id": "dcf0bdcbe68c4533",
-        "type": "change",
-        "z": "c6d3de9075efb38f",
-        "name": "ioBroker value names",
-        "rules": [
-            {
-                "t": "set",
-                "p": "desiredPositionName",
-                "pt": "msg",
-                "to": "0_userdata.0.shutters.${shutter.name}.desiredPosition",
-                "tot": "env"
-            },
-            {
-                "t": "set",
-                "p": "currentPositionName",
-                "pt": "msg",
-                "to": "mqtt-client.0.shellies.shutter-${shutter.name}.roller.0.pos",
-                "tot": "env"
-            },
-            {
-                "t": "set",
-                "p": "preventMovement",
-                "pt": "msg",
-                "to": "node-red.0.states.preventAutomaticShutterMovement.${shutter.name}.active",
-                "tot": "env"
-            }
-        ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 920,
-        "y": 160,
-        "wires": [
-            []
-        ]
-    },
-    {
         "id": "1b60fad11fe5b582",
         "type": "change",
         "z": "c6d3de9075efb38f",
@@ -2377,7 +2447,7 @@
         "y": 360,
         "wires": [
             [
-                "962a8cf0fab5e00d"
+                "812ca74b3670b925"
             ]
         ]
     },
@@ -2412,16 +2482,16 @@
         "id": "962a8cf0fab5e00d",
         "type": "function",
         "z": "c6d3de9075efb38f",
-        "name": "transform to boolean",
-        "func": "msg.preventMovement = (msg.preventMovement === \"true\");\nreturn msg;",
+        "name": "transform values",
+        "func": "msg.currentPosition = Number.parseInt(msg.currentPosition);\nmsg.lastDesiredPosition = Number.parseInt(msg.lastDesiredPosition);\nmsg.preventMovement = (msg.preventMovement === \"true\");\nif(msg.deviceType === 'Shelly2.5') {\n    if(msg.state === 'stop') {\n        msg.state = 'stopped';\n    } else if (msg.state === 'open') {\n        msg.state = 'opening';\n    } else if (msg.state === 'close') {\n        msg.state = 'closing';\n    } else {\n        node.warn(`Received unknown state ${msg.state} from shelly ${env.get(\"shutter.name\")}.`);\n    }\n}\nreturn msg;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 860,
-        "y": 360,
+        "x": 840,
+        "y": 420,
         "wires": [
             []
         ]
@@ -2431,7 +2501,7 @@
         "type": "function",
         "z": "c6d3de9075efb38f",
         "name": "ioBroker value names",
-        "func": "let shutterName = env.get(\"shutter.name\");\n\nmsg.desiredPositionName = `0_userdata.0.shutters.${shutterName}.desiredPosition`;\nmsg.preventMovement = `node-red.0.states.preventAutomaticShutterMovement.${shutterName}.active`;\n\n// Distiguish between Shelly 2.5 and Shelly 2 PM due to different APIs...\n// This is ugly af, but should work for the time being.\nif(shutterName === 'bedroom') {\n    msg.currentPositionName = `node-red.0.shellies.shutter-${shutterName}.position`;\n}\nelse {\n    msg.currentPositionName = `mqtt-client.0.shellies.shutter-${shutterName}.roller.0.pos`;\n}\n\nreturn msg;",
+        "func": "let shutterName = env.get(\"shutter.name\");\n\nmsg.desiredPositionName = `0_userdata.0.shutters.${shutterName}.desiredPosition`;\nmsg.preventMovement = `node-red.0.states.preventAutomaticShutterMovement.${shutterName}.active`;\n\n// Distiguish between Shelly 2.5 and Shelly 2 PM due to different APIs...\n// This is ugly af, but should work for the time being.\nif(shutterName !== 'office') {\n    msg.currentPositionName = `node-red.0.shellies.shutter-${shutterName}.position`;\n    msg.stateName = `node-red.0.shellies.shutter-${shutterName}.state`;\n    msg.deviceType = 'Shelly2PM';\n}\nelse {\n    msg.currentPositionName = `mqtt-client.0.shellies.shutter-${shutterName}.roller.0.pos`;\n    msg.stateName = `mqtt-client.0.shellies.shutter-${shutterName}.roller.0`;\n    msg.deviceType = 'Shelly2.5';\n}\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2447,11 +2517,55 @@
         ]
     },
     {
+        "id": "812ca74b3670b925",
+        "type": "change",
+        "z": "c6d3de9075efb38f",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "stateName",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 350,
+        "y": 420,
+        "wires": [
+            [
+                "67da760acf357c82"
+            ]
+        ]
+    },
+    {
+        "id": "67da760acf357c82",
+        "type": "ioBroker get",
+        "z": "c6d3de9075efb38f",
+        "name": "get state",
+        "topic": "",
+        "attrname": "state",
+        "payloadType": "value",
+        "errOnInvalidState": "false",
+        "x": 560,
+        "y": 420,
+        "wires": [
+            [
+                "962a8cf0fab5e00d"
+            ]
+        ]
+    },
+    {
         "id": "92517d3878637f10",
         "type": "function",
         "z": "76dd2645ea70b9ac",
         "name": "format message",
-        "func": "let shutterName = env.get(\"shutter.name\");\n\n// Distiguish between Shelly 2.5 and Shelly 2 PM due to different APIs...\n// This is ugly af, but should work for the time being.\nif(shutterName === 'bedroom') {\n    msg.topic = 'shelly2PMs/shutter-'+ shutterName + '/command/cover:0';\n    if(Number.isInteger(msg.payload))\n    {\n        msg.payload = 'pos,' + msg.payload;\n    }\n}\nelse {\n    msg.topic = 'shellies/shutter-' + shutterName + '/roller/0/command';\n    if (Number.isInteger(msg.payload)) {\n        msg.topic += '/pos';\n    }\n}\n\n\nreturn msg;",
+        "func": "let shutterName = env.get(\"shutter.name\");\n\n// Distiguish between Shelly 2.5 and Shelly 2 PM due to different APIs...\n// This is ugly af, but should work for the time being.\nif(shutterName !== 'office') {\n    msg.topic = 'shelly2PMs/shutter-'+ shutterName + '/command/cover:0';\n    if(Number.isInteger(msg.payload))\n    {\n        msg.payload = 'pos,' + msg.payload;\n    }\n}\nelse {\n    msg.topic = 'shellies/shutter-' + shutterName + '/roller/0/command';\n    if (Number.isInteger(msg.payload)) {\n        msg.topic += '/pos';\n    }\n}\n\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -3210,6 +3324,7 @@
         "name": "reset after durationChange",
         "func": "let durationChange = parseInt(env.get(\"DURATION_CHANGE\")) * 60 * 1000;\n\nmsg.delay = durationChange;\n\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -3282,6 +3397,7 @@
         "name": "set dimmer value",
         "func": "let flowId = env.get(\"ID\");\nlet ctx = context.global[flowId];\n\nlet startValue = parseInt(env.get(\"START_VALUE\"));\nlet endValue = parseInt(env.get(\"END_VALUE\"));\n\nif (startValue < endValue) {\n    ctx.value += 1;\n} else {\n    ctx.value -= 1;\n}\n\nmsg.value = ctx.value;\n\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -3299,6 +3415,7 @@
         "name": "reset",
         "func": "if (msg.reset) {\n    delete msg[\"reset\"];\n    msg.delay = 1000;\n    return [null, msg];\n}\nreturn [msg, null];",
         "outputs": 2,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -3323,6 +3440,7 @@
         "name": "reset delay",
         "func": "if(msg.delay == 1000) {\n    msg.regularTimeout = false;\n} else {\n    msg.regularTimeout = true;\n}\n\ndelete msg[\"delay\"];\n\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -3340,6 +3458,7 @@
         "name": "set duration hold",
         "func": "let durationHold = msg.timer.durationHold;\nif (durationHold === undefined) {\n    durationHold = parseInt(env.get(\"DURATION_HOLD\"));\n}\nlet duration = durationHold * 60 * 1000;\n\nmsg.delay = duration;\n\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -3395,6 +3514,7 @@
         "name": "reset timer state",
         "func": "let flowId = env.get(\"ID\");\nmsg.topic = \"states.timer.\" + flowId.toLowerCase() + \".active\";\nmsg.payload = false;\nmsg.stateName = flowId;\n\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -3498,17 +3618,15 @@
         "id": "e41ffe2ba458ac80",
         "type": "ioBroker get",
         "z": "1b53c3a9bc37dc0e",
-        "name": "terrasseLightReachable",
+        "name": "terraceLightReachable",
         "topic": "deconz.0.Lights.12.reachable",
-        "attrname": "terrasseLightReachable",
+        "attrname": "terraceLightReachable",
         "payloadType": "value",
         "errOnInvalidState": "false",
-        "x": 310,
+        "x": 300,
         "y": 120,
         "wires": [
-            [
-                "2bc543c4d2e41610"
-            ]
+            []
         ]
     },
     {
@@ -3516,7 +3634,7 @@
         "type": "switch",
         "z": "1b53c3a9bc37dc0e",
         "name": "",
-        "property": "terrasseLightReachable",
+        "property": "terraceDoorOpen",
         "propertyType": "msg",
         "rules": [
             {
@@ -3569,7 +3687,7 @@
                 "t": "set",
                 "p": "topic",
                 "pt": "msg",
-                "to": "0_userdata.0.shutters.terrasse.desiredPosition",
+                "to": "0_userdata.0.shutters.terrace.desiredPosition",
                 "tot": "str"
             },
             {
@@ -3590,6 +3708,23 @@
         "wires": [
             [
                 "8fd585a1edf5e8cf"
+            ]
+        ]
+    },
+    {
+        "id": "2cdc2bd6318dcf73",
+        "type": "ioBroker get",
+        "z": "1b53c3a9bc37dc0e",
+        "name": "terraceDoorOpen",
+        "topic": "deconz.0.Sensors.36.open",
+        "attrname": "terraceDoorOpen",
+        "payloadType": "value",
+        "errOnInvalidState": "nothing",
+        "x": 290,
+        "y": 160,
+        "wires": [
+            [
+                "2bc543c4d2e41610"
             ]
         ]
     },
@@ -3649,6 +3784,46 @@
         "libs": [],
         "x": 710,
         "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6b7c44abfdf943bf",
+        "type": "ioBroker get",
+        "z": "08dd31d646b4e57b",
+        "name": "guests_present",
+        "topic": "0_userdata.0.settings.guests_present",
+        "attrname": "guestsPresent",
+        "payloadType": "value",
+        "errOnInvalidState": "false",
+        "x": 200,
+        "y": 40,
+        "wires": [
+            [
+                "27f4e5040ce1fdb3"
+            ]
+        ]
+    },
+    {
+        "id": "27f4e5040ce1fdb3",
+        "type": "switch",
+        "z": "08dd31d646b4e57b",
+        "name": "",
+        "property": "guestsPresent",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "neq",
+                "v": "true",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 370,
+        "y": 40,
         "wires": [
             []
         ]
@@ -3789,11 +3964,11 @@
         "id": "7a76eea5.f3ae4",
         "type": "subflow:2595f1ad.a5eb8e",
         "z": "a09414b5.859f68",
-        "name": "Move shutter terrasse",
+        "name": "Move shutter terrace",
         "env": [
             {
                 "name": "shutter.name",
-                "value": "terrasse",
+                "value": "terrace",
                 "type": "str"
             },
             {
@@ -3848,7 +4023,7 @@
             },
             {
                 "name": "half-open-position",
-                "value": "0",
+                "value": "25",
                 "type": "num"
             }
         ],
@@ -4330,8 +4505,8 @@
         "wires": [
             [
                 "c273f5a9f9148f29",
-                "1dfd5f73.3e12d1",
-                "7a76eea5.f3ae4"
+                "7a76eea5.f3ae4",
+                "6180de4b02b357c8"
             ]
         ]
     },
@@ -4658,16 +4833,16 @@
         "id": "1bfa5aba868e807f",
         "type": "debug",
         "z": "a09414b5.859f68",
-        "name": "Terrasse light reachable.",
+        "name": "Terrace light reachable.",
         "active": true,
         "tosidebar": true,
         "console": true,
         "tostatus": false,
-        "complete": "\"Prevent closing the terrasse shutter, as terrasse light is reachable.\"",
+        "complete": "\"Prevent closing the terrace shutter, as terrace light is reachable.\"",
         "targetType": "jsonata",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1080,
+        "x": 1070,
         "y": 100,
         "wires": []
     },
@@ -4692,15 +4867,16 @@
         "id": "784a701d30344241",
         "type": "ioBroker in",
         "z": "a09414b5.859f68",
-        "name": "Shutter Terrasse Position",
-        "topic": "mqtt-client.0.shellies.shutter-terrasse.roller.0.pos",
+        "name": "Shutter Terrace Position",
+        "attrname": "",
+        "topic": "node-red.0.shellies.shutter-terrace.position",
         "payloadType": "value",
         "onlyack": "",
         "func": "rbe",
         "gap": "",
         "fireOnStart": "true",
         "outFormat": "ioBroker",
-        "x": 150,
+        "x": 140,
         "y": 1140,
         "wires": [
             [
@@ -4715,6 +4891,7 @@
         "name": "Shutter opened or closed",
         "func": "let position = parseInt(msg.payload);\n\nmsg.payload = position <= 40; \n\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -4731,8 +4908,8 @@
         "id": "841213219c1fcd8a",
         "type": "ioBroker out",
         "z": "a09414b5.859f68",
-        "name": "Set shutter terrasse closed",
-        "topic": "shellies.shutter-terrasse.closed",
+        "name": "Set shutter terrace closed",
+        "topic": "shellies.shutter-terrace.closed",
         "ack": "true",
         "autoCreate": "false",
         "stateName": "",
@@ -4742,7 +4919,7 @@
         "stateUnit": "",
         "stateMin": "",
         "stateMax": "",
-        "x": 720,
+        "x": 710,
         "y": 1140,
         "wires": []
     },
@@ -4751,7 +4928,8 @@
         "type": "ioBroker in",
         "z": "a09414b5.859f68",
         "name": "Close command",
-        "topic": "node-red.0.shellies.shutter-terrasse.closed",
+        "attrname": "",
+        "topic": "node-red.0.shellies.shutter-terrace.closed",
         "payloadType": "value",
         "onlyack": "command",
         "func": "all",
@@ -4809,6 +4987,293 @@
         "x": 500,
         "y": 180,
         "wires": []
+    },
+    {
+        "id": "9ed806aa24814bec",
+        "type": "deconz-input",
+        "z": "a09414b5.859f68",
+        "name": "Terrace door opened/closed",
+        "topic": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "default",
+        "search_type": "device",
+        "device_list": [
+            "sensors/uniqueid/d4:48:67:ff:fe:fc:26:ee-02-0500"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "outputs": 1,
+        "output_rules": [
+            {
+                "type": "state",
+                "format": "single",
+                "output": "always",
+                "onstart": false,
+                "payload": [
+                    "__complete__"
+                ]
+            }
+        ],
+        "x": 160,
+        "y": 1280,
+        "wires": [
+            [
+                "fc486b4bc2f87231",
+                "16c130b6645678b0"
+            ]
+        ]
+    },
+    {
+        "id": "dc5c669b6df0f841",
+        "type": "debug",
+        "z": "a09414b5.859f68",
+        "name": "debug 21",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 940,
+        "y": 1280,
+        "wires": []
+    },
+    {
+        "id": "d96da4666e3a171f",
+        "type": "inject",
+        "z": "a09414b5.859f68",
+        "name": "simulate close",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"lastupdated\":\"2024-10-13T12:11:29.465\",\"lowbattery\":false,\"open\":false}",
+        "payloadType": "json",
+        "x": 110,
+        "y": 1380,
+        "wires": [
+            [
+                "5e6a56a9939699ae"
+            ]
+        ]
+    },
+    {
+        "id": "69679d0cf891fe95",
+        "type": "inject",
+        "z": "a09414b5.859f68",
+        "name": "simulate open",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"lastupdated\":\"2024-10-13T12:11:29.465\",\"lowbattery\":false,\"open\":true}",
+        "payloadType": "json",
+        "x": 110,
+        "y": 1340,
+        "wires": [
+            [
+                "dd82c2e29a9d472e"
+            ]
+        ]
+    },
+    {
+        "id": "fc486b4bc2f87231",
+        "type": "subflow:c6d3de9075efb38f",
+        "z": "a09414b5.859f68",
+        "name": "",
+        "env": [
+            {
+                "name": "shutter.name",
+                "value": "terrace",
+                "type": "str"
+            }
+        ],
+        "x": 490,
+        "y": 1280,
+        "wires": [
+            [
+                "651f99db0530224a",
+                "1d16727fb41cde49"
+            ]
+        ]
+    },
+    {
+        "id": "651f99db0530224a",
+        "type": "function",
+        "z": "a09414b5.859f68",
+        "name": "Open or close shutter",
+        "func": "let state = msg.state;\nlet openCommand = msg.payload.open;\nif(openCommand === undefined) {\n    node.warn(\"TerraceDoor: payload.open is undefined. Skipping execution.\");\n    return null;\n}\nlet currentPosition = msg.currentPosition;\nlet desiredPosition = msg.lastDesiredPosition;\n\nif(openCommand) {\n    if (state === 'stopped' && currentPosition >= 90) {\n        // Nothing to do.\n        return null;\n    }\n    msg.payload = 100;\n} else {\n    // close\n    if (state === 'stopped' && currentPosition == desiredPosition){\n        // Nothing to do.\n        return null;\n    }\n    msg.payload = desiredPosition;\n}\n\nmsg.overrideManualChange = true;\nmsg.safeDesiredPosition = false;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 760,
+        "y": 1280,
+        "wires": [
+            [
+                "dc5c669b6df0f841",
+                "7a76eea5.f3ae4"
+            ]
+        ],
+        "info": "get current position\r\nget desired position\r\n\r\nif (open && pos != 100)\r\n\t-> open but don't safe as desired pos\r\n\t\r\nif (close && pos != desiredPos)\r\n\t-> return to desired position"
+    },
+    {
+        "id": "491a412643537f50",
+        "type": "inject",
+        "z": "a09414b5.859f68",
+        "name": "simulate invalid command",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"lastupdated\":\"2024-10-13T12:11:29.465\",\"lowbattery\":false}",
+        "payloadType": "json",
+        "x": 150,
+        "y": 1420,
+        "wires": [
+            [
+                "fc486b4bc2f87231"
+            ]
+        ]
+    },
+    {
+        "id": "4ff37d19b3979acc",
+        "type": "comment",
+        "z": "a09414b5.859f68",
+        "name": "Opening the terrace door after dark also opens the shutter - closes it again after closing the door",
+        "info": "",
+        "x": 370,
+        "y": 1240,
+        "wires": []
+    },
+    {
+        "id": "16c130b6645678b0",
+        "type": "debug",
+        "z": "a09414b5.859f68",
+        "name": "Terrace door opened/closed",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "\"Terrace door has been \" & (payload.open ? \"opened\" : \"closed\") & \".\"",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 470,
+        "y": 1320,
+        "wires": []
+    },
+    {
+        "id": "1d16727fb41cde49",
+        "type": "debug",
+        "z": "a09414b5.859f68",
+        "name": "debug 28",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 1320,
+        "wires": []
+    },
+    {
+        "id": "5e6a56a9939699ae",
+        "type": "delay",
+        "z": "a09414b5.859f68",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 260,
+        "y": 1380,
+        "wires": [
+            [
+                "fc486b4bc2f87231"
+            ]
+        ]
+    },
+    {
+        "id": "dd82c2e29a9d472e",
+        "type": "delay",
+        "z": "a09414b5.859f68",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 260,
+        "y": 1340,
+        "wires": [
+            [
+                "fc486b4bc2f87231"
+            ]
+        ]
+    },
+    {
+        "id": "6180de4b02b357c8",
+        "type": "subflow:08dd31d646b4e57b",
+        "z": "a09414b5.859f68",
+        "name": "",
+        "x": 760,
+        "y": 80,
+        "wires": [
+            [
+                "1dfd5f73.3e12d1"
+            ]
+        ]
     },
     {
         "id": "d73b023e.7ba9f",
@@ -4948,7 +5413,8 @@
         "z": "615f1b13.386e84",
         "d": true,
         "name": "stop_reason",
-        "topic": "mqtt-client.0.shellies.shutter-terrasse.roller.0.stop_reason",
+        "attrname": "",
+        "topic": "mqtt-client.0.shellies.shutter-terrace.roller.0.stop_reason",
         "payloadType": "value",
         "onlyack": "",
         "func": "rbe",
@@ -5046,6 +5512,7 @@
         "type": "ioBroker in",
         "z": "9c0f9de.b23666",
         "name": "Presence changed",
+        "attrname": "",
         "topic": "node-red.0.presence.presence",
         "payloadType": "value",
         "onlyack": "",
@@ -5515,11 +5982,467 @@
         ]
     },
     {
+        "id": "8592acb5769be385",
+        "type": "deconz-input",
+        "z": "9c0f9de.b23666",
+        "name": "Deko lights on / off",
+        "topic": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "sensors/uniqueid/5c:c7:c1:ff:fe:83:4b:a0-01-fc80"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "outputs": 1,
+        "output_rules": [
+            {
+                "type": "state",
+                "format": "single",
+                "output": "always",
+                "onstart": false,
+                "payload": [
+                    "__complete__"
+                ]
+            }
+        ],
+        "x": 270,
+        "y": 460,
+        "wires": [
+            [
+                "0bc86b0c3cda44b9",
+                "a740b0dec7d4bf89"
+            ]
+        ]
+    },
+    {
+        "id": "0bc86b0c3cda44b9",
+        "type": "debug",
+        "z": "9c0f9de.b23666",
+        "name": "debug 23",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "de73134a9a704bac",
+        "type": "inject",
+        "z": "9c0f9de.b23666",
+        "name": "on",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "true",
+        "payloadType": "bool",
+        "x": 810,
+        "y": 600,
+        "wires": [
+            [
+                "38fb46185e825c3b"
+            ]
+        ]
+    },
+    {
+        "id": "be6c6ef8082b0028",
+        "type": "inject",
+        "z": "9c0f9de.b23666",
+        "name": "off",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "false",
+        "payloadType": "bool",
+        "x": 810,
+        "y": 640,
+        "wires": [
+            [
+                "38fb46185e825c3b"
+            ]
+        ]
+    },
+    {
+        "id": "a740b0dec7d4bf89",
+        "type": "function",
+        "z": "9c0f9de.b23666",
+        "name": "switch",
+        "func": "\n// Button on pressed\nif (msg.payload.buttonevent == 1002) \n{\n    // turn on\n    msg.payload = true;\n}\n// Button off pressed\nelse if (msg.payload.buttonevent == 2002) \n{\n    // turn off\n    msg.payload = false;\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 460,
+        "wires": [
+            [
+                "38fb46185e825c3b"
+            ]
+        ]
+    },
+    {
+        "id": "2ec8e65c62448d66",
+        "type": "deconz-input",
+        "z": "9c0f9de.b23666",
+        "name": "Motion sensor",
+        "topic": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "sensors/uniqueid/a4:c1:38:14:94:84:49:a8-01-0500"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "outputs": 1,
+        "output_rules": [
+            {
+                "type": "state",
+                "format": "single",
+                "output": "always",
+                "onstart": false,
+                "payload": [
+                    "presence"
+                ]
+            }
+        ],
+        "x": 130,
+        "y": 720,
+        "wires": [
+            [
+                "c059333db218adeb"
+            ]
+        ]
+    },
+    {
+        "id": "c059333db218adeb",
+        "type": "switch",
+        "z": "9c0f9de.b23666",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 370,
+        "y": 720,
+        "wires": [
+            [
+                "6275184a31a2fe2b",
+                "2e884b1f78984c8c"
+            ],
+            [
+                "763c601b30663489",
+                "62d0f72601b8d977",
+                "0ab88b5a83f48fe4"
+            ]
+        ]
+    },
+    {
+        "id": "9e3d9e44c04daf7e",
+        "type": "delay",
+        "z": "9c0f9de.b23666",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "30",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 740,
+        "y": 800,
+        "wires": [
+            [
+                "2e884b1f78984c8c"
+            ]
+        ]
+    },
+    {
+        "id": "763c601b30663489",
+        "type": "change",
+        "z": "9c0f9de.b23666",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 560,
+        "y": 800,
+        "wires": [
+            [
+                "9e3d9e44c04daf7e"
+            ]
+        ]
+    },
+    {
+        "id": "4c6be7ca57939c92",
+        "type": "inject",
+        "z": "9c0f9de.b23666",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "true",
+        "payloadType": "bool",
+        "x": 110,
+        "y": 780,
+        "wires": [
+            [
+                "c059333db218adeb"
+            ]
+        ]
+    },
+    {
+        "id": "6275184a31a2fe2b",
+        "type": "change",
+        "z": "9c0f9de.b23666",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "reset",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 560,
+        "y": 760,
+        "wires": [
+            [
+                "9e3d9e44c04daf7e"
+            ]
+        ]
+    },
+    {
+        "id": "2e884b1f78984c8c",
+        "type": "change",
+        "z": "9c0f9de.b23666",
+        "name": "Format MQTT message",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "shelly2PMs/light-storeroom/command/switch:0",
+                "tot": "str"
+            },
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "true",
+                "fromt": "bool",
+                "to": "on",
+                "tot": "str"
+            },
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "false",
+                "fromt": "bool",
+                "to": "off",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 970,
+        "y": 720,
+        "wires": [
+            [
+                "f65115608c9694fb",
+                "10461680be675c19",
+                "5f813ba1a5b504d3"
+            ]
+        ]
+    },
+    {
+        "id": "f65115608c9694fb",
+        "type": "debug",
+        "z": "9c0f9de.b23666",
+        "name": "Switch storeroom light",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "\"Switching \" & payload & \" \" & $split(topic, \"/\")[1]",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1210,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "10564cccab688ad4",
+        "type": "inject",
+        "z": "9c0f9de.b23666",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "false",
+        "payloadType": "bool",
+        "x": 110,
+        "y": 820,
+        "wires": [
+            [
+                "c059333db218adeb"
+            ]
+        ]
+    },
+    {
+        "id": "10461680be675c19",
+        "type": "mqtt out",
+        "z": "9c0f9de.b23666",
+        "name": "",
+        "topic": "",
+        "qos": "1",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "f1f93d18.375ea",
+        "x": 1150,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "5f813ba1a5b504d3",
+        "type": "debug",
+        "z": "9c0f9de.b23666",
+        "d": true,
+        "name": "debug 26",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1160,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "62d0f72601b8d977",
+        "type": "debug",
+        "z": "9c0f9de.b23666",
+        "name": "Timed switch storeroom light",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "\"Starting timer to switch off light-storeroom\"",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 610,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "0ab88b5a83f48fe4",
+        "type": "debug",
+        "z": "9c0f9de.b23666",
+        "d": true,
+        "name": "debug 27",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 540,
+        "y": 880,
+        "wires": []
+    },
+    {
         "id": "b94d187b.d95508",
         "type": "ioBroker in",
         "z": "60c03b99.7554f4",
         "name": "Marijke Android.presence",
-        "topic": "fb-checkpresence.0.Marijke Android.presence",
+        "attrname": "",
+        "topic": "fb-checkpresence.0.familyMembers.Marijke Android.presence",
         "payloadType": "value",
         "onlyack": "",
         "func": "rbe",
@@ -5569,7 +6492,8 @@
         "type": "ioBroker in",
         "z": "60c03b99.7554f4",
         "name": "Mika Android.presence",
-        "topic": "fb-checkpresence.0.Mika Android.presence",
+        "attrname": "",
+        "topic": "fb-checkpresence.0.familyMembers.Mika Android.presence",
         "payloadType": "value",
         "onlyack": "",
         "func": "rbe",
@@ -5619,7 +6543,7 @@
         "type": "ioBroker get",
         "z": "60c03b99.7554f4",
         "name": "Marijke present",
-        "topic": "fb-checkpresence.0.Marijke Android.presence",
+        "topic": "fb-checkpresence.0.familyMembers.Marijke Android.presence",
         "attrname": "presence_marijke",
         "payloadType": "value",
         "x": 560,
@@ -5720,7 +6644,7 @@
         "type": "ioBroker get",
         "z": "60c03b99.7554f4",
         "name": "Mika present",
-        "topic": "fb-checkpresence.0.Mika Android.presence",
+        "topic": "fb-checkpresence.0.familyMembers.Mika Android.presence",
         "attrname": "presence_mika",
         "payloadType": "value",
         "x": 550,
@@ -5811,7 +6735,7 @@
         "type": "ioBroker get",
         "z": "60c03b99.7554f4",
         "name": "Mika present",
-        "topic": "fb-checkpresence.0.Mika Android.presence",
+        "topic": "fb-checkpresence.0.familyMembers.Mika Android.presence",
         "attrname": "presence_mika",
         "payloadType": "value",
         "x": 830,
@@ -5856,7 +6780,7 @@
         "type": "ioBroker get",
         "z": "60c03b99.7554f4",
         "name": "Marijke present",
-        "topic": "fb-checkpresence.0.Marijke Android.presence",
+        "topic": "fb-checkpresence.0.familyMembers.Marijke Android.presence",
         "attrname": "presence_marijke",
         "payloadType": "value",
         "x": 840,
@@ -7605,7 +8529,8 @@
                     }
                 },
                 "type": "deconz_state",
-                "domain": "lights"
+                "domain": "lights",
+                "uniqueId": "ui-id-17"
             }
         ],
         "specific": {
@@ -7931,7 +8856,8 @@
                     }
                 },
                 "type": "deconz_state",
-                "domain": "groups"
+                "domain": "groups",
+                "uniqueId": "ui-id-18"
             }
         ],
         "specific": {
@@ -8076,7 +9002,8 @@
                     }
                 },
                 "type": "deconz_state",
-                "domain": "groups"
+                "domain": "groups",
+                "uniqueId": "ui-id-19"
             }
         ],
         "specific": {
@@ -8110,7 +9037,8 @@
         "y": 2280,
         "wires": [
             [
-                "592dca5ba0dd7536"
+                "592dca5ba0dd7536",
+                "5b23335da9789d85"
             ]
         ]
     },
@@ -8216,6 +9144,151 @@
         "x": 430,
         "y": 2440,
         "wires": []
+    },
+    {
+        "id": "9fa6d6f163619729",
+        "type": "deconz-input",
+        "z": "a8a95e02.bf408",
+        "name": "Change clothing",
+        "topic": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "sensors/uniqueid/d4:48:67:ff:fe:22:93:16-01-1000"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "outputs": 1,
+        "output_rules": [
+            {
+                "type": "state",
+                "format": "single",
+                "output": "onupdate",
+                "onstart": false,
+                "payload": [
+                    "__complete__"
+                ]
+            }
+        ],
+        "x": 180,
+        "y": 2680,
+        "wires": [
+            [
+                "6b80058cf4834453"
+            ]
+        ]
+    },
+    {
+        "id": "6b80058cf4834453",
+        "type": "debug",
+        "z": "a8a95e02.bf408",
+        "name": "debug 22",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 440,
+        "y": 2680,
+        "wires": []
+    },
+    {
+        "id": "5b23335da9789d85",
+        "type": "deconz-output",
+        "z": "a8a95e02.bf408",
+        "name": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "lights/uniqueid/2c:11:65:ff:fe:7a:8c:b2-01"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "commands": [
+            {
+                "arg": {
+                    "on": {
+                        "type": "set",
+                        "value": "false"
+                    },
+                    "alert": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "effect": {
+                        "type": "str",
+                        "value": ""
+                    },
+                    "colorloopspeed": {
+                        "type": "num",
+                        "value": ""
+                    },
+                    "transitiontime": {
+                        "type": "num",
+                        "value": "50"
+                    },
+                    "retryonerror": {
+                        "type": "num",
+                        "value": "0"
+                    },
+                    "aftererror": {
+                        "type": "continue",
+                        "value": ""
+                    },
+                    "bri": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": "0"
+                    },
+                    "sat": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "hue": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "ct": {
+                        "direction": "set",
+                        "type": "num",
+                        "value": ""
+                    },
+                    "xy": {
+                        "direction": "set",
+                        "type": "json",
+                        "value": "[]"
+                    }
+                },
+                "type": "deconz_state",
+                "domain": "lights"
+            }
+        ],
+        "specific": {
+            "delay": {
+                "type": "num",
+                "value": "0"
+            },
+            "result": {
+                "type": "at_end",
+                "value": ""
+            }
+        },
+        "x": 1070,
+        "y": 2360,
+        "wires": [
+            []
+        ]
     },
     {
         "id": "ee16368d8b86d83b",
@@ -8523,12 +9596,17 @@
         "id": "76b65c15e0842ca0",
         "type": "subflow:2595f1ad.a5eb8e",
         "z": "8e42c1ce474ca950",
-        "name": "Move shutter terrasse",
+        "name": "Move shutter terrace",
         "env": [
             {
                 "name": "shutter.name",
-                "value": "terrasse",
+                "value": "terrace",
                 "type": "str"
+            },
+            {
+                "name": "half-open-position",
+                "value": "40",
+                "type": "num"
             }
         ],
         "x": 1100,
@@ -8809,11 +9887,11 @@
         "id": "115c73520ce364ed",
         "type": "subflow:2595f1ad.a5eb8e",
         "z": "9de561f7972ae9bc",
-        "name": "Move shutter terrasse",
+        "name": "Move shutter terrace",
         "env": [
             {
                 "name": "shutter.name",
-                "value": "terrasse",
+                "value": "terrace",
                 "type": "str"
             },
             {
@@ -8868,12 +9946,12 @@
             },
             {
                 "name": "half-open-position",
-                "value": "0",
+                "value": "25",
                 "type": "num"
             }
         ],
         "x": 960,
-        "y": 720,
+        "y": 660,
         "wires": [
             [
                 "e0e48d0f69707e6b"
@@ -8960,7 +10038,8 @@
         "y": 700,
         "wires": [
             [
-                "846195e667d02d44"
+                "846195e667d02d44",
+                "16d4f751ab17f659"
             ]
         ]
     },
@@ -9176,7 +10255,8 @@
         "wires": [
             [
                 "2a5db8cf6c0c31f4",
-                "846195e667d02d44"
+                "846195e667d02d44",
+                "6fd3530214079ddf"
             ]
         ]
     },
@@ -9221,11 +10301,10 @@
         "repair": false,
         "outputs": 1,
         "x": 750,
-        "y": 740,
+        "y": 660,
         "wires": [
             [
-                "5d3d1c4c799f78c9",
-                "6fd3530214079ddf"
+                "5d3d1c4c799f78c9"
             ]
         ]
     },
@@ -9394,6 +10473,20 @@
         ]
     },
     {
+        "id": "16d4f751ab17f659",
+        "type": "subflow:ef57397d.2bd4c8",
+        "z": "9de561f7972ae9bc",
+        "name": "",
+        "env": [],
+        "x": 960,
+        "y": 740,
+        "wires": [
+            [
+                "6fd3530214079ddf"
+            ]
+        ]
+    },
+    {
         "id": "ab732fe50f20bd64",
         "type": "mqtt out",
         "z": "f6761c15b55e2d63",
@@ -9407,7 +10500,7 @@
         "correl": "",
         "expiry": "",
         "broker": "f1f93d18.375ea",
-        "x": 1390,
+        "x": 1050,
         "y": 60,
         "wires": []
     },
@@ -9428,7 +10521,7 @@
                 "type": "num"
             }
         ],
-        "x": 1220,
+        "x": 880,
         "y": 60,
         "wires": [
             [
@@ -9462,7 +10555,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 1050,
+        "x": 710,
         "y": 200,
         "wires": [
             [
@@ -9496,95 +10589,11 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 1030,
-        "y": 60,
+        "x": 690,
+        "y": 100,
         "wires": [
             [
                 "883d68a1203cca1a"
-            ]
-        ]
-    },
-    {
-        "id": "acd25e910612ed71",
-        "type": "deconz-input",
-        "z": "f6761c15b55e2d63",
-        "name": "Button | Change clothing",
-        "topic": "",
-        "config_version": 2,
-        "server": "966aead04bc37acf",
-        "statustext": "",
-        "statustext_type": "auto",
-        "search_type": "device",
-        "device_list": [
-            "sensors/uniqueid/84:ba:20:ff:fe:76:29:6a-01-1000"
-        ],
-        "device_name": "",
-        "query": "{}",
-        "outputs": 1,
-        "output_rules": [
-            {
-                "type": "state",
-                "format": "single",
-                "output": "onchange",
-                "onstart": false,
-                "payload": [
-                    "__complete__"
-                ]
-            }
-        ],
-        "x": 110,
-        "y": 160,
-        "wires": [
-            [
-                "6cc6f29f5f1699e8"
-            ]
-        ]
-    },
-    {
-        "id": "b5b0d5f5e08ef74f",
-        "type": "ioBroker get",
-        "z": "f6761c15b55e2d63",
-        "name": "node-red.0.shellies.shutter-bedroom.position",
-        "topic": "node-red.0.shellies.shutter-bedroom.position",
-        "attrname": "payload",
-        "payloadType": "value",
-        "errOnInvalidState": "nothing",
-        "x": 650,
-        "y": 80,
-        "wires": [
-            [
-                "f017f1a760f5d3d2"
-            ]
-        ]
-    },
-    {
-        "id": "f017f1a760f5d3d2",
-        "type": "switch",
-        "z": "f6761c15b55e2d63",
-        "name": "",
-        "property": "payload",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "eq",
-                "v": "100",
-                "vt": "num"
-            },
-            {
-                "t": "else"
-            }
-        ],
-        "checkall": "true",
-        "repair": false,
-        "outputs": 2,
-        "x": 910,
-        "y": 80,
-        "wires": [
-            [
-                "bc8ce5cc26c19562"
-            ],
-            [
-                "0296e14af995697f"
             ]
         ]
     },
@@ -9614,8 +10623,8 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 1040,
-        "y": 100,
+        "x": 700,
+        "y": 60,
         "wires": [
             [
                 "883d68a1203cca1a"
@@ -9623,19 +10632,149 @@
         ]
     },
     {
-        "id": "6cc6f29f5f1699e8",
-        "type": "subflow:c144853baeb5f845",
+        "id": "a86d76a37b668034",
+        "type": "deconz-input",
         "z": "f6761c15b55e2d63",
-        "name": "",
-        "x": 370,
-        "y": 160,
+        "name": "Switch | Change Clothing Bathroom",
+        "topic": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "sensors/uniqueid/70:ac:08:ff:fe:db:de:23-01-1000"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "outputs": 1,
+        "output_rules": [
+            {
+                "type": "state",
+                "format": "single",
+                "output": "onchange",
+                "onstart": false,
+                "payload": [
+                    "__complete__"
+                ]
+            }
+        ],
+        "x": 180,
+        "y": 60,
         "wires": [
             [
-                "b5b0d5f5e08ef74f"
+                "c8e9a56d8bf3a136"
+            ]
+        ]
+    },
+    {
+        "id": "c8e9a56d8bf3a136",
+        "type": "switch",
+        "z": "f6761c15b55e2d63",
+        "name": "",
+        "property": "payload.buttonevent",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1002",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "2002",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 410,
+        "y": 60,
+        "wires": [
+            [
+                "bc8ce5cc26c19562"
             ],
             [
-                "5c065b258627eb34"
+                "0296e14af995697f"
             ]
+        ],
+        "outputLabels": [
+            "day = on",
+            "night = off"
+        ]
+    },
+    {
+        "id": "fbb4c1e64422a78f",
+        "type": "deconz-input",
+        "z": "f6761c15b55e2d63",
+        "name": "Dimmer | Change Clothing Bedroom",
+        "topic": "",
+        "config_version": 2,
+        "server": "966aead04bc37acf",
+        "statustext": "",
+        "statustext_type": "auto",
+        "search_type": "device",
+        "device_list": [
+            "sensors/uniqueid/d4:48:67:ff:fe:22:93:16-01-1000"
+        ],
+        "device_name": "",
+        "query": "{}",
+        "outputs": 1,
+        "output_rules": [
+            {
+                "type": "state",
+                "format": "single",
+                "output": "onupdate",
+                "onstart": false,
+                "payload": [
+                    "__complete__"
+                ]
+            }
+        ],
+        "x": 180,
+        "y": 120,
+        "wires": [
+            [
+                "7eaf24646a0f1b77"
+            ]
+        ]
+    },
+    {
+        "id": "7eaf24646a0f1b77",
+        "type": "switch",
+        "z": "f6761c15b55e2d63",
+        "name": "",
+        "property": "payload.buttonevent",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1002",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "2002",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 410,
+        "y": 120,
+        "wires": [
+            [
+                "0296e14af995697f"
+            ],
+            [
+                "bc8ce5cc26c19562"
+            ]
+        ],
+        "outputLabels": [
+            "day = on",
+            "night = off"
         ]
     },
     {
@@ -9792,6 +10931,7 @@
         "name": "switch",
         "func": "\n// Button on pressed\nif (msg.payload.buttonevent == 1002) \n{\n    // turn on\n    msg.payload = \"true\";\n}\n// Button off pressed\nelse if (msg.payload.buttonevent == 2002) \n{\n    // turn off\n    msg.payload = \"false\";\n}\n\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -9813,90 +10953,6 @@
         "x": 200,
         "y": 100,
         "wires": []
-    },
-    {
-        "id": "a71a69ed7dd19567",
-        "type": "deconz-input",
-        "z": "c4f89efe363c2ef8",
-        "name": "Switch | Vitrine on / off",
-        "topic": "",
-        "config_version": 2,
-        "server": "966aead04bc37acf",
-        "statustext": "",
-        "statustext_type": "auto",
-        "search_type": "device",
-        "device_list": [
-            "sensors/uniqueid/70:ac:08:ff:fe:db:de:23-01-1000"
-        ],
-        "device_name": "",
-        "query": "{}",
-        "outputs": 1,
-        "output_rules": [
-            {
-                "type": "state",
-                "format": "single",
-                "output": "onchange",
-                "onstart": false,
-                "payload": [
-                    "__complete__"
-                ]
-            }
-        ],
-        "x": 200,
-        "y": 260,
-        "wires": [
-            [
-                "5098bfb27cc46539"
-            ]
-        ]
-    },
-    {
-        "id": "1957605ca2f05572",
-        "type": "comment",
-        "z": "c4f89efe363c2ef8",
-        "name": "Activates / Deactivates the Vitrine",
-        "info": "",
-        "x": 230,
-        "y": 220,
-        "wires": []
-    },
-    {
-        "id": "c1acf3bcc69a23c4",
-        "type": "ioBroker out",
-        "z": "c4f89efe363c2ef8",
-        "name": "On/Off Vitrine.on",
-        "topic": "hue.0.Vitrine.on",
-        "ack": "false",
-        "autoCreate": "false",
-        "stateName": "",
-        "role": "",
-        "payloadType": "",
-        "readonly": "",
-        "stateUnit": "",
-        "stateMin": "",
-        "stateMax": "",
-        "x": 590,
-        "y": 260,
-        "wires": []
-    },
-    {
-        "id": "5098bfb27cc46539",
-        "type": "function",
-        "z": "c4f89efe363c2ef8",
-        "name": "switch",
-        "func": "\n// Button on pressed\nif (msg.payload.buttonevent == 1002) \n{\n    // turn on\n    msg.payload = true;\n}\n// Button off pressed\nelse if (msg.payload.buttonevent == 2002) \n{\n    // turn off\n    msg.payload = false;\n}\n\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 390,
-        "y": 260,
-        "wires": [
-            [
-                "c1acf3bcc69a23c4"
-            ]
-        ]
     },
     {
         "id": "67fafabf64471e9d",
@@ -9934,7 +10990,8 @@
                 "968796676abc2d2b",
                 "bf5cd61d9c833f12",
                 "1cc0e72b47d62fa7",
-                "46079e3b4443267f"
+                "46079e3b4443267f",
+                "c4f3791ef02b1a11"
             ]
         ]
     },
@@ -9998,7 +11055,7 @@
         "env": [
             {
                 "name": "shutter.name",
-                "value": "terrasse",
+                "value": "terrace",
                 "type": "str"
             },
             {
@@ -10128,6 +11185,23 @@
         ]
     },
     {
+        "id": "c4f3791ef02b1a11",
+        "type": "debug",
+        "z": "c4f89efe363c2ef8",
+        "name": "debug 20",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 520,
+        "y": 560,
+        "wires": []
+    },
+    {
         "id": "b3443123f11f3a9b",
         "type": "cronplus",
         "z": "9d832c5af722ac78",
@@ -10243,7 +11317,8 @@
             ],
             [
                 "252ae15f79a545ff",
-                "550352514186b2d1"
+                "550352514186b2d1",
+                "79332238681f1ef7"
             ]
         ]
     },
@@ -10412,7 +11487,8 @@
                     }
                 },
                 "type": "deconz_state",
-                "domain": "groups"
+                "domain": "groups",
+                "uniqueId": "ui-id-16"
             }
         ],
         "specific": {
@@ -10428,7 +11504,9 @@
         "x": 1090,
         "y": 280,
         "wires": [
-            []
+            [
+                "702627fec88c70ce"
+            ]
         ]
     },
     {
@@ -11570,6 +12648,7 @@
         "type": "ioBroker in",
         "z": "9d832c5af722ac78",
         "name": "Dimmer state change command",
+        "attrname": "",
         "topic": "node-red.0.states.timer.dimmer_aufwachlicht.active",
         "payloadType": "value",
         "onlyack": "",
@@ -11906,6 +12985,40 @@
         "statusType": "auto",
         "x": 1580,
         "y": 480,
+        "wires": []
+    },
+    {
+        "id": "79332238681f1ef7",
+        "type": "debug",
+        "z": "9d832c5af722ac78",
+        "name": "Wakeup - Dimmer off",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "{\"message\":\"Dimmer off.\", \"value\": $.value}",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1310,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "702627fec88c70ce",
+        "type": "debug",
+        "z": "9d832c5af722ac78",
+        "name": "Dimmer off details",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1300,
+        "y": 280,
         "wires": []
     },
     {
@@ -12567,29 +13680,7 @@
         "x": 130,
         "y": 80,
         "wires": [
-            [
-                "8274b39a82336685"
-            ]
-        ]
-    },
-    {
-        "id": "8274b39a82336685",
-        "type": "subflow:c6d3de9075efb38f",
-        "z": "63ceb30c499446c1",
-        "name": "",
-        "env": [
-            {
-                "name": "shutter.name",
-                "value": "bedroom",
-                "type": "str"
-            }
-        ],
-        "x": 370,
-        "y": 80,
-        "wires": [
-            [
-                "a4062fe257b75597"
-            ]
+            []
         ]
     },
     {
@@ -12635,8 +13726,8 @@
         "type": "function",
         "z": "743801a547b6bfc8",
         "name": "Decode position and temperature",
-        "func": "let topic = msg.topic;\nlet shutterName = topic.split('.')[3];\nlet payload = JSON.parse(msg.payload);\n\nlet statesPrefix = `shellies.${shutterName}.`;\n\nlet position = payload['current_pos'];\nlet temperature = payload['temperature']['tC'];\n\nlet positionMsg = {\n    \"topic\": statesPrefix + 'position',\n    \"payload\": position,\n    \"stateType\": 'number'\n};\nlet temperatureMsg = {\n    \"topic\": statesPrefix + 'temperature',\n    \"payload\": temperature,\n    \"stateType\": 'number'\n}\n\n/*\nmsg.postionKey = statesPrefix + 'position';\nmsg.positionValue = position;\nmsg.temperatureKey = statesPrefix + 'temperature'; \nmsg.temperatureValue = temperature;\n*/\n\nreturn [positionMsg, temperatureMsg];",
-        "outputs": 2,
+        "func": "let topic = msg.topic;\nlet shutterName = topic.split('.')[3];\nlet payload = JSON.parse(msg.payload);\n\nlet statesPrefix = `shellies.${shutterName}.`;\n\nlet position = payload['current_pos'];\nlet temperature = payload['temperature']['tC'];\nlet state = payload['state'];\n\nlet positionMsg = {\n    \"topic\": statesPrefix + 'position',\n    \"payload\": position,\n    \"stateType\": 'number'\n};\nlet temperatureMsg = {\n    \"topic\": statesPrefix + 'temperature',\n    \"payload\": temperature,\n    \"stateType\": 'number'\n}\nlet lastUpdatedMsg = {\n    \"topic\": statesPrefix + 'lastUpdated',\n    \"payload\": new Date().toISOString(),\n    \"stateType\": 'string'\n}\nlet stateMsg = {\n    \"topic\": statesPrefix + 'state',\n    \"payload\": state,\n    \"stateType\": 'string'\n}\n\n/*\nmsg.postionKey = statesPrefix + 'position';\nmsg.positionValue = position;\nmsg.temperatureKey = statesPrefix + 'temperature'; \nmsg.temperatureValue = temperature;\n*/\n\nreturn [positionMsg, temperatureMsg, lastUpdatedMsg, stateMsg];",
+        "outputs": 4,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
@@ -12645,6 +13736,12 @@
         "x": 420,
         "y": 80,
         "wires": [
+            [
+                "64058263cb9a227a"
+            ],
+            [
+                "64058263cb9a227a"
+            ],
             [
                 "64058263cb9a227a"
             ],
@@ -12681,5 +13778,68 @@
         "x": 340,
         "y": 40,
         "wires": []
+    },
+    {
+        "id": "ee9b5313c1c9f5cb",
+        "type": "ioBroker in",
+        "z": "743801a547b6bfc8",
+        "name": "Shelly kitchen update",
+        "attrname": "payload",
+        "topic": "mqtt-client.0.shelly2PMs.shutter-kitchen.status.cover:0",
+        "payloadType": "value",
+        "onlyack": "",
+        "func": "all",
+        "gap": "",
+        "fireOnStart": "false",
+        "outFormat": "ioBroker",
+        "x": 140,
+        "y": 140,
+        "wires": [
+            [
+                "d4f1e39acdfd975f"
+            ]
+        ]
+    },
+    {
+        "id": "fb73e081f144923f",
+        "type": "ioBroker in",
+        "z": "743801a547b6bfc8",
+        "name": "Shelly garden update",
+        "attrname": "payload",
+        "topic": "mqtt-client.0.shelly2PMs.shutter-garden.status.cover:0",
+        "payloadType": "value",
+        "onlyack": "",
+        "func": "all",
+        "gap": "",
+        "fireOnStart": "false",
+        "outFormat": "ioBroker",
+        "x": 140,
+        "y": 200,
+        "wires": [
+            [
+                "d4f1e39acdfd975f"
+            ]
+        ]
+    },
+    {
+        "id": "24f759125058eb55",
+        "type": "ioBroker in",
+        "z": "743801a547b6bfc8",
+        "name": "Shelly terrace update",
+        "attrname": "payload",
+        "topic": "mqtt-client.0.shelly2PMs.shutter-terrace.status.cover:0",
+        "payloadType": "value",
+        "onlyack": "",
+        "func": "all",
+        "gap": "",
+        "fireOnStart": "false",
+        "outFormat": "ioBroker",
+        "x": 140,
+        "y": 260,
+        "wires": [
+            [
+                "d4f1e39acdfd975f"
+            ]
+        ]
     }
 ]
